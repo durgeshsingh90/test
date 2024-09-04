@@ -1,0 +1,17 @@
+@echo off
+REM Batch script to map a network drive
+
+REM Specify the network drive letter and the network path
+SET DriveLetter=Z:
+SET NetworkPath=\\ServerName\ShareName
+
+REM Check if the drive is already mapped
+if exist %DriveLetter% (
+    echo Drive %DriveLetter% is already mapped.
+) else (
+    REM Map the network drive
+    net use %DriveLetter% %NetworkPath% /persistent:yes
+    echo Drive %DriveLetter% mapped to %NetworkPath%.
+)
+
+pause
