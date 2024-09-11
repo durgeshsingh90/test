@@ -1,17 +1,30 @@
-@echo off
-REM Batch script to map a network drive
+TypeError at /binblock/
 
-REM Specify the network drive letter and the network path
-SET DriveLetter=Z:
-SET NetworkPath=\\ServerName\ShareName
+'NoneType' object is not iterable
 
-REM Check if the drive is already mapped
-if exist %DriveLetter% (
-    echo Drive %DriveLetter% is already mapped.
-) else (
-    REM Map the network drive
-    net use %DriveLetter% %NetworkPath% /persistent:yes
-    echo Drive %DriveLetter% mapped to %NetworkPath%.
-)
+Request Method: 	POST
+Request URL: 	http://localhost:8000/binblock/
+Django Version: 	5.0.1
+Exception Type: 	TypeError
+Exception Value: 	
 
-pause
+'NoneType' object is not iterable
+
+Exception Location: 	C:\Durgesh\Office\Automation\AutoMate\AutoMate\binblock\views.py, line 46, in categorize_and_expand_items
+Raised during: 	binblock.views.bin_blocking_editor
+Python Executable: 	C:\Program Files\Python311\python.exe
+Python Version: 	3.11.9
+Python Path: 	
+
+['C:\\Durgesh\\Office\\Automation\\AutoMate\\AutoMate',
+ 'C:\\Program Files\\Python311\\python311.zip',
+ 'C:\\Program Files\\Python311\\DLLs',
+ 'C:\\Program Files\\Python311\\Lib',
+ 'C:\\Program Files\\Python311',
+ 'C:\\Users\\f94gdos\\AppData\\Roaming\\Python\\Python311\\site-packages',
+ 'C:\\Users\\f94gdos\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32',
+ 'C:\\Users\\f94gdos\\AppData\\Roaming\\Python\\Python311\\site-packages\\win32\\lib',
+ 'C:\\Users\\f94gdos\\AppData\\Roaming\\Python\\Python311\\site-packages\\Pythonwin',
+ 'C:\\Program Files\\Python311\\Lib\\site-packages']
+
+Server time: 	Wed, 11 Sep 2024 22:12:30 +0000
