@@ -1,31 +1,19 @@
 import re
+import unicodedata
 
-def preprocess_json_file(file_path):
-    """Preprocess the JSON file to remove unwanted control characters and format it correctly."""
-    logger.debug(f"Starting preprocess_json_file for file: {file_path}")
+def remove_control_characters(text):
+    """Remove all control characters and normalize the text."""
+    # Normalize the text to NFKD form
+    normalized_text = unicodedata.normalize('NFKD', text)
+    
+    # Remove control characters except printable ones
+    cleaned_text = ''.join(c for c in normalized_text if c.isprintable())
+    
+    # Further remove specific unwanted characters like tabs, newlines, etc.
+    cleaned_text = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_text)
+    
+    return cleaned_text
 
-    try:
-        with open(file_path, 'r') as file:
-            content = file.read()
-
-        # Remove control characters such as tabs and extra spaces
-        content = re.sub(r'[\x00-\x1F\x7F]', '', content)  # Remove all control characters
-        content = re.sub(r'\s+', ' ', content)  # Replace multiple spaces/newlines with a single space
-
-        # Ensure the JSON data is wrapped correctly in a list if it isn't already
-        if not content.startswith('['):
-            content = '[' + content
-        if not content.endswith(']'):
-            content = content + ']'
-
-        # Write the cleaned content back to the file
-        with open(file_path, 'w') as file:
-            file.write(content)
-
-        logger.debug(f"Completed preprocess_json_file for file: {file_path}")
-
-    except Exception as e:
-        logger.error(f"Error preprocessing JSON file {file_path}: {e}")
 def combine_json_data(file_paths):
     """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
     logger.debug(f"Starting combine_json_data for files: {file_paths}")
@@ -36,7 +24,7 @@ def combine_json_data(file_paths):
         preprocess_json_file(file_path)
 
         try:
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 json_data = json.load(file)  # Load the entire file content as a single JSON array
                 combined_data.extend(json_data)
 
