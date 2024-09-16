@@ -1,7 +1,14 @@
-SET MARKUP JSON ON
-SELECT refnum, Mask_pan, amount, OMNI_LOG_DT_UTC
-FROM oasis77.shclog 
+SET PAGESIZE 0
+SET LINESIZE 1000
+SET LONG 1000000
+
+SELECT JSON_OBJECT(
+  'refnum' VALUE refnum,
+  'Mask_pan' VALUE Mask_pan,
+  'amount' VALUE amount,
+  'OMNI_LOG_DT_UTC' VALUE OMNI_LOG_DT_UTC
+) AS json_output
+FROM oasis77.shclog
 WHERE refnum IN ('425611726410')
 AND acquirer LIKE '%000054%'
 ORDER BY OMNI_LOG_DT_UTC DESC;
-SET MARKUP JSON OFF
