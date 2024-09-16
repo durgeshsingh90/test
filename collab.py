@@ -1,75 +1,381 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin Blocking Editor</title>
-    <!-- Bootstrap CSS from CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- CodeMirror CSS from CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
-    <!-- CodeMirror Theme (optional) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/monokai.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'binblock/styles.css' %}">
-</head>
-<body>
-    <div class="container py-4">
-        <div class="row">
-            <div class="col-lg-8 mb-4">
-                <div class="editor-container">
-                    <h1 class="form-title">Bin Blocking Editor</h1>
-                    <form method="POST" action="{% url 'binblock:binblocking_editor' %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <textarea id="code-editor" name="bins" class="form-control" rows="10" placeholder="Enter card BINs here, one per line..."></textarea>
-                        </div>
-                        <div id="status-bar" class="status-bar bg-light p-2 rounded border">
-                            <span id="total-lines">Total lines: 0</span>
-                            <span id="selected-length" class="float-end">Selected text length: 0</span>
-                        </div>
-                <!-- Blocked Item and Search Items in Columns -->
-<div class="d-flex justify-content-between mt-3">
-    <div class="form-section me-2">
-        <h4>Blocked Item</h4>
-        {% if prod_distinct_list %}
-            {% for item in prod_distinct_list %}
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="blocked_item" value="{{ item }}" id="blocked_{{ forloop.counter }}">
-                    <label class="form-check-label" for="blocked_{{ forloop.counter }}">
-                        {{ item }}
-                    </label>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No items available for selection.</p>
-        {% endif %}
-    </div>
-</div>
-          <!-- Single Process Button -->
-                        <button class="btn btn-primary mt-3" type="submit">Process</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+import os
+import string
+import logging
+import threading
+import subprocess
+import json
+import time
+import re
+import unicodedata
+from django.shortcuts import render
+from django.conf import settings
 
-    <!-- Bootstrap Bundle with Popper from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- CodeMirror JS from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
-    <!-- CodeMirror Modes (add more if needed) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
-    <!-- CodeMirror KeyMap (optional) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/keymap/sublime.min.js"></script>
+# Get the logger for the binblock app
+logger = logging.getLogger('binblock')
 
-    <!-- Include your custom JavaScript file -->
-    <script src="{% static 'binblock/binblock.js' %}"></script>
-</body>
-</html>
+# Define the output directory
+OUTPUT_DIR = os.path.join(settings.BASE_DIR, 'binblock', 'output')
+
+def run_sqlplus_command(command, query, output_file, server_name):
+    """Run SQL*Plus command and capture the output."""
+    logger.debug(f"Running SQL*Plus command on {server_name} with query: {query}")
+    
+    start_time = time.time()  # Start timing
+    
+    process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    stdout, stderr = process.communicate(input=query.encode())
+    
+    end_time = time.time()  # End timing
+    
+    # Calculate time taken
+    elapsed_time = end_time - start_time
+    logger.info(f"SQL*Plus command on {server_name} completed in {elapsed_time:.2f} seconds.")
+
+    if process.returncode != 0:
+        logger.error(f"SQL*Plus command failed on {server_name}: {stderr.decode()}")
+        raise Exception(f"SQL*Plus command failed on {server_name}: {stderr.decode()}")
+
+    output_lines = [line for line in stdout.decode().splitlines() if line.strip()]
+    with open(output_file, "w") as file:
+        file.write("\n".join(output_lines) + "\n")
+    
+    logger.debug(f"SQL*Plus command completed on {server_name}. Output written to {output_file}")
+
+def clean_file(file_path):
+    """Clean the output file by removing unnecessary lines."""
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Find indexes for relevant content
+    start_index = next((i for i, line in enumerate(lines) if 'SQL>' in line), 0) + 1
+    end_index = next((i for i in range(len(lines) - 1, -1, -1) if 'SQL>' in lines[i]), len(lines))
+
+    # Clean lines between indexes
+    cleaned_lines = [
+        ''.join(char for char in line if char in string.printable).strip()
+        for line in lines[start_index:end_index]
+        if 'rows selected' not in line.lower() and not line.strip().startswith('-') and line.strip() != 'JSON_DATA'
+    ]
+
+    with open(file_path, 'w') as file:
+        file.write("\n".join(cleaned_lines) + "\n")
+
+def clean_distinct_file(file_path):
+    """Clean the distinct output file and return as a list of cleaned items."""
+    logger.debug(f"Cleaning output file for distinct query: {file_path}")
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        # Find the start and end indices for relevant content
+        start_index = next((i for i, line in enumerate(lines) if 'SQL>' in line), 0) + 1
+        end_index = next((i for i in range(len(lines) - 1, -1, -1) if 'SQL>' in lines[i]), len(lines))
+
+        # Clean lines between the determined indices
+        cleaned_list = []
+        for line in lines[start_index:end_index]:
+            line = ''.join(char for char in line if char in string.printable).strip()
+
+            if not line or 'rows selected' in line.lower():
+                continue
+
+            if line.startswith('-') or line == 'DESCRIPTION':
+                continue
+
+            cleaned_list.append(line)
+
+        logger.info(f"Successfully cleaned distinct output file: {file_path} with {len(cleaned_list)} entries")
+        return cleaned_list
+
+    except Exception as e:
+        logger.error(f"Error cleaning distinct output file {file_path}: {e}")
+        return []
+
+def remove_control_characters(text):
+    """Remove all control characters and normalize the text."""
+    normalized_text = unicodedata.normalize('NFKD', text)
+    cleaned_text = ''.join(c for c in normalized_text if c.isprintable())
+    cleaned_text = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_text)
+    return cleaned_text
+
+def remove_null_values(d):
+    """Recursively remove null values from dictionaries and lists."""
+    if isinstance(d, dict):
+        cleaned_data = {k: remove_null_values(v) for k, v in d.items() if v is not None}
+    elif isinstance(d, list):
+        cleaned_data = [remove_null_values(v) for v in d if v is not None]
+    else:
+        cleaned_data = d
+    return cleaned_data
+
+def apply_length_checks(json_obj):
+    """Apply length checks to JSON fields based on configuration."""
+    length_config = {
+        "LOWBIN": {"type": "CHAR", "length": 15},
+        "HIGHBIN": {"type": "CHAR", "length": 15},
+        "O_LEVEL": {"type": "NUMBER", "length": 1},
+        "STATUS": {"type": "CHAR", "length": 1},
+        "DESCRIPTION": {"type": "CHAR", "length": 50},
+        "DESTINATION": {"type": "CHAR", "length": 3},
+        "ENTITY_ID": {"type": "CHAR", "length": 1},
+        "CARDPRODUCT": {"type": "CHAR", "length": 20},
+        "NETWORK_DATA": {"type": "CHAR", "length": 10},
+        "FILE_NAME": {"type": "CHAR", "length": 10},
+        "FILE_VERSION": {"type": "CHAR", "length": 5},
+        "FILE_DATE": {"type": "DATE", "length": None},
+        "COUNTRY_CODE": {"type": "CHAR", "length": 3},
+        "NETWORK_CONFIG": {"type": "CHAR", "length": 10},
+        "BIN_LENGTH": {"type": "NUMBER", "length": 2}
+    }
+
+    for key, value in json_obj.items():
+        if key in length_config:
+            config = length_config[key]
+            if config["type"] == "CHAR" and config["length"] is not None:
+                json_obj[key] = str(value).ljust(config["length"])[:config["length"]]
+            elif config["type"] == "NUMBER" and config["length"] is not None:
+                json_obj[key] = str(value).zfill(config["length"])[:config["length"]]
+    return json_obj
+
+def generate_sql_insert_statements(json_list, table_name):
+    """Generate SQL INSERT statements from a list of JSON objects."""
+    logger.debug("Starting generate_sql_insert_statements")
+    statements = []
+    
+    for json_obj in json_list:
+        keys = json_obj.keys()
+        values = []
+        for key in keys:
+            value = json_obj[key]
+            if isinstance(value, str):
+                value = value.replace("'", "''")  # Escape single quotes
+                value = f"'{value}'"
+            elif value is None:
+                value = 'NULL'
+            values.append(value)
+        
+        sql_statement = f"INSERT INTO {table_name} ({', '.join(keys)}) VALUES ({', '.join(values)});"
+        statements.append(sql_statement)
+    
+    logger.debug("Completed generate_sql_insert_statements")
+    return statements
+
+def save_sql_statements_to_file(statements, file_path):
+    """Save SQL INSERT statements to a file."""
+    logger.debug(f"Starting save_sql_statements_to_file for {file_path}")
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write("\n".join(statements))
+        logger.info(f"SQL statements saved to {file_path}")
+    except Exception as e:
+        logger.error(f"Error saving SQL statements to file {file_path}: {e}")
+    logger.debug(f"Completed save_sql_statements_to_file for {file_path}")
+
+def preprocess_json_file(file_path, table_name, output_sql_file):
+    """Preprocess the JSON file to remove unwanted control characters, format it properly, remove null values, apply length checks, and save as SQL insert statements."""
+    logger.debug(f"Starting preprocess_json_file for file: {file_path}")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
+        json_data = ''.join(cleaned_lines)
+        json_data = re.sub(r'\}\s*\{', '},{', json_data)
+        json_data = f"[{json_data}]"
+
+        try:
+            json_object = json.loads(json_data)
+        except json.JSONDecodeError as e:
+            logger.error(f"Error loading JSON data: {e}")
+            raise
+
+        cleaned_json_object = [remove_null_values(obj) for obj in json_object]
+        checked_json_object = [apply_length_checks(obj) for obj in cleaned_json_object]
+
+        formatted_json = json.dumps(checked_json_object, indent=4)
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(formatted_json)
+
+        sql_statements = generate_sql_insert_statements(checked_json_object, table_name)
+        save_sql_statements_to_file(sql_statements, output_sql_file)
+
+        logger.debug(f"Completed preprocess_json_file for file: {file_path}")
+
+    except Exception as e:
+        logger.error(f"Error preprocessing JSON file {file_path}: {e}")
+
+def run_background_queries():
+    """Run prod and uat queries in the background, clean the output files, and perform further processing."""
+    logger.debug("Starting background queries for prod and uat")
+
+    def run_query_and_process(command, query, output_file, server_name):
+        try:
+            logger.debug(f"Running query for {server_name}")
+            run_sqlplus_command(command, query, output_file, server_name)
+            
+            cleaned_data = clean_file(output_file)
+            logger.info(f"Cleaned data from {server_name}: {cleaned_data}")
+
+            preprocess_json_file(output_file, 'your_table_name', os.path.join(OUTPUT_DIR, f"{server_name.lower()}_insert_statements.sql"))
+
+        except Exception as e:
+            logger.error(f"Error running SQL query or processing data on {server_name}: {e}")
+
+    prod_command = "sqlplus oasis77/ist0py@istu2"
+    uat_command = "sqlplus oasis77/ist0py@istu2"
+    query = "SELECT JSON_OBJECT(*) AS JSON_DATA FROM (SELECT * FROM oasis77.SHCEXTBINDB ORDER BY LOWBIN) WHERE ROWNUM <= 4;"
+    prod_output_file = os.path.join(OUTPUT_DIR, 'prod_output.json')
+    uat_output_file = os.path.join(OUTPUT_DIR, 'uat_output.json')
+
+    threading.Thread(target=run_query_and_process, args=(prod_command, query, prod_output_file, "Prod")).start()
+    threading.Thread(target=run_query_and_process, args=(uat_command, query, uat_output_file, "UAT")).start()
+
+def remove_duplicates_and_subsets(bin_list):
+    """Remove duplicate and subset bins."""
+    bin_set = sorted(set(bin_list), key=lambda x: (len(x), x))
+    return [
+        bin for bin in bin_set
+        if not any(bin.startswith(existing_bin) for existing_bin in bin_set if existing_bin != bin)
+    ]
+
+def combine_consecutives(bins):
+    """Combine consecutive bins into ranges."""
+    bins = sorted(bins, key=lambda x: int(x.split('-')[0]))
+    combined = []
+    i = 0
+    while i < len(bins):
+        start_bin = end_bin = bins[i]
+        while i + 1 < len(bins) and int(bins[i + 1].split('-')[0]) == int(bins[i].split('-')[0]) + 1:
+            end_bin = bins[i + 1]
+            i += 1
+        combined.append(f"{start_bin}-{end_bin}" if start_bin != end_bin else start_bin)
+        i += 1
+    return combined, i
+
+def process_bins(bins):
+    """Process BIN numbers to remove duplicates, handle subsets, and combine consecutive ranges."""
+    logger.debug("Starting to process BIN numbers")
+
+    # Remove duplicates and subsets
+    cleaned_bins = remove_duplicates_and_subsets(bins)
+    logger.debug(f"Cleaned BINs after removing duplicates and subsets: {cleaned_bins}")
+
+    # Combine consecutive bins into ranges
+    combined_bins, _ = combine_consecutives(cleaned_bins)
+    logger.info(f"Processed BINs: {combined_bins}")
+
+    return combined_bins
+
+def calculate_bins_with_neighbors(processed_bins):
+    """
+    Calculate the start and end bins for each processed bin range along with neighboring bins.
+    """
+    result = []
+
+    for bin_range in processed_bins:
+        bin_range = bin_range.strip()  # Clean up any extra spaces
+
+        # Check if the bin_range is a range
+        if '-' in bin_range:
+            start_bin, end_bin = bin_range.split('-')
+            start_bin = start_bin.strip().ljust(15, '0')  # Pad the start_bin with '0' to make it 15 characters
+            end_bin = end_bin.strip().ljust(15, '9')    # Pad the end_bin with '9' to make it 15 characters
+
+            # Calculate neighbors for the start and end bins
+            start_bin_int = int(start_bin.strip())
+            end_bin_int = int(end_bin.strip())
+            neighbor_minus_1 = str(start_bin_int - 1).ljust(15, '9')  # Decrement start_bin and pad with '9'
+            neighbor_plus_1 = str(end_bin_int + 1).ljust(15, '0')   # Increment end_bin and pad with '0'
+        else:
+            start_bin = end_bin = bin_range.strip()
+            start_bin = start_bin.ljust(15, '0')  # Pad the bin with '0' to make it 15 characters
+            end_bin = end_bin.ljust(15, '9')     # Pad the bin with '9' to make it 15 characters
+
+            # Calculate neighbors for a single bin
+            bin_int = int(bin_range.strip())
+            neighbor_minus_1 = str(bin_int - 1).ljust(15, '9')  # Decrement bin and pad with '9'
+            neighbor_plus_1 = str(bin_int + 1).ljust(15, '0')   # Increment bin and pad with '0'
+
+        result.append((start_bin, end_bin, neighbor_minus_1, neighbor_plus_1))
+
+    return result
+
+def parse_sql_statements(statements):
+    """Parse SQL statements without filtering by search items."""
+    filtered_statements = []
+
+    for statement in statements:
+        try:
+            values_part = statement.split("VALUES (")[1]
+            values = values_part.split(",")
+
+            lowbin = values[0].strip(" '")
+            highbin = values[1].strip(" '")
+            description = ' '.join(values[4].strip(" '").lower().split())  # Normalize description
+
+            # Include all statements without filtering by search_items
+            filtered_statements.append((lowbin, highbin, description, statement))
+
+        except IndexError:
+            logger.error(f"Error parsing statement: {statement}")
+
+    return filtered_statements
+
+def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
+    """
+    Duplicate and modify SQL statements based on processed bins and the blocked item.
+    
+    Args:
+    sql_statements (list): List of SQL statements to process.
+    bins_with_neighbors (list): Processed bins with start and end ranges, along with their neighboring bins.
+    blocked_item (str): The item to be blocked.
+
+    Returns:
+    tuple: A tuple containing the modified SQL statements and the remaining original SQL statements.
+    """
+    # Logging the inputs for debugging purposes
+    logger.debug(f"SQL Statements to be processed: {sql_statements}")
+    logger.debug(f"Bins with Neighbors: {bins_with_neighbors}")
+    logger.debug(f"Blocked Item: {blocked_item}")
+
+    modified_statements = []
+    remaining_statements = []
+
+    # Iterate over each SQL statement
+    for statement in sql_statements:
+        # Check if any of the bins need to be modified based on the blocked item
+        statement_modified = False
+
+        for (start_bin, end_bin, neighbor_minus_1, neighbor_plus_1) in bins_with_neighbors:
+            if start_bin in statement or end_bin in statement:
+                # Log the modification details
+                logger.debug(f"Modifying SQL statement: {statement} for BIN range {start_bin} - {end_bin}")
+
+                # Example modification: Replace description with blocked item
+                modified_statement = statement.replace("DESCRIPTION", blocked_item)
+                modified_statements.append(modified_statement)
+                statement_modified = True
+                break
+
+        if not statement_modified:
+            remaining_statements.append(statement)
+
+    # Log the results of the modification process
+    logger.debug(f"Modified SQL Statements: {modified_statements}")
+    logger.debug(f"Remaining SQL Statements: {remaining_statements}")
+
+    return modified_statements, remaining_statements
 
 
+def merge_and_sort_sql(modified_statements, remaining_statements):
+    """Merge unaffected and modified SQL statements and sort by LOWBIN."""
+    combined_statements_sorted = sorted(
+        remaining_statements + modified_statements,
+        key=lambda stmt: int(stmt.split("VALUES ('")[1].split("', '")[0])
+    )
+
+    return combined_statements_sorted
 
 def bin_blocking_editor(request):
     logger.info("Bin blocking editor view accessed")
@@ -142,3 +448,20 @@ def bin_blocking_editor(request):
     }
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
+
+def generate_sql_insert_statements_for_prod():
+    """Generate or retrieve the previously created SQL insert statements for Prod."""
+    sql_file_path = os.path.join(OUTPUT_DIR, 'prod_insert_statements.sql')
+    with open(sql_file_path, 'r') as file:
+        return file.readlines()
+
+def save_sql_statements_to_file(statements, file_path):
+    """Save SQL INSERT statements to a file."""
+    logger.debug(f"Saving SQL statements to {file_path}")
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write("\n".join(statements))
+        logger.info(f"SQL statements saved to {file_path}")
+    except Exception as e:
+        logger.error(f"Error saving SQL statements to file {file_path}: {e}")
+    logger.debug(f"Completed saving SQL statements to {file_path}")
