@@ -1,24 +1,38 @@
+def preprocess_json_file(file_path):
+    """Preprocess the JSON file to remove newlines between JSON objects."""
+    logger.debug(f"Starting preprocess_json_file for file: {file_path}")
+
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+
+        # Join all lines into one string and then replace newlines between JSON objects
+        content = ''.join(lines)
+        content = re.sub(r'\}\s*\{', '},{', content)  # Ensure objects are separated by commas
+        content = f"[{content}]"  # Wrap in brackets to make it a valid JSON array
+
+        with open(file_path, 'w') as file:
+            file.write(content)
+
+        logger.debug(f"Completed preprocess_json_file for file: {file_path}")
+
+    except Exception as e:
+        logger.error(f"Error preprocessing JSON file {file_path}: {e}")
+
+
 def combine_json_data(file_paths):
-    """Combine JSON data from multiple files, cleaning control characters and handling multiple JSON objects."""
+    """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
     logger.debug(f"Starting combine_json_data for files: {file_paths}")
     combined_data = []
 
     for file_path in file_paths:
+        # Preprocess each file to fix JSON format
+        preprocess_json_file(file_path)
+
         try:
             with open(file_path, 'r') as file:
-                lines = file.readlines()
-
-            # Clean each line to remove control characters
-            cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
-
-            # Combine cleaned lines into a single JSON array
-            for line in cleaned_lines:
-                try:
-                    json_data = json.loads(line)  # Attempt to parse each cleaned line as JSON
-                    combined_data.append(json_data)
-                except json.JSONDecodeError as e:
-                    logger.error(f"Error decoding JSON from line: {line} - Error: {e}")
-                    continue  # Skip lines that cannot be parsed as valid JSON
+                json_data = json.load(file)  # Load the entire file content as a single JSON array
+                combined_data.extend(json_data)
 
         except Exception as e:
             logger.error(f"Error combining JSON data from {file_path}: {e}")
