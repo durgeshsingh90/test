@@ -14,6 +14,32 @@ def remove_control_characters(text):
     
     return cleaned_text
 
+def preprocess_json_file(file_path):
+    """Preprocess the JSON file to remove unwanted control characters and format it correctly."""
+    logger.debug(f"Starting preprocess_json_file for file: {file_path}")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        # Remove all control characters from the content
+        content = remove_control_characters(content)
+
+        # Ensure the JSON data is wrapped correctly in a list if it isn't already
+        if not content.startswith('['):
+            content = '[' + content
+        if not content.endswith(']'):
+            content = content + ']'
+
+        # Write the cleaned content back to the file
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(content)
+
+        logger.debug(f"Completed preprocess_json_file for file: {file_path}")
+
+    except Exception as e:
+        logger.error(f"Error preprocessing JSON file {file_path}: {e}")
+
 def combine_json_data(file_paths):
     """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
     logger.debug(f"Starting combine_json_data for files: {file_paths}")
