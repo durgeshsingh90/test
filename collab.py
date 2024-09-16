@@ -14,17 +14,22 @@ def duplicate_and_modify_sql(statements, start_end, blocked_item, search_items):
                 # Create modified versions of the original SQL statements
                 modified_original_statement = original_statement.replace(f"'{highbin}'", f"'{previous_bin}'")
 
-                # Create new statements with dynamic replacements based on blocked_item
+                # Ensure both description and cardproduct fields are renamed to the blocked_item
                 new_statement1 = original_statement.replace(f"'{lowbin}'", f"'{start_bin}'")\
                                                    .replace(f"'{highbin}'", f"'{end_bin}'")\
                                                    .replace(f"'{description.capitalize()}'", f"'{blocked_item}'")\
                                                    .replace(f"'{description.upper()}'", f"'{blocked_item.upper()}'")\
-                                                   .replace(f"'{description}'", f"'{blocked_item.lower()}'")
+                                                   .replace(f"'{description}'", f"'{blocked_item.lower()}'")\
+                                                   .replace(f"'{description}'", f"'{blocked_item}'")  # Replace the description
+               
+                # Additional replacement for cardproduct fields to blocked_item
+                new_statement1 = new_statement1.replace(f"'CARDPRODUCT': '{description}'", f"'CARDPRODUCT': '{blocked_item}'")
 
                 new_statement2 = original_statement.replace(f"'{lowbin}'", f"'{neighbor_plus_1}'")\
                                                    .replace(f"'{description.capitalize()}'", f"'{blocked_item}'")\
                                                    .replace(f"'{description.upper()}'", f"'{blocked_item.upper()}'")\
-                                                   .replace(f"'{description}'", f"'{blocked_item.lower()}'")
+                                                   .replace(f"'{description}'", f"'{blocked_item.lower()}'")\
+                                                   .replace(f"'{description}'", f"'{blocked_item}'")  # Replace the description
 
                 modified_statements.extend([modified_original_statement, new_statement1, new_statement2])
                 statements.remove(original_statement)
