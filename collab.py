@@ -1,37 +1,45 @@
-def apply_length_checks(json_obj):
-    """Apply length checks to JSON fields based on configuration."""
-    length_config = {
-        "LOWBIN": {"type": "CHAR", "length": 15},
-        "HIGHBIN": {"type": "CHAR", "length": 15},
-        "O_LEVEL": {"type": "NUMBER", "length": 1},
-        "STATUS": {"type": "CHAR", "length": 1},
-        "DESCRIPTION": {"type": "CHAR", "length": 50},
-        "DESTINATION": {"type": "CHAR", "length": 3},
-        "ENTITY_ID": {"type": "CHAR", "length": 1},
-        "CARDPRODUCT": {"type": "CHAR", "length": 20},
-        "NETWORK_DATA": {"type": "CHAR", "length": 10},
-        "FILE_NAME": {"type": "CHAR", "length": 10},
-        "FILE_VERSION": {"type": "CHAR", "length": 5},
-        "FILE_DATE": {"type": "DATE", "length": None},
-        "COUNTRY_CODE": {"type": "CHAR", "length": 3},
-        "NETWORK_CONFIG": {"type": "CHAR", "length": 10},
-        "BIN_LENGTH": {"type": "NUMBER", "length": 2}
-    }
-
-    for key, value in json_obj.items():
-        if key in length_config:
-            config = length_config[key]
-            # Apply length constraints for CHAR types
-            if config["type"] == "CHAR" and config["length"] is not None:
-                json_obj[key] = str(value).ljust(config["length"])[:config["length"]]
-            # Apply length constraints for NUMBER types
-            elif config["type"] == "NUMBER" and config["length"] is not None:
-                json_obj[key] = str(value).zfill(config["length"])[:config["length"]]
-    return json_obj
+def convert_to_sql_insert_statements(json_list, table_name):
+    """Convert a list of cleaned JSON objects to SQL INSERT statements."""
+    logger.debug("Starting convert_to_sql_insert_statements")
+    statements = []
+    
+    for json_obj in json_list:
+        keys = json_obj.keys()
+        values = []
+        for key in keys:
+            value = json_obj[key]
+            # Handle different data types appropriately
+            if isinstance(value, str):
+                # Escape single quotes in strings
+                value = value.replace("'", "''")
+                value = f"'{value}'"
+            elif value is None:
+                value = 'NULL'
+            # Convert the value to a string for the SQL statement
+            values.append(value)
+        
+        # Create the SQL INSERT statement
+        sql_statement = f"INSERT INTO {table_name} ({', '.join(keys)}) VALUES ({', '.join(values)});"
+        statements.append(sql_statement)
+    
+    logger.debug("Completed convert_to_sql_insert_statements")
+    return statements
 
 
-def preprocess_json_file(file_path):
-    """Preprocess the JSON file to remove unwanted control characters, format it properly, remove null values, and apply length checks."""
+def save_sql_statements_to_file(statements, file_path):
+    """Save SQL INSERT statements to a file."""
+    logger.debug(f"Starting save_sql_statements_to_file for {file_path}")
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write("\n".join(statements))
+        logger.info(f"SQL statements saved to {file_path}")
+    except Exception as e:
+        logger.error(f"Error saving SQL statements to file {file_path}: {e}")
+    logger.debug(f"Completed save_sql_statements_to_file for {file_path}")
+
+
+def preprocess_json_file(file_path, table_name, output_sql_file):
+    """Preprocess the JSON file to remove unwanted control characters, format it properly, remove null values, apply length checks, and save as SQL insert statements."""
     logger.debug(f"Starting preprocess_json_file for file: {file_path}")
 
     try:
@@ -65,6 +73,12 @@ def preprocess_json_file(file_path):
         # Write the formatted JSON data back to the file
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(formatted_json)
+
+        # Convert the cleaned JSON objects to SQL insert statements
+        sql_statements = convert_to_sql_insert_statements(checked_json_object, table_name)
+
+        # Save the SQL statements to the output file
+        save_sql_statements_to_file(sql_statements, output_sql_file)
 
         logger.debug(f"Completed preprocess_json_file for file: {file_path}")
 
