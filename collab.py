@@ -16,27 +16,6 @@ logger = logging.getLogger('binblock')
 # Define the output directory
 OUTPUT_DIR = os.path.join(settings.BASE_DIR, 'binblock', 'output')
 
-def create_filtered_sql_copy(statements, search_items):
-    """Create a copy of SQL statements and remove non-matching search items."""
-    search_items = [item.strip().lower() for item in search_items]
-    filtered_statements = []
-
-    for statement in statements:
-        try:
-            # Extract the description part of the SQL insert statement
-            values_part = statement.split("VALUES (")[1]
-            values = values_part.split(",")
-            description = ' '.join(values[4].strip(" '").lower().split())  # Normalize description
-
-            # Check if description matches any of the search items
-            if any(search_item in description for search_item in search_items):
-                filtered_statements.append(statement)
-
-        except IndexError:
-            logger.error(f"Error parsing statement: {statement}")
-
-    return filtered_statements
-
 def parse_sql_statements(statements, search_items):
     """Parse SQL statements and filter by search items."""
     search_items = [item.strip().lower() for item in search_items]
@@ -53,7 +32,7 @@ def parse_sql_statements(statements, search_items):
 
             if any(search_item in description for search_item in search_items):
                 filtered_statements.append((lowbin, highbin, description, statement))
-        
+
         except IndexError:
             logger.error(f"Error parsing statement: {statement}")
 
@@ -61,7 +40,6 @@ def parse_sql_statements(statements, search_items):
 
 def duplicate_and_modify_sql(statements, start_end, blocked_item, search_items):
     """Duplicate affected SQL statements twice and apply specific modifications."""
-    # Filter and parse the SQL statements
     filtered_statements = parse_sql_statements(statements, search_items)
 
     if not filtered_statements:
@@ -73,16 +51,20 @@ def duplicate_and_modify_sql(statements, start_end, blocked_item, search_items):
     for start_bin, end_bin, previous_bin, _ in start_end:
         for lowbin, highbin, description, original_statement in filtered_statements:
             if int(lowbin) <= int(start_bin) <= int(highbin):
-                # Modify the original SQL statement
                 modified_original_statement = original_statement.replace(f"'{highbin}'", f"'{previous_bin}'")
 
                 new_statement1 = original_statement.replace(f"'{lowbin}'", f"'{start_bin}'")\
                                                    .replace(f"'{highbin}'", f"'{end_bin}'")\
                                                    .replace(description.capitalize(), blocked_item)\
                                                    .replace(description.upper(), blocked_item)\
-                                                   .replace("Europay             ", blocked_item)
+                                                   .replace("Europay             ", blocked_item)\
+                                                   .replace(description, blocked_item.lower())
 
-                new_statement2 = original_statement.replace(f"'{lowbin}'", "'222233000000000'")
+                new_statement2 = original_statement.replace(f"'{lowbin}'", "'222233000000000'")\
+                                                   .replace(description.capitalize(), blocked_item)\
+                                                   .replace(description.upper(), blocked_item)\
+                                                   .replace("Europay             ", blocked_item)\
+                                                   .replace(description, blocked_item.lower())
 
                 modified_statements.extend([modified_original_statement, new_statement1, new_statement2])
                 statements.remove(original_statement)
@@ -136,12 +118,9 @@ def bin_blocking_editor(request):
         # Load the generated Prod SQL statements (assume they are stored in a list or file)
         prod_sql_statements = generate_sql_insert_statements_for_prod()
 
-        # Create a copy and filter the SQL statements by the selected search items
-        filtered_prod_sql_statements = create_filtered_sql_copy(prod_sql_statements, search_items)
-
-        # Process filtered SQL statements
+        # Process Prod SQL statements
         prod_modified_sql, prod_remaining_sql = duplicate_and_modify_sql(
-            filtered_prod_sql_statements, bins_with_neighbors, blocked_item, search_items
+            prod_sql_statements, bins_with_neighbors, blocked_item, search_items
         )
         prod_merged_sorted_sql = merge_and_sort_sql(prod_modified_sql, prod_remaining_sql)
 
@@ -189,4 +168,3 @@ def save_sql_statements_to_file(statements, file_path):
     except Exception as e:
         logger.error(f"Error saving SQL statements to file {file_path}: {e}")
     logger.debug(f"Completed saving SQL statements to {file_path}")
-
