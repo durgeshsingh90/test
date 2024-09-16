@@ -54,6 +54,25 @@ def process_bins(bins):
 
     return combined_bins
 
+def calculate_bins_with_neighbors(processed_bins):
+    """Calculate the start and end bins along with their neighbors."""
+    logger.debug("Calculating bins with neighbors")
+    result = []
+    for bin_range in processed_bins:
+        bin_range = bin_range.strip()
+        if '-' in bin_range:
+            start_bin, end_bin = bin_range.split('-')
+            start_bin, end_bin = start_bin.strip().ljust(15, '0'), end_bin.strip().ljust(15, '9')
+            neighbor_minus_1, neighbor_plus_1 = str(int(start_bin.strip()) - 1).ljust(15, '9'), str(int(end_bin.strip()) + 1).ljust(15, '0')
+        else:
+            start_bin = end_bin = bin_range.strip().ljust(15, '0')
+            neighbor_minus_1, neighbor_plus_1 = str(int(bin_range.strip()) - 1).ljust(15, '9'), str(int(bin_range.strip()) + 1).ljust(15, '0')
+
+        result.append((start_bin, end_bin, neighbor_minus_1, neighbor_plus_1))
+
+    logger.info(f"Calculated bins with neighbors: {result}")
+    return result
+
 def bin_blocking_editor(request):
     logger.info("Bin blocking editor view accessed")
     result = None
@@ -85,12 +104,17 @@ def bin_blocking_editor(request):
         processed_bins = process_bins(bin_input)
         logger.info(f"Processed BINs: {processed_bins}")
 
+        # Calculate neighbors for processed bins
+        bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
+        logger.info(f"Bins with neighbors: {bins_with_neighbors}")
+
         # Other processing (e.g., logging user selections)
         _, expanded_search_items = categorize_and_expand_items(prod_distinct_list, search_items)
         logger.info(f"User selected blocked item: {blocked_item} and expanded search items: {expanded_search_items}")
 
         context = {
             'result': processed_bins,
+            'bins_with_neighbors': bins_with_neighbors,
             'log_with_delays': log_with_delays,
             'prod_distinct_list': categorized_list
         }
