@@ -19,19 +19,20 @@ rrn_queue = Queue()
 # List to store the found RRNs
 found_rrns = []
 
-# Function to check if an RRN exists in the database
+# Function to check if an RRN exists in the database and retrieve JSON output
 def check_rrn():
     while not rrn_queue.empty():
         rrn = rrn_queue.get()
-        sql_command = f"echo \"SELECT refnum FROM oasis77.shclog WHERE refnum = '{rrn}';\" | sqlplus -S {db_username}/{db_password}@{db_service}"
+        sql_command = f"echo \"SELECT JSON_OBJECT('refnum' VALUE refnum, 'Mask_pan' VALUE Mask_pan, 'amount' VALUE amount, 'OMNI_LOG_DT_UTC' VALUE OMNI_LOG_DT_UTC) AS json_output FROM oasis77.shclog WHERE refnum = '{rrn}' AND acquirer LIKE '%000054%';\" | sqlplus -S {db_username}/{db_password}@{db_service}"
         
         try:
             # Execute SQL*Plus command
             result = subprocess.run(sql_command, shell=True, capture_output=True, text=True)
             
-            # Check if the RRN is found in the result
-            if rrn in result.stdout:
-                found_rrns.append(rrn)
+            # Check if JSON output is found in the result
+            if "json_output" in result.stdout:
+                json_output = result.stdout.strip()
+                found_rrns.append(json_output)
                 
         except Exception as e:
             print(f"Error checking RRN {rrn}: {e}")
@@ -54,11 +55,7 @@ for _ in range(num_threads):
 for t in threads:
     t.join()
 
-# Output the found RRNs
+# Output the found RRNs in JSON format
 print(f"Found {len(found_rrns)} RRNs:")
-for rrn in found_rrns:
-    print(rrn)
-
-
-
-# SELECT JSON_OBJECT(  'refnum' VALUE refnum,  'Mask_pan' VALUE Mask_pan,  'amount' VALUE amount,  'OMNI_LOG_DT_UTC' VALUE OMNI_LOG_DT_UTC) AS json_output FROM oasis77.shclog WHERE refnum IN ('425611726410')AND acquirer LIKE '%000054%';
+for json_output in found_rrns:
+    print(json_output)
