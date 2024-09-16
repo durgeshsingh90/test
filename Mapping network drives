@@ -1,3 +1,10 @@
-2024-09-16 01:11:01,066 [DEBUG] binblock: Starting combine_json_data for files: ['C:\\Durgesh\\Office\\Automation\\AutoMate\\AutoMate\\binblock\\output\\prod_output.json']
-2024-09-16 01:11:01,067 [ERROR] binblock: Error loading JSON data from C:\Durgesh\Office\Automation\AutoMate\AutoMate\binblock\output\prod_output.json: Invalid control character at: line 2 column 25 (char 105)
-2024-09-16 01:11:01,067 [DEBUG] binblock: Completed combine_json_data for files: ['C:\\Durgesh\\Office\\Automation\\AutoMate\\AutoMate\\binblock\\output\\prod_output.json']
+2024-09-16 01:35:02,345 [DEBUG] binblock: Completed remove_control_characters
+2024-09-16 01:35:02,346 [DEBUG] binblock: Starting remove_control_characters
+2024-09-16 01:35:02,346 [DEBUG] binblock: Completed remove_control_characters
+2024-09-16 01:35:02,346 [DEBUG] binblock: Starting remove_control_characters
+2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
+2024-09-16 01:35:02,348 [DEBUG] binblock: Starting remove_control_characters
+2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
+2024-09-16 01:35:02,348 [DEBUG] binblock: Starting remove_control_characters
+2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
+2024-09-16 01:35:02,349 [ERROR] binblock: Error combining JSON data from C:\Durgesh\Office\Automation\AutoMate\AutoMate\binblock\output\prod_output.json: Extra data: line 1 column 331 (char 330)
