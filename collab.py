@@ -117,15 +117,9 @@ def categorize_and_expand_items(distinct_list, search_items=None):
 
 def remove_control_characters(text):
     """Remove all control characters and normalize the text."""
-    # Normalize the text to NFKD form
     normalized_text = unicodedata.normalize('NFKD', text)
-    
-    # Remove control characters except printable ones
     cleaned_text = ''.join(c for c in normalized_text if c.isprintable())
-    
-    # Further remove specific unwanted characters like tabs, newlines, etc.
     cleaned_text = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_text)
-    
     return cleaned_text
 
 def remove_null_values(d):
@@ -169,25 +163,27 @@ def apply_length_checks(json_obj):
                 json_obj[key] = str(value).zfill(config["length"])[:config["length"]]
     return json_obj
 
-def json_to_sql_insert(json_obj, table_name):
-    """Convert a JSON object to an SQL INSERT statement for a specified table."""
-    logger.debug("Starting json_to_sql_insert")
-    keys = list(json_obj.keys())
-    values = [
-        f"TO_DATE('{value.strip()}', 'DD/MM/YYYY')" if key == "FILE_DATE" and value else 
-        str(value) if key == "O_LEVEL" else 
-        f"'{value}'" if isinstance(value, str) else str(value) 
-        for key, value in json_obj.items()
-    ]
-    sql_statement = f"INSERT INTO {table_name} ({', '.join(keys)}) VALUES ({', '.join(values)});"
-    logger.debug("Completed json_to_sql_insert")
-    return sql_statement
-
-def convert_to_sql_insert_statements(json_list, table_name):
-    """Convert a list of cleaned JSON objects to SQL INSERT statements."""
-    logger.debug("Starting convert_to_sql_insert_statements")
-    statements = [json_to_sql_insert(entry, table_name) for entry in json_list]
-    logger.debug("Completed convert_to_sql_insert_statements")
+def generate_sql_insert_statements(json_list, table_name):
+    """Generate SQL INSERT statements from a list of JSON objects."""
+    logger.debug("Starting generate_sql_insert_statements")
+    statements = []
+    
+    for json_obj in json_list:
+        keys = json_obj.keys()
+        values = []
+        for key in keys:
+            value = json_obj[key]
+            if isinstance(value, str):
+                value = value.replace("'", "''")  # Escape single quotes
+                value = f"'{value}'"
+            elif value is None:
+                value = 'NULL'
+            values.append(value)
+        
+        sql_statement = f"INSERT INTO {table_name} ({', '.join(keys)}) VALUES ({', '.join(values)});"
+        statements.append(sql_statement)
+    
+    logger.debug("Completed generate_sql_insert_statements")
     return statements
 
 def save_sql_statements_to_file(statements, file_path):
@@ -209,42 +205,25 @@ def preprocess_json_file(file_path, table_name, output_sql_file):
         with open(file_path, 'r', encoding='utf-8') as file:
             lines = file.readlines()
 
-        # Remove control characters from each line and strip whitespace
         cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
-
-        # Join the cleaned lines together into a single string
         json_data = ''.join(cleaned_lines)
-
-        # Add commas only between adjacent JSON objects by finding '}{' and replacing it with '},{'
         json_data = re.sub(r'\}\s*\{', '},{', json_data)
-
-        # Wrap in brackets to make it a valid JSON array
         json_data = f"[{json_data}]"
 
-        # Convert the cleaned string back to a Python object
         try:
             json_object = json.loads(json_data)
         except json.JSONDecodeError as e:
             logger.error(f"Error loading JSON data: {e}")
             raise
 
-        # Remove null values from JSON data
         cleaned_json_object = [remove_null_values(obj) for obj in json_object]
-
-        # Apply length checks to each JSON object
         checked_json_object = [apply_length_checks(obj) for obj in cleaned_json_object]
 
-        # Reformat JSON data with indentation for readability
         formatted_json = json.dumps(checked_json_object, indent=4)
-
-        # Write the formatted JSON data back to the file
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(formatted_json)
 
-        # Convert the cleaned JSON objects to SQL insert statements
-        sql_statements = convert_to_sql_insert_statements(checked_json_object, table_name)
-
-        # Save the SQL statements to the output file
+        sql_statements = generate_sql_insert_statements(checked_json_object, table_name)
         save_sql_statements_to_file(sql_statements, output_sql_file)
 
         logger.debug(f"Completed preprocess_json_file for file: {file_path}")
@@ -290,11 +269,9 @@ def bin_blocking_editor(request):
         distinct_output_file = os.path.join(OUTPUT_DIR, 'prod_distinct_output.txt')
         run_sqlplus_command(distinct_command, distinct_query, distinct_output_file, "Distinct")
 
-        # Use clean_distinct_file to clean the distinct query output
         prod_distinct_list = clean_distinct_file(distinct_output_file)
         categorized_list, _ = categorize_and_expand_items(prod_distinct_list)
 
-        # Run prod and uat queries in the background
         run_background_queries()
 
     except Exception as e:
