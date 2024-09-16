@@ -1,3 +1,59 @@
+import os
+import string
+import logging
+import threading
+import subprocess
+import json
+import time
+import re
+import unicodedata
+from django.shortcuts import render
+from django.conf import settings
+
+# Get the logger for the binblock app
+logger = logging.getLogger('binblock')
+
+# Define the output directory
+OUTPUT_DIR = os.path.join(settings.BASE_DIR, 'binblock', 'output')
+
+# Additional utility functions here...
+
+def remove_duplicates_and_subsets(bin_list):
+    """Remove duplicate and subset bins."""
+    bin_set = sorted(set(bin_list), key=lambda x: (len(x), x))
+    return [
+        bin for bin in bin_set
+        if not any(bin.startswith(existing_bin) for existing_bin in bin_set if existing_bin != bin)
+    ]
+
+def combine_consecutives(bins):
+    """Combine consecutive bins into ranges."""
+    bins = sorted(bins, key=lambda x: int(x.split('-')[0]))
+    combined = []
+    i = 0
+    while i < len(bins):
+        start_bin = end_bin = bins[i]
+        while i + 1 < len(bins) and int(bins[i + 1].split('-')[0]) == int(bins[i].split('-')[0]) + 1:
+            end_bin = bins[i + 1]
+            i += 1
+        combined.append(f"{start_bin}-{end_bin}" if start_bin != end_bin else start_bin)
+        i += 1
+    return combined, i
+
+def process_bins(bins):
+    """Process BIN numbers to remove duplicates, handle subsets, and combine consecutive ranges."""
+    logger.debug("Starting to process BIN numbers")
+
+    # Remove duplicates and subsets
+    cleaned_bins = remove_duplicates_and_subsets(bins)
+    logger.debug(f"Cleaned BINs after removing duplicates and subsets: {cleaned_bins}")
+
+    # Combine consecutive bins into ranges
+    combined_bins, _ = combine_consecutives(cleaned_bins)
+    logger.info(f"Processed BINs: {combined_bins}")
+
+    return combined_bins
+
 def bin_blocking_editor(request):
     logger.info("Bin blocking editor view accessed")
     result = None
@@ -48,45 +104,3 @@ def bin_blocking_editor(request):
     }
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
-
-
-def process_bins(bins):
-    """Process BIN numbers to remove duplicates, handle subsets, and combine consecutive ranges."""
-    logger.debug("Starting to process BIN numbers")
-
-    # Convert input into a sorted list of unique BINs
-    bins = sorted(set(int(bin.strip()) for bin in bins if bin.strip().isdigit()))
-    
-    # Check if bins list is empty
-    if not bins:
-        logger.info("No BIN numbers provided by the user.")
-        return ["No BIN numbers provided."]
-
-    logger.debug(f"Sorted and deduplicated BINs: {bins}")
-
-    # Combine consecutive bins into ranges
-    combined_bins = []
-    start = bins[0]
-    previous = bins[0]
-
-    for current in bins[1:]:
-        if current == previous + 1:
-            previous = current
-        else:
-            if start == previous:
-                combined_bins.append(str(start))
-            else:
-                combined_bins.append(f"{start}-{previous}")
-            start = current
-            previous = current
-
-    # Add the final range or bin
-    if start == previous:
-        combined_bins.append(str(start))
-    else:
-        combined_bins.append(f"{start}-{previous}")
-
-    # Log the processed bins
-    logger.info(f"Processed BINs: {combined_bins}")
-
-    return combined_bins
