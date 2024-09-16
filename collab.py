@@ -73,6 +73,65 @@ def calculate_bins_with_neighbors(processed_bins):
     logger.info(f"Calculated bins with neighbors: {result}")
     return result
 
+def parse_sql_statements(statements, search_items):
+    """Parse SQL statements and filter by search items."""
+    search_items = [item.strip().lower() for item in search_items]
+    filtered_statements = []
+
+    for statement in statements:
+        try:
+            values_part = statement.split("VALUES (")[1]
+            values = values_part.split(",")
+
+            lowbin = values[0].strip(" '")
+            highbin = values[1].strip(" '")
+            description = ' '.join(values[4].strip(" '").lower().split())  # Normalize description
+
+            if any(search_item in description for search_item in search_items):
+                filtered_statements.append((lowbin, highbin, description, statement))
+
+        except IndexError:
+            logger.error(f"Error parsing statement: {statement}")
+
+    return filtered_statements
+
+def duplicate_and_modify_sql(statements, start_end, blocked_item, search_items):
+    """Duplicate affected SQL statements twice and apply specific modifications."""
+    filtered_statements = parse_sql_statements(statements, search_items)
+
+    if not filtered_statements:
+        logger.info("No SQL statements matched the selected search items.")
+        return [], statements
+
+    modified_statements = []
+
+    for start_bin, end_bin, previous_bin, _ in start_end:
+        for lowbin, highbin, description, original_statement in filtered_statements:
+            if int(lowbin) <= int(start_bin) <= int(highbin):
+                modified_original_statement = original_statement.replace(f"'{highbin}'", f"'{previous_bin}'")
+
+                new_statement1 = original_statement.replace(f"'{lowbin}'", f"'{start_bin}'")\
+                                                   .replace(f"'{highbin}'", f"'{end_bin}'")\
+                                                   .replace(description.capitalize(), blocked_item)\
+                                                   .replace(description.upper(), blocked_item)\
+                                                   .replace("Europay             ", blocked_item)
+
+                new_statement2 = original_statement.replace(f"'{lowbin}'", "'222233000000000'")
+
+                modified_statements.extend([modified_original_statement, new_statement1, new_statement2])
+                statements.remove(original_statement)
+
+    return modified_statements, statements
+
+def merge_and_sort_sql(modified_statements, remaining_statements):
+    """Merge unaffected and modified SQL statements and sort by LOWBIN."""
+    combined_statements_sorted = sorted(
+        remaining_statements + modified_statements,
+        key=lambda stmt: int(stmt.split("VALUES ('")[1].split("', '")[0])
+    )
+
+    return combined_statements_sorted
+
 def bin_blocking_editor(request):
     logger.info("Bin blocking editor view accessed")
     result = None
@@ -108,6 +167,18 @@ def bin_blocking_editor(request):
         bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
         logger.info(f"Bins with neighbors: {bins_with_neighbors}")
 
+        # Load SQL statements (assuming they're read from a file or another source)
+        sql_statements = load_sql_statements()
+
+        # Duplicate, modify, and merge SQL statements
+        modified_sql_statements, remaining_sql_statements = duplicate_and_modify_sql(
+            sql_statements, bins_with_neighbors, blocked_item, search_items
+        )
+        merged_sorted_sql_statements = merge_and_sort_sql(modified_sql_statements, remaining_sql_statements)
+
+        # Log final merged SQL statements
+        logger.info(f"Final merged SQL statements: {merged_sorted_sql_statements}")
+
         # Other processing (e.g., logging user selections)
         _, expanded_search_items = categorize_and_expand_items(prod_distinct_list, search_items)
         logger.info(f"User selected blocked item: {blocked_item} and expanded search items: {expanded_search_items}")
@@ -115,6 +186,7 @@ def bin_blocking_editor(request):
         context = {
             'result': processed_bins,
             'bins_with_neighbors': bins_with_neighbors,
+            'sql_statements': merged_sorted_sql_statements,
             'log_with_delays': log_with_delays,
             'prod_distinct_list': categorized_list
         }
@@ -128,3 +200,10 @@ def bin_blocking_editor(request):
     }
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
+
+def load_sql_statements():
+    """Load SQL statements from a file or source."""
+    # Example logic for loading SQL statements
+    sql_file_path = os.path.join(OUTPUT_DIR, 'prod_sql_statements.sql')
+    with open(sql_file_path, 'r') as file:
+        return file.readlines()
