@@ -59,6 +59,7 @@ def clean_file(file_path):
     with open(file_path, 'w') as file:
         file.write("\n".join(cleaned_lines) + "\n")
 
+
 def clean_distinct_file(file_path):
     """Clean the distinct output file and return as a list of cleaned items."""
     logger.debug(f"Cleaning output file for distinct query: {file_path}")
@@ -91,7 +92,10 @@ def clean_distinct_file(file_path):
         return []
 
 def categorize_and_expand_items(distinct_list, search_items=None):
-    """Categorize 'RUSSIAN' and 'SYRIA' variations into single categories for blocking and expand them for search items if needed."""
+    """
+    Categorize 'RUSSIAN' and 'SYRIA' variations into single categories for blocking 
+    and expand them for search items if needed.
+    """
     categorized_list = []
     expanded_items = []
 
@@ -114,23 +118,94 @@ def categorize_and_expand_items(distinct_list, search_items=None):
 
     return categorized_list, expanded_items
 
+import re
+import unicodedata
+import json
+
+def remove_null_values(d):
+    """Recursively remove null values from dictionaries and lists."""
+    if isinstance(d, dict):
+        return {k: remove_null_values(v) for k, v in d.items() if v is not None}
+    elif isinstance(d, list):
+        return [remove_null_values(v) for v in d if v is not None]
+    else:
+        return d
+
+
+def remove_control_characters(text):
+    """Remove all control characters and normalize the text."""
+    # Normalize the text to NFKD form
+    normalized_text = unicodedata.normalize('NFKD', text)
+    
+    # Remove control characters except printable ones
+    cleaned_text = ''.join(c for c in normalized_text if c.isprintable())
+    
+    # Further remove specific unwanted characters like tabs, newlines, etc.
+    cleaned_text = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_text)
+    
+    return cleaned_text
+
+
+def preprocess_json_file(file_path, table_name, output_sql_file):
+    """Preprocess the JSON file to remove unwanted control characters, format it properly, remove null values, apply length checks, and save as SQL insert statements."""
+    logger.debug(f"Starting preprocess_json_file for file: {file_path}")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+
+        # Remove control characters from each line
+        cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
+
+        # Join the cleaned lines together into a single string
+        json_data = ''.join(cleaned_lines)
+
+        # Add commas only between adjacent JSON objects
+        json_data = re.sub(r'\}\s*\{', '},{', json_data)
+
+        # Wrap in brackets to make it a valid JSON array
+        json_data = f"[{json_data}]"
+
+        # Convert the cleaned string back to a Python object
+        json_object = json.loads(json_data)
+
+        # Remove null values from JSON data
+        cleaned_json_object = remove_null_values(json_object)
+
+        # Apply length checks to each JSON object
+        checked_json_object = [apply_length_checks(obj) for obj in cleaned_json_object]
+
+        # Reformat JSON data with indentation for readability
+        formatted_json = json.dumps(checked_json_object, indent=4)
+
+        # Write the formatted JSON data back to the file
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(formatted_json)
+
+        # Convert the cleaned JSON objects to SQL insert statements
+        sql_statements = convert_to_sql_insert_statements(checked_json_object, table_name)
+
+        # Save the SQL statements to the output file
+        save_sql_statements_to_file(sql_statements, output_sql_file)
+
+        logger.debug(f"Completed preprocess_json_file for file: {file_path}")
+
+    except Exception as e:
+        logger.error(f"Error preprocessing JSON file {file_path}: {e}")
+
 def combine_json_data(file_paths):
-    """Combine JSON data from multiple files, cleaning control characters."""
+    """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
     logger.debug(f"Starting combine_json_data for files: {file_paths}")
     combined_data = []
 
     for file_path in file_paths:
+        # Preprocess each file to fix JSON format
+        preprocess_json_file(file_path)
+
         try:
-            with open(file_path, 'r') as file:
-                lines = file.readlines()
-
-            # Clean each line to remove control characters
-            cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
-
-            # Combine the cleaned lines into valid JSON strings
-            json_str = ''.join(cleaned_lines)
-            json_data = json.loads(json_str)  # Parse JSON after cleaning
-            combined_data.extend(json_data)
+            with open(file_path, 'r', encoding='utf-8') as file:
+                json_data = json.load(file)  # Load the entire file content as a single JSON array
+                combined_data.extend(json_data)
 
         except Exception as e:
             logger.error(f"Error combining JSON data from {file_path}: {e}")
@@ -138,13 +213,7 @@ def combine_json_data(file_paths):
     logger.debug(f"Completed combine_json_data for files: {file_paths}")
     return combined_data
 
-def remove_control_characters(s):
-    """Remove control characters from a string."""
-    logger.debug("Starting remove_control_characters")
-    # Use regex to remove all control characters except printable ones
-    result = re.sub(r'[\x00-\x1F\x7F]', '', s)
-    logger.debug("Completed remove_control_characters")
-    return result
+
 
 def remove_null_values(d):
     """Remove null values from a dictionary."""
@@ -215,10 +284,30 @@ def json_to_sql_insert(json_obj, table_name):
     logger.debug("Completed json_to_sql_insert")
     return sql_statement
 
-def convert_to_sql_insert_statements(cleaned_json_list, table_name):
+def convert_to_sql_insert_statements(json_list, table_name):
     """Convert a list of cleaned JSON objects to SQL INSERT statements."""
     logger.debug("Starting convert_to_sql_insert_statements")
-    statements = [json_to_sql_insert(entry, table_name) for entry in cleaned_json_list]
+    statements = []
+    
+    for json_obj in json_list:
+        keys = json_obj.keys()
+        values = []
+        for key in keys:
+            value = json_obj[key]
+            # Handle different data types appropriately
+            if isinstance(value, str):
+                # Escape single quotes in strings
+                value = value.replace("'", "''")
+                value = f"'{value}'"
+            elif value is None:
+                value = 'NULL'
+            # Convert the value to a string for the SQL statement
+            values.append(value)
+        
+        # Create the SQL INSERT statement
+        sql_statement = f"INSERT INTO {table_name} ({', '.join(keys)}) VALUES ({', '.join(values)});"
+        statements.append(sql_statement)
+    
     logger.debug("Completed convert_to_sql_insert_statements")
     return statements
 
@@ -226,7 +315,7 @@ def save_sql_statements_to_file(statements, file_path):
     """Save SQL INSERT statements to a file."""
     logger.debug(f"Starting save_sql_statements_to_file for {file_path}")
     try:
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding='utf-8') as file:
             file.write("\n".join(statements))
         logger.info(f"SQL statements saved to {file_path}")
     except Exception as e:
@@ -248,7 +337,10 @@ def run_background_queries():
             combined_data = combine_json_data([output_file])
             cleaned_combined_data = clean_json_data(combined_data)
 
-            sql_statements = convert_to_sql_insert_statements(cleaned_combined_data, 'your_table_name')
+            length_constraints = {'field1': 50, 'field2': 100}  # Example constraints
+            checked_data = apply_length_checks(cleaned_combined_data, length_constraints)
+
+            sql_statements = convert_to_sql_insert_statements(checked_data, 'your_table_name')
             sql_file_path = os.path.join(OUTPUT_DIR, f"{server_name.lower()}_insert_statements.sql")
             save_sql_statements_to_file(sql_statements, sql_file_path)
 
