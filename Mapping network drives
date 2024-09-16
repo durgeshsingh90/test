@@ -1,10 +1,27 @@
-2024-09-16 01:35:02,345 [DEBUG] binblock: Completed remove_control_characters
-2024-09-16 01:35:02,346 [DEBUG] binblock: Starting remove_control_characters
-2024-09-16 01:35:02,346 [DEBUG] binblock: Completed remove_control_characters
-2024-09-16 01:35:02,346 [DEBUG] binblock: Starting remove_control_characters
-2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
-2024-09-16 01:35:02,348 [DEBUG] binblock: Starting remove_control_characters
-2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
-2024-09-16 01:35:02,348 [DEBUG] binblock: Starting remove_control_characters
-2024-09-16 01:35:02,348 [DEBUG] binblock: Completed remove_control_characters
-2024-09-16 01:35:02,349 [ERROR] binblock: Error combining JSON data from C:\Durgesh\Office\Automation\AutoMate\AutoMate\binblock\output\prod_output.json: Extra data: line 1 column 331 (char 330)
+def combine_json_data(file_paths):
+    """Combine JSON data from multiple files, cleaning control characters and handling multiple JSON objects."""
+    logger.debug(f"Starting combine_json_data for files: {file_paths}")
+    combined_data = []
+
+    for file_path in file_paths:
+        try:
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+
+            # Clean each line to remove control characters
+            cleaned_lines = [remove_control_characters(line.strip()) for line in lines if line.strip()]
+
+            # Combine cleaned lines into a single JSON array
+            for line in cleaned_lines:
+                try:
+                    json_data = json.loads(line)  # Attempt to parse each cleaned line as JSON
+                    combined_data.append(json_data)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Error decoding JSON from line: {line} - Error: {e}")
+                    continue  # Skip lines that cannot be parsed as valid JSON
+
+        except Exception as e:
+            logger.error(f"Error combining JSON data from {file_path}: {e}")
+
+    logger.debug(f"Completed combine_json_data for files: {file_paths}")
+    return combined_data
