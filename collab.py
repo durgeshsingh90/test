@@ -1,27 +1,37 @@
-def remove_null_values(d):
-    """Recursively remove null values from dictionaries and lists."""
-    if isinstance(d, dict):
-        return {k: remove_null_values(v) for k, v in d.items() if v is not None}
-    elif isinstance(d, list):
-        return [remove_null_values(v) for v in d if v is not None]
-    else:
-        return d
+def apply_length_checks(json_obj):
+    """Apply length checks to JSON fields based on configuration."""
+    length_config = {
+        "LOWBIN": {"type": "CHAR", "length": 15},
+        "HIGHBIN": {"type": "CHAR", "length": 15},
+        "O_LEVEL": {"type": "NUMBER", "length": 1},
+        "STATUS": {"type": "CHAR", "length": 1},
+        "DESCRIPTION": {"type": "CHAR", "length": 50},
+        "DESTINATION": {"type": "CHAR", "length": 3},
+        "ENTITY_ID": {"type": "CHAR", "length": 1},
+        "CARDPRODUCT": {"type": "CHAR", "length": 20},
+        "NETWORK_DATA": {"type": "CHAR", "length": 10},
+        "FILE_NAME": {"type": "CHAR", "length": 10},
+        "FILE_VERSION": {"type": "CHAR", "length": 5},
+        "FILE_DATE": {"type": "DATE", "length": None},
+        "COUNTRY_CODE": {"type": "CHAR", "length": 3},
+        "NETWORK_CONFIG": {"type": "CHAR", "length": 10},
+        "BIN_LENGTH": {"type": "NUMBER", "length": 2}
+    }
 
-def remove_control_characters(text):
-    """Remove all control characters and normalize the text."""
-    # Normalize the text to NFKD form
-    normalized_text = unicodedata.normalize('NFKD', text)
-    
-    # Remove control characters except printable ones
-    cleaned_text = ''.join(c for c in normalized_text if c.isprintable())
-    
-    # Further remove specific unwanted characters like tabs, newlines, etc.
-    cleaned_text = re.sub(r'[\x00-\x1F\x7F]', '', cleaned_text)
-    
-    return cleaned_text
+    for key, value in json_obj.items():
+        if key in length_config:
+            config = length_config[key]
+            # Apply length constraints for CHAR types
+            if config["type"] == "CHAR" and config["length"] is not None:
+                json_obj[key] = str(value).ljust(config["length"])[:config["length"]]
+            # Apply length constraints for NUMBER types
+            elif config["type"] == "NUMBER" and config["length"] is not None:
+                json_obj[key] = str(value).zfill(config["length"])[:config["length"]]
+    return json_obj
+
 
 def preprocess_json_file(file_path):
-    """Preprocess the JSON file to remove unwanted control characters, format it properly, and remove null values."""
+    """Preprocess the JSON file to remove unwanted control characters, format it properly, remove null values, and apply length checks."""
     logger.debug(f"Starting preprocess_json_file for file: {file_path}")
 
     try:
@@ -46,8 +56,11 @@ def preprocess_json_file(file_path):
         # Remove null values from JSON data
         cleaned_json_object = remove_null_values(json_object)
 
+        # Apply length checks to each JSON object
+        checked_json_object = [apply_length_checks(obj) for obj in cleaned_json_object]
+
         # Reformat JSON data with indentation for readability
-        formatted_json = json.dumps(cleaned_json_object, indent=4)
+        formatted_json = json.dumps(checked_json_object, indent=4)
 
         # Write the formatted JSON data back to the file
         with open(file_path, 'w', encoding='utf-8') as file:
@@ -57,23 +70,3 @@ def preprocess_json_file(file_path):
 
     except Exception as e:
         logger.error(f"Error preprocessing JSON file {file_path}: {e}")
-
-def combine_json_data(file_paths):
-    """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
-    logger.debug(f"Starting combine_json_data for files: {file_paths}")
-    combined_data = []
-
-    for file_path in file_paths:
-        # Preprocess each file to fix JSON format
-        preprocess_json_file(file_path)
-
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                json_data = json.load(file)  # Load the entire file content as a single JSON array
-                combined_data.extend(json_data)
-
-        except Exception as e:
-            logger.error(f"Error combining JSON data from {file_path}: {e}")
-
-    logger.debug(f"Completed combine_json_data for files: {file_paths}")
-    return combined_data
