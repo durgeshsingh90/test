@@ -16,62 +16,7 @@ logger = logging.getLogger('binblock')
 # Define the output directory
 OUTPUT_DIR = os.path.join(settings.BASE_DIR, 'binblock', 'output')
 
-# Additional utility functions here...
-
-def remove_duplicates_and_subsets(bin_list):
-    """Remove duplicate and subset bins."""
-    bin_set = sorted(set(bin_list), key=lambda x: (len(x), x))
-    return [
-        bin for bin in bin_set
-        if not any(bin.startswith(existing_bin) for existing_bin in bin_set if existing_bin != bin)
-    ]
-
-def combine_consecutives(bins):
-    """Combine consecutive bins into ranges."""
-    bins = sorted(bins, key=lambda x: int(x.split('-')[0]))
-    combined = []
-    i = 0
-    while i < len(bins):
-        start_bin = end_bin = bins[i]
-        while i + 1 < len(bins) and int(bins[i + 1].split('-')[0]) == int(bins[i].split('-')[0]) + 1:
-            end_bin = bins[i + 1]
-            i += 1
-        combined.append(f"{start_bin}-{end_bin}" if start_bin != end_bin else start_bin)
-        i += 1
-    return combined, i
-
-def process_bins(bins):
-    """Process BIN numbers to remove duplicates, handle subsets, and combine consecutive ranges."""
-    logger.debug("Starting to process BIN numbers")
-
-    # Remove duplicates and subsets
-    cleaned_bins = remove_duplicates_and_subsets(bins)
-    logger.debug(f"Cleaned BINs after removing duplicates and subsets: {cleaned_bins}")
-
-    # Combine consecutive bins into ranges
-    combined_bins, _ = combine_consecutives(cleaned_bins)
-    logger.info(f"Processed BINs: {combined_bins}")
-
-    return combined_bins
-
-def calculate_bins_with_neighbors(processed_bins):
-    """Calculate the start and end bins along with their neighbors."""
-    logger.debug("Calculating bins with neighbors")
-    result = []
-    for bin_range in processed_bins:
-        bin_range = bin_range.strip()
-        if '-' in bin_range:
-            start_bin, end_bin = bin_range.split('-')
-            start_bin, end_bin = start_bin.strip().ljust(15, '0'), end_bin.strip().ljust(15, '9')
-            neighbor_minus_1, neighbor_plus_1 = str(int(start_bin.strip()) - 1).ljust(15, '9'), str(int(end_bin.strip()) + 1).ljust(15, '0')
-        else:
-            start_bin = end_bin = bin_range.strip().ljust(15, '0')
-            neighbor_minus_1, neighbor_plus_1 = str(int(bin_range.strip()) - 1).ljust(15, '9'), str(int(bin_range.strip()) + 1).ljust(15, '0')
-
-        result.append((start_bin, end_bin, neighbor_minus_1, neighbor_plus_1))
-
-    logger.info(f"Calculated bins with neighbors: {result}")
-    return result
+# Utility functions...
 
 def parse_sql_statements(statements, search_items):
     """Parse SQL statements and filter by search items."""
@@ -167,17 +112,17 @@ def bin_blocking_editor(request):
         bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
         logger.info(f"Bins with neighbors: {bins_with_neighbors}")
 
-        # Load SQL statements (assuming they're read from a file or another source)
-        sql_statements = load_sql_statements()
+        # Load the generated Prod SQL statements (assume they are stored in a list or file)
+        prod_sql_statements = generate_sql_insert_statements_for_prod()
 
-        # Duplicate, modify, and merge SQL statements
-        modified_sql_statements, remaining_sql_statements = duplicate_and_modify_sql(
-            sql_statements, bins_with_neighbors, blocked_item, search_items
+        # Process Prod SQL statements
+        prod_modified_sql, prod_remaining_sql = duplicate_and_modify_sql(
+            prod_sql_statements, bins_with_neighbors, blocked_item, search_items
         )
-        merged_sorted_sql_statements = merge_and_sort_sql(modified_sql_statements, remaining_sql_statements)
+        prod_merged_sorted_sql = merge_and_sort_sql(prod_modified_sql, prod_remaining_sql)
 
-        # Log final merged SQL statements
-        logger.info(f"Final merged SQL statements: {merged_sorted_sql_statements}")
+        # Log final merged SQL statements for Prod
+        logger.info(f"Final merged Prod SQL statements: {prod_merged_sorted_sql}")
 
         # Other processing (e.g., logging user selections)
         _, expanded_search_items = categorize_and_expand_items(prod_distinct_list, search_items)
@@ -186,7 +131,7 @@ def bin_blocking_editor(request):
         context = {
             'result': processed_bins,
             'bins_with_neighbors': bins_with_neighbors,
-            'sql_statements': merged_sorted_sql_statements,
+            'prod_sql_statements': prod_merged_sorted_sql,
             'log_with_delays': log_with_delays,
             'prod_distinct_list': categorized_list
         }
@@ -201,9 +146,8 @@ def bin_blocking_editor(request):
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
 
-def load_sql_statements():
-    """Load SQL statements from a file or source."""
-    # Example logic for loading SQL statements
-    sql_file_path = os.path.join(OUTPUT_DIR, 'prod_sql_statements.sql')
+def generate_sql_insert_statements_for_prod():
+    """Generate or retrieve the previously created SQL insert statements for Prod."""
+    sql_file_path = os.path.join(OUTPUT_DIR, 'prod_insert_statements.sql')
     with open(sql_file_path, 'r') as file:
         return file.readlines()
