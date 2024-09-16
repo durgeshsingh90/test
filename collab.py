@@ -39,3 +39,4 @@ def duplicate_and_modify_sql(statements, start_end, blocked_item, search_items):
                 statements.remove(original_statement)
 
     return modified_statements, statements
+
