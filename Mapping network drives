@@ -1,15 +1,27 @@
 def preprocess_json_file(file_path):
-    """Preprocess the JSON file to remove newlines between JSON objects."""
+    """Preprocess the JSON file to remove unwanted newlines within JSON objects."""
     logger.debug(f"Starting preprocess_json_file for file: {file_path}")
 
     try:
         with open(file_path, 'r') as file:
+            # Read the entire file content
             lines = file.readlines()
 
-        # Join all lines into one string and then replace newlines between JSON objects
-        content = ''.join(lines)
-        content = re.sub(r'\}\s*\{', '},{', content)  # Ensure objects are separated by commas
-        content = f"[{content}]"  # Wrap in brackets to make it a valid JSON array
+        # Initialize variables to store processed content
+        combined_lines = []
+        current_object = ""
+
+        # Process each line to combine broken JSON objects
+        for line in lines:
+            line = line.strip()
+            if line:  # Only process non-empty lines
+                current_object += line
+                if line.endswith('}'):  # End of a JSON object
+                    combined_lines.append(current_object)
+                    current_object = ""  # Reset for the next JSON object
+
+        # Join all JSON objects into a single array
+        content = "[" + ",".join(combined_lines) + "]"
 
         with open(file_path, 'w') as file:
             file.write(content)
@@ -18,7 +30,6 @@ def preprocess_json_file(file_path):
 
     except Exception as e:
         logger.error(f"Error preprocessing JSON file {file_path}: {e}")
-
 
 def combine_json_data(file_paths):
     """Combine JSON data from multiple files after preprocessing to ensure valid JSON format."""
