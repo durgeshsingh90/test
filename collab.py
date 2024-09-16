@@ -3,7 +3,7 @@ def bin_blocking_editor(request):
     result = None
     log_with_delays = None
     prod_distinct_list = []
-    categorized_list = []  # Initialize categorized_list to ensure it's defined
+    categorized_list = []
 
     try:
         distinct_command = "sqlplus oasis77/ist0py@istu2"
@@ -17,13 +17,15 @@ def bin_blocking_editor(request):
 
     except Exception as e:
         logger.error(f"Error running distinct query: {e}")
-        # Keep categorized_list empty in case of error
         categorized_list = []
 
     if request.method == 'POST':
         # Get user inputs
         bin_input = request.POST.get('bins', '').splitlines()
         blocked_item = request.POST.get('blocked_item')
+
+        # Log the blocked_item to see if it's captured correctly
+        logger.info(f"Blocked Item selected: {blocked_item}")
 
         # Process BIN numbers
         processed_bins = process_bins(bin_input)
@@ -48,14 +50,12 @@ def bin_blocking_editor(request):
         # Log final merged SQL statements for Prod
         logger.info(f"Final merged Prod SQL statements: {prod_merged_sorted_sql}")
 
-        # Other processing (e.g., logging user selections)
-
         context = {
             'result': processed_bins,
             'bins_with_neighbors': bins_with_neighbors,
             'prod_sql_statements': prod_merged_sorted_sql,
             'log_with_delays': log_with_delays,
-            'prod_distinct_list': categorized_list  # Use the initialized categorized_list
+            'prod_distinct_list': categorized_list
         }
         logger.info("Rendering binblocker.html with context data after processing")
         return render(request, 'binblock/binblocker.html', context)
@@ -63,7 +63,7 @@ def bin_blocking_editor(request):
     context = {
         'result': result,
         'log_with_delays': log_with_delays,
-        'prod_distinct_list': categorized_list  # Use the initialized categorized_list
+        'prod_distinct_list': categorized_list
     }
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
