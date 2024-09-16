@@ -1,34 +1,32 @@
 import subprocess
 
-# Define your SQL query
+# Define the SQL query directly in the command
 sql_query = """
 set heading off
 set feedback off
 set pagesize 50000
 set linesize 1000
-spool output.txt
-select  
-refnum, Mask_pan, amount, OMNI_LOG_DT_UTC
-from oasis77.shclog 
-where refnum in ('425611726410')
-and acquirer LIKE '%000054%'
-order by OMNI_LOG_DT_UTC desc;
-spool off
+SELECT refnum, Mask_pan, amount, OMNI_LOG_DT_UTC
+FROM oasis77.shclog 
+WHERE refnum IN ('425611726410')
+AND acquirer LIKE '%000054%'
+ORDER BY OMNI_LOG_DT_UTC DESC;
 exit;
 """
 
-# Save the query to a file
-with open('query.sql', 'w') as file:
-    file.write(sql_query)
-
-# Run the SQL*Plus command
-# Make sure to replace 'your_username', 'your_password', and 'your_database' with actual credentials
+# Run the SQL*Plus command with the query
+# Replace 'your_username', 'your_password', and 'your_database' with actual credentials
 process = subprocess.run(
-    ["sqlplus", "your_username/your_password@your_database", "@query.sql"],
+    ["sqlplus", "-S", "your_username/your_password@your_database"],
+    input=sql_query,
     stdout=subprocess.PIPE,
     stderr=subprocess.PIPE,
     text=True
 )
+
+# Write the output to a text file
+with open('output.txt', 'w') as output_file:
+    output_file.write(process.stdout)
 
 # Print any errors (if any)
 if process.stderr:
