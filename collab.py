@@ -20,20 +20,22 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
 
     # Iterate over each SQL statement
     for statement in sql_statements:
-        # Extract the LOWBIN and HIGHBIN from the SQL statement
+        # Extract the fields from the SQL statement
         try:
             values_part = statement.split("VALUES (")[1]
-            values = values_part.split(",")
-            lowbin = values[0].strip(" '")  # Extract LOWBIN
-            highbin = values[1].strip(" '")  # Extract HIGHBIN
-            description = values[4].strip(" '")  # Extract DESCRIPTION
-            card_product = values[6].strip(" '")  # Extract CARDPRODUCT
+            values = [value.strip(" '") for value in values_part.split(",")]
+            
+            # Extract relevant fields for clarity
+            lowbin = values[0]  # LOWBIN
+            highbin = values[1]  # HIGHBIN
+            description = values[4]  # DESCRIPTION
+            card_product = values[6]  # CARDPRODUCT
 
-            # Ensure LOWBIN and HIGHBIN are numeric for comparison
+            # Convert LOWBIN and HIGHBIN to integers for comparison
             lowbin_int = int(lowbin)
             highbin_int = int(highbin)
         except (IndexError, ValueError):
-            logger.error(f"Error parsing LOWBIN and HIGHBIN from statement: {statement}")
+            logger.error(f"Error parsing fields from statement: {statement}")
             remaining_statements.append(statement)
             continue
 
@@ -57,19 +59,27 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 # Create three new SQL statements based on the split
                 # Part 1: Before the blocked range (if applicable)
                 if lowbin_int < start_bin_int:
-                    part1_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
-                                      f"VALUES ('{lowbin}', '{neighbor_minus_1}', '{description}', '{card_product}');"
+                    part1_values = values.copy()
+                    part1_values[0] = lowbin  # LOWBIN
+                    part1_values[1] = neighbor_minus_1  # HIGHBIN before blocked range
+                    part1_statement = f"INSERT INTO your_table_name VALUES ({', '.join(f'\'{v}\'' for v in part1_values)});"
                     modified_statements.append(part1_statement)
 
                 # Part 2: The blocked range
-                blocked_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
-                                    f"VALUES ('{start_bin}', '{end_bin}', '{blocked_item}', '{blocked_item}');"
+                blocked_values = values.copy()
+                blocked_values[0] = start_bin  # LOWBIN for blocked range
+                blocked_values[1] = end_bin  # HIGHBIN for blocked range
+                blocked_values[4] = blocked_item  # DESCRIPTION changed to blocked_item
+                blocked_values[6] = blocked_item  # CARDPRODUCT changed to blocked_item
+                blocked_statement = f"INSERT INTO your_table_name VALUES ({', '.join(f'\'{v}\'' for v in blocked_values)});"
                 modified_statements.append(blocked_statement)
 
                 # Part 3: After the blocked range (if applicable)
                 if highbin_int > end_bin_int:
-                    part3_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
-                                      f"VALUES ('{neighbor_plus_1}', '{highbin}', '{description}', '{card_product}');"
+                    part3_values = values.copy()
+                    part3_values[0] = neighbor_plus_1  # LOWBIN after blocked range
+                    part3_values[1] = highbin  # HIGHBIN
+                    part3_statement = f"INSERT INTO your_table_name VALUES ({', '.join(f'\'{v}\'' for v in part3_values)});"
                     modified_statements.append(part3_statement)
 
                 statement_modified = True
