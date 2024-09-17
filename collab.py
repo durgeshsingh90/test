@@ -1,6 +1,6 @@
 def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
     """
-    Duplicate and modify SQL statements based on processed bins and the blocked item.
+    Duplicate and modify SQL statements based on processed bins and the blocked item, applying length checks.
     
     Args:
     sql_statements (list): List of SQL statements to process.
@@ -72,8 +72,13 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     part1_values = values.copy()
                     part1_values[0] = lowbin  # Original LOWBIN
                     part1_values[1] = neighbor_minus_1  # HIGHBIN before blocked range
+                    part1_values_dict = {key: value for key, value in zip(
+                        ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
+                        part1_values
+                    )}
+                    part1_values_dict = apply_length_checks(part1_values_dict)
                     part1_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join("'{}'".format(v) for v in part1_values)
+                        insert_part, ', '.join(f"'{part1_values_dict[key]}'" for key in part1_values_dict)
                     )
                     modified_statements.append(part1_statement)
 
@@ -83,8 +88,13 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 blocked_values[1] = end_bin  # HIGHBIN for blocked range
                 blocked_values[4] = blocked_item  # DESCRIPTION changed to blocked_item
                 blocked_values[6] = blocked_item  # CARDPRODUCT changed to blocked_item
+                blocked_values_dict = {key: value for key, value in zip(
+                    ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
+                    blocked_values
+                )}
+                blocked_values_dict = apply_length_checks(blocked_values_dict)
                 blocked_statement = "{}VALUES ({});".format(
-                    insert_part, ', '.join("'{}'".format(v) for v in blocked_values)
+                    insert_part, ', '.join(f"'{blocked_values_dict[key]}'" for key in blocked_values_dict)
                 )
                 modified_statements.append(blocked_statement)
 
@@ -93,8 +103,13 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     part3_values = values.copy()
                     part3_values[0] = neighbor_plus_1  # LOWBIN after blocked range
                     part3_values[1] = highbin  # Original HIGHBIN
+                    part3_values_dict = {key: value for key, value in zip(
+                        ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
+                        part3_values
+                    )}
+                    part3_values_dict = apply_length_checks(part3_values_dict)
                     part3_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join("'{}'".format(v) for v in part3_values)
+                        insert_part, ', '.join(f"'{part3_values_dict[key]}'" for key in part3_values_dict)
                     )
                     modified_statements.append(part3_statement)
 
