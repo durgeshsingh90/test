@@ -24,6 +24,12 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
         try:
             values_part = statement.split("VALUES (")[1]
             values = [value.strip(" '") for value in values_part.split(",")]
+
+            # Ensure there are enough values to process
+            if len(values) < 7:  # Adjust this number if you have more or fewer fields in your insert statement
+                logger.error(f"Unexpected number of fields in statement: {statement}. Found {len(values)} fields.")
+                remaining_statements.append(statement)
+                continue
             
             # Extract relevant fields for clarity
             lowbin = values[0]  # LOWBIN
@@ -34,8 +40,8 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
             # Convert LOWBIN and HIGHBIN to integers for comparison
             lowbin_int = int(lowbin)
             highbin_int = int(highbin)
-        except (IndexError, ValueError):
-            logger.error(f"Error parsing fields from statement: {statement}")
+        except (IndexError, ValueError) as e:
+            logger.error(f"Error parsing fields from statement: {statement}. Error: {e}")
             remaining_statements.append(statement)
             continue
 
