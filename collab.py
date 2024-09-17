@@ -23,8 +23,8 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
         # Extract the fields from the SQL statement
         try:
             # Preserve the original format of the statement
-            insert_part, values_part = statement.split("VALUES (")
-            values_part = values_part.rstrip(");")
+            insert_part, values_part = statement.split("VALUES (", 1)
+            values_part = values_part.rstrip("); \n").strip()
 
             # Split the values part and strip each value of leading/trailing whitespace and quotes
             values = [value.strip(" '") for value in values_part.split(",")]
