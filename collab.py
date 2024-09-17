@@ -4,11 +4,10 @@ def bin_blocking_editor(request):
     log_with_delays = None
     prod_distinct_list = []
     categorized_list = []
-    processed_bins = []  # To store processed bins
-    bins_with_neighbors = []  # To store bins with neighbors
-    prod_sql_statements = []  # Production SQL insert statements
-    uat_sql_statements = []  # UAT SQL insert statements
-    prod_merged_sorted_sql = []  # Final merged production SQL insert statements
+    combined_bins = []  # Initialize the combined_bins
+    uat_sql_statements = []  # Initialize the UAT insert statements
+    prod_sql_statements = []  # Initialize the Prod insert statements
+    prod_merged_sorted_sql = []  # Initialize the merged sorted SQL
 
     try:
         distinct_command = "sqlplus oasis77/ist0py@istu2"
@@ -42,9 +41,12 @@ def bin_blocking_editor(request):
         bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
         logger.info(f"Bins with neighbors: {bins_with_neighbors}")
 
-        # Load the generated Prod SQL statements
+        # Combine consecutive bins
+        combined_bins, _ = combine_consecutives(processed_bins)  # Updated line to include combined_bins
+
+        # Load the generated Prod SQL statements (assume they are stored in a list or file)
         prod_sql_statements = generate_sql_insert_statements_for_prod()
-        uat_sql_statements = generate_sql_insert_statements_for_uat()  # Assuming you have a similar function for UAT
+        logger.info(f"Generated Prod SQL Statements: {prod_sql_statements}")
 
         # Process Prod SQL statements
         prod_modified_sql, prod_remaining_sql = duplicate_and_modify_sql(
@@ -58,17 +60,23 @@ def bin_blocking_editor(request):
         # Log final merged SQL statements for Prod
         logger.info(f"Final merged Prod SQL statements: {prod_merged_sorted_sql}")
 
-        # Prepare context for rendering the output page
-        context = {
-            'processed_bins': '\n'.join(processed_bins),  # Convert to string format
-            'production_data': '\n'.join(prod_sql_statements),  # Convert to string format
-            'uat_data': '\n'.join(uat_sql_statements),  # Convert to string format
-            'insert_statement': '\n'.join(prod_merged_sorted_sql)  # Convert to string format
-        }
-        logger.info("Rendering binblocker_output.html with processed data context")
-        return render(request, 'binblocker_output.html', context)
+        # Assuming UAT SQL statements are generated in a similar manner, we need to get those as well
+        uat_output_file = os.path.join(OUTPUT_DIR, 'uat_output.json')
+        uat_sql_statements = generate_sql_insert_statements_for_uat(uat_output_file)
 
-    # Render initial form or page if GET request or processing fails
+        context = {
+            'result': processed_bins,
+            'combined_bins': combined_bins,
+            'bins_with_neighbors': bins_with_neighbors,
+            'prod_sql_statements': prod_sql_statements,
+            'uat_sql_statements': uat_sql_statements,
+            'prod_merged_sorted_sql': prod_merged_sorted_sql,
+            'log_with_delays': log_with_delays,
+            'prod_distinct_list': prod_distinct_list  # Correctly pass the prod_distinct_list
+        }
+        logger.info("Rendering binblocker.html with context data after processing")
+        return render(request, 'binblock/binblocker.html', context)
+
     context = {
         'result': result,
         'log_with_delays': log_with_delays,
@@ -76,3 +84,4 @@ def bin_blocking_editor(request):
     }
     logger.info("Rendering binblocker.html with initial context data")
     return render(request, 'binblock/binblocker.html', context)
+
