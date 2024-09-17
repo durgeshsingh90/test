@@ -72,7 +72,9 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     part1_values = values.copy()
                     part1_values[0] = lowbin  # Original LOWBIN
                     part1_values[1] = neighbor_minus_1  # HIGHBIN before blocked range
-                    part1_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in part1_values)});"
+                    part1_statement = "{}VALUES ({});".format(
+                        insert_part, ', '.join("'{}'".format(v) for v in part1_values)
+                    )
                     modified_statements.append(part1_statement)
 
                 # Part 2: The blocked range
@@ -81,7 +83,9 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 blocked_values[1] = end_bin  # HIGHBIN for blocked range
                 blocked_values[4] = blocked_item  # DESCRIPTION changed to blocked_item
                 blocked_values[6] = blocked_item  # CARDPRODUCT changed to blocked_item
-                blocked_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in blocked_values)});"
+                blocked_statement = "{}VALUES ({});".format(
+                    insert_part, ', '.join("'{}'".format(v) for v in blocked_values)
+                )
                 modified_statements.append(blocked_statement)
 
                 # Part 3: After the blocked range (if applicable)
@@ -89,7 +93,9 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     part3_values = values.copy()
                     part3_values[0] = neighbor_plus_1  # LOWBIN after blocked range
                     part3_values[1] = highbin  # Original HIGHBIN
-                    part3_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in part3_values)});"
+                    part3_statement = "{}VALUES ({});".format(
+                        insert_part, ', '.join("'{}'".format(v) for v in part3_values)
+                    )
                     modified_statements.append(part3_statement)
 
                 statement_modified = True
