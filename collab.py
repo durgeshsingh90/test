@@ -1,6 +1,6 @@
 def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
     """
-    Duplicate and modify SQL statements based on processed bins and the blocked item, applying length checks.
+    Duplicate and modify SQL statements based on processed bins and the blocked item, applying length checks and removing empty lines.
     
     Args:
     sql_statements (list): List of SQL statements to process.
@@ -78,7 +78,7 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     )}
                     part1_values_dict = apply_length_checks(part1_values_dict)
                     part1_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join(f"'{part1_values_dict[key]}'" for key in part1_values_dict)
+                        insert_part, ', '.join(f"'{part1_values_dict[key]}'" for key in part1_values_dict if part1_values_dict[key].strip())
                     )
                     modified_statements.append(part1_statement)
 
@@ -94,7 +94,7 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 )}
                 blocked_values_dict = apply_length_checks(blocked_values_dict)
                 blocked_statement = "{}VALUES ({});".format(
-                    insert_part, ', '.join(f"'{blocked_values_dict[key]}'" for key in blocked_values_dict)
+                    insert_part, ', '.join(f"'{blocked_values_dict[key]}'" for key in blocked_values_dict if blocked_values_dict[key].strip())
                 )
                 modified_statements.append(blocked_statement)
 
@@ -109,7 +109,7 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                     )}
                     part3_values_dict = apply_length_checks(part3_values_dict)
                     part3_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join(f"'{part3_values_dict[key]}'" for key in part3_values_dict)
+                        insert_part, ', '.join(f"'{part3_values_dict[key]}'" for key in part3_values_dict if part3_values_dict[key].strip())
                     )
                     modified_statements.append(part3_statement)
 
@@ -118,6 +118,9 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
 
         if not statement_modified:
             remaining_statements.append(statement)
+
+    # Remove any empty or blank lines
+    modified_statements = [stmt for stmt in modified_statements if stmt.strip()]
 
     # Log the results of the modification process
     logger.debug(f"Modified SQL Statements: {modified_statements}")
