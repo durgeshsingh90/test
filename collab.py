@@ -22,15 +22,19 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
     for statement in sql_statements:
         # Extract the fields from the SQL statement
         try:
-            values_part = statement.split("VALUES (")[1]
-            values = [value.strip(" '") for value in values_part.rstrip(");").split(",")]
+            # Preserve the original format of the statement
+            insert_part, values_part = statement.split("VALUES (")
+            values_part = values_part.rstrip(");")
+
+            # Split the values part and strip each value of leading/trailing whitespace and quotes
+            values = [value.strip(" '") for value in values_part.split(",")]
 
             # Ensure there are enough values to process
             if len(values) < 7:  # Adjust this number if you have more or fewer fields in your insert statement
                 logger.error(f"Unexpected number of fields in statement: {statement}. Found {len(values)} fields.")
                 remaining_statements.append(statement)
                 continue
-            
+
             # Extract relevant fields for clarity
             lowbin = values[0]  # LOWBIN
             highbin = values[1]  # HIGHBIN
@@ -66,11 +70,9 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 # Part 1: Before the blocked range (if applicable)
                 if lowbin_int < start_bin_int:
                     part1_values = values.copy()
-                    part1_values[0] = lowbin  # LOWBIN
+                    part1_values[0] = lowbin  # Original LOWBIN
                     part1_values[1] = neighbor_minus_1  # HIGHBIN before blocked range
-                    part1_statement = "INSERT INTO your_table_name VALUES ({});".format(
-                        ', '.join(f"'{v}'" for v in part1_values)
-                    )
+                    part1_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in part1_values)});"
                     modified_statements.append(part1_statement)
 
                 # Part 2: The blocked range
@@ -79,19 +81,15 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 blocked_values[1] = end_bin  # HIGHBIN for blocked range
                 blocked_values[4] = blocked_item  # DESCRIPTION changed to blocked_item
                 blocked_values[6] = blocked_item  # CARDPRODUCT changed to blocked_item
-                blocked_statement = "INSERT INTO your_table_name VALUES ({});".format(
-                    ', '.join(f"'{v}'" for v in blocked_values)
-                )
+                blocked_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in blocked_values)});"
                 modified_statements.append(blocked_statement)
 
                 # Part 3: After the blocked range (if applicable)
                 if highbin_int > end_bin_int:
                     part3_values = values.copy()
                     part3_values[0] = neighbor_plus_1  # LOWBIN after blocked range
-                    part3_values[1] = highbin  # HIGHBIN
-                    part3_statement = "INSERT INTO your_table_name VALUES ({});".format(
-                        ', '.join(f"'{v}'" for v in part3_values)
-                    )
+                    part3_values[1] = highbin  # Original HIGHBIN
+                    part3_statement = f"{insert_part}VALUES ({', '.join(f"'{v}'" for v in part3_values)});"
                     modified_statements.append(part3_statement)
 
                 statement_modified = True
