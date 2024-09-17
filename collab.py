@@ -18,6 +18,10 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
     modified_statements = []
     remaining_statements = []
 
+    # Define the field names based on the order in the SQL statements
+    field_names = ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", 
+                   "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"]
+
     # Iterate over each SQL statement
     for statement in sql_statements:
         # Extract the fields from the SQL statement
@@ -30,20 +34,14 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
             values = [value.strip(" '") for value in values_part.split(",")]
 
             # Ensure there are enough values to process
-            if len(values) < 7:  # Adjust this number if you have more or fewer fields in your insert statement
+            if len(values) != len(field_names):  # Match the number of fields
                 logger.error(f"Unexpected number of fields in statement: {statement}. Found {len(values)} fields.")
                 remaining_statements.append(statement)
                 continue
 
-            # Extract relevant fields for clarity
-            lowbin = values[0]  # LOWBIN
-            highbin = values[1]  # HIGHBIN
-            description = values[4]  # DESCRIPTION
-            card_product = values[6]  # CARDPRODUCT
-
             # Convert LOWBIN and HIGHBIN to integers for comparison
-            lowbin_int = int(lowbin)
-            highbin_int = int(highbin)
+            lowbin_int = int(values[0])
+            highbin_int = int(values[1])
         except (IndexError, ValueError) as e:
             logger.error(f"Error parsing fields from statement: {statement}. Error: {e}")
             remaining_statements.append(statement)
@@ -70,15 +68,12 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 # Part 1: Before the blocked range (if applicable)
                 if lowbin_int < start_bin_int:
                     part1_values = values.copy()
-                    part1_values[0] = lowbin  # Original LOWBIN
+                    part1_values[0] = str(lowbin_int)  # Original LOWBIN
                     part1_values[1] = neighbor_minus_1  # HIGHBIN before blocked range
-                    part1_values_dict = {key: value for key, value in zip(
-                        ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
-                        part1_values
-                    )}
+                    part1_values_dict = {key: value for key, value in zip(field_names, part1_values)}
                     part1_values_dict = apply_length_checks(part1_values_dict)
                     part1_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join(f"'{part1_values_dict[key]}'" for key in part1_values_dict if part1_values_dict[key].strip())
+                        insert_part, ', '.join(f"'{part1_values_dict[key]}'" for key in field_names if part1_values_dict[key].strip())
                     )
                     modified_statements.append(part1_statement)
 
@@ -87,14 +82,11 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 blocked_values[0] = start_bin  # LOWBIN for blocked range
                 blocked_values[1] = end_bin  # HIGHBIN for blocked range
                 blocked_values[4] = blocked_item  # DESCRIPTION changed to blocked_item
-                blocked_values[6] = blocked_item  # CARDPRODUCT changed to blocked_item
-                blocked_values_dict = {key: value for key, value in zip(
-                    ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
-                    blocked_values
-                )}
+                blocked_values[7] = blocked_item  # CARDPRODUCT changed to blocked_item
+                blocked_values_dict = {key: value for key, value in zip(field_names, blocked_values)}
                 blocked_values_dict = apply_length_checks(blocked_values_dict)
                 blocked_statement = "{}VALUES ({});".format(
-                    insert_part, ', '.join(f"'{blocked_values_dict[key]}'" for key in blocked_values_dict if blocked_values_dict[key].strip())
+                    insert_part, ', '.join(f"'{blocked_values_dict[key]}'" for key in field_names if blocked_values_dict[key].strip())
                 )
                 modified_statements.append(blocked_statement)
 
@@ -102,14 +94,11 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 if highbin_int > end_bin_int:
                     part3_values = values.copy()
                     part3_values[0] = neighbor_plus_1  # LOWBIN after blocked range
-                    part3_values[1] = highbin  # Original HIGHBIN
-                    part3_values_dict = {key: value for key, value in zip(
-                        ["LOWBIN", "HIGHBIN", "O_LEVEL", "STATUS", "DESCRIPTION", "DESTINATION", "ENTITY_ID", "CARDPRODUCT", "FILE_NAME", "FILE_VERSION", "FILE_DATE"],
-                        part3_values
-                    )}
+                    part3_values[1] = str(highbin_int)  # Original HIGHBIN
+                    part3_values_dict = {key: value for key, value in zip(field_names, part3_values)}
                     part3_values_dict = apply_length_checks(part3_values_dict)
                     part3_statement = "{}VALUES ({});".format(
-                        insert_part, ', '.join(f"'{part3_values_dict[key]}'" for key in part3_values_dict if part3_values_dict[key].strip())
+                        insert_part, ', '.join(f"'{part3_values_dict[key]}'" for key in field_names if part3_values_dict[key].strip())
                     )
                     modified_statements.append(part3_statement)
 
