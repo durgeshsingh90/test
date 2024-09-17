@@ -26,6 +26,8 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
             values = values_part.split(",")
             lowbin = values[0].strip(" '")  # Extract LOWBIN
             highbin = values[1].strip(" '")  # Extract HIGHBIN
+            description = values[4].strip(" '")  # Extract DESCRIPTION
+            card_product = values[6].strip(" '")  # Extract CARDPRODUCT
 
             # Ensure LOWBIN and HIGHBIN are numeric for comparison
             lowbin_int = int(lowbin)
@@ -39,11 +41,12 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
         statement_modified = False
 
         for (start_bin, end_bin, neighbor_minus_1, neighbor_plus_1) in bins_with_neighbors:
-            # Convert start_bin to an integer for comparison
+            # Convert start_bin and end_bin to integers for comparison
             try:
                 start_bin_int = int(start_bin.strip())
+                end_bin_int = int(end_bin.strip())
             except ValueError:
-                logger.error(f"Invalid start_bin format: {start_bin}")
+                logger.error(f"Invalid start_bin or end_bin format: {start_bin}, {end_bin}")
                 continue
 
             # Check if start_bin falls within the range of LOWBIN and HIGHBIN
@@ -51,9 +54,24 @@ def duplicate_and_modify_sql(sql_statements, bins_with_neighbors, blocked_item):
                 # Log the modification details
                 logger.debug(f"Modifying SQL statement: {statement} for BIN range {start_bin} - {end_bin}")
 
-                # Example modification: Replace description with blocked item
-                modified_statement = statement.replace("DESCRIPTION", blocked_item)
-                modified_statements.append(modified_statement)
+                # Create three new SQL statements based on the split
+                # Part 1: Before the blocked range (if applicable)
+                if lowbin_int < start_bin_int:
+                    part1_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
+                                      f"VALUES ('{lowbin}', '{neighbor_minus_1}', '{description}', '{card_product}');"
+                    modified_statements.append(part1_statement)
+
+                # Part 2: The blocked range
+                blocked_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
+                                    f"VALUES ('{start_bin}', '{end_bin}', '{blocked_item}', '{blocked_item}');"
+                modified_statements.append(blocked_statement)
+
+                # Part 3: After the blocked range (if applicable)
+                if highbin_int > end_bin_int:
+                    part3_statement = f"INSERT INTO your_table_name (LOWBIN, HIGHBIN, DESCRIPTION, CARDPRODUCT) " \
+                                      f"VALUES ('{neighbor_plus_1}', '{highbin}', '{description}', '{card_product}');"
+                    modified_statements.append(part3_statement)
+
                 statement_modified = True
                 break
 
