@@ -1,53 +1,29 @@
-from django.shortcuts import render, redirect  # Import redirect
+def save_sql_statements_to_file(statements, file_path):
+    """Save SQL INSERT statements to a file and maintain a record of file paths and their statements."""
+    # Initialize a dictionary to store file paths and their corresponding statements
+    if not hasattr(save_sql_statements_to_file, "file_statements"):
+        save_sql_statements_to_file.file_statements = {}  # Attribute to store paths and statements
 
-def bin_blocking_editor(request):
-    if request.method == 'POST':
-        # Get user inputs
-        bin_input = request.POST.get('bins', '').splitlines()
-        blocked_item = request.POST.get('blocked_item')
+    logger.debug(f"Saving SQL statements to {file_path}")
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write("\n".join(statements))
+        logger.info(f"SQL statements saved to {file_path}")
+        
+        # Store the statements in the dictionary under the file path key
+        if file_path in save_sql_statements_to_file.file_statements:
+            save_sql_statements_to_file.file_statements[file_path].extend(statements)
+        else:
+            save_sql_statements_to_file.file_statements[file_path] = list(statements)
 
-        # Process BIN numbers
-        processed_bins = process_bins(bin_input)
+    except Exception as e:
+        logger.error(f"Error saving SQL statements to file {file_path}: {e}")
+    logger.debug(f"Completed saving SQL statements to {file_path}")
 
-        # Calculate neighbors for processed bins
-        bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
+# Example Usage
+# Assume `save_sql_statements_to_file` is called multiple times like this:
+save_sql_statements_to_file(["INSERT INTO ..."], "file1.sql")
+save_sql_statements_to_file(["INSERT INTO ..."], "file2.sql")
 
-        # Load the generated Prod SQL statements
-        prod_sql_statements = generate_sql_insert_statements_for_prod()
-
-        # Process Prod SQL statements
-        prod_modified_sql, prod_remaining_sql = duplicate_and_modify_sql(
-            prod_sql_statements, bins_with_neighbors, blocked_item
-        )
-        prod_merged_sorted_sql = merge_and_sort_sql(prod_modified_sql, prod_remaining_sql)
-
-        # Save the new merged insert statements
-        save_sql_statements_to_file(prod_merged_sorted_sql, os.path.join(OUTPUT_DIR, 'final_prod_insert_statements.sql'))
-
-        # Load the contents of the output files
-        with open(os.path.join(OUTPUT_DIR, 'prod_insert_statements.sql'), 'r') as file:
-            production_data = file.read()
-
-        with open(os.path.join(OUTPUT_DIR, 'uat_insert_statements.sql'), 'r') as file:
-            uat_data = file.read()
-
-        with open(os.path.join(OUTPUT_DIR, 'final_prod_insert_statements.sql'), 'r') as file:
-            insert_statement = file.read()
-
-        context = {
-            'processed_bins': processed_bins,
-            'production_data': production_data,
-            'uat_data': uat_data,
-            'insert_statement': insert_statement,
-            'prod_distinct_list': prod_distinct_list,
-        }
-
-        # Render the output page with the context data
-        return render(request, 'binblock/binblocker_output.html', context)
-
-    # Render the bin blocker page initially
-    context = {
-        'result': None,
-        'prod_distinct_list': prod_distinct_list
-    }
-    return render(request, 'binblock/binblocker.html', context)
+# At any point, you can access the saved statements like this:
+all_file_statements = save_sql_statements_to_file.file_statements
