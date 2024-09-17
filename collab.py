@@ -1,95 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workflow Steps</title>
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-  body {
-    background-color: #121212;
-    color: #e0e0e0;
-  }
-  .container {
-    margin-top: 20px;
-  }
-  .copy-btn {
-    margin-top: 10px;
-  }
-  .copied-btn {
-    background-color: green;
-    color: white;
-  }
-  .textarea-container {
-    display: flex;
-    width: 100%;
-    position: relative;
-  }
-  .line-numbers {
-    padding: 10px;
-    background: #1e1e1e;
-    border-right: 1px solid #ddd;
-    text-align: right;
-    user-select: none;
-    color: #888;
-    min-width: 40px;
-    height: 250px;
-    overflow: hidden;
-  }
-  .textarea {
-    width: 100%;
-    border: none;
-    resize: none;
-    padding: 10px;
-    font-family: monospace;
-    white-space: pre;
-    background: #1e1e1e;
-    color: #e0e0e0;
-    height: 250px;
-    overflow-y: scroll;
-    margin-left: -1px;
-  }
-  .textarea:focus {
-    outline: none;
-  }
-  .status-bar {
-    background: #1e1e1e;
-    border-top: 1px solid #ddd;
-    padding: 5px;
-    font-size: 12px;
-    color: #888;
-    display: flex;
-    justify-content: space-between;
-  }
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="row g-3">
-    <div class="col-md-6">
-      <div class="card bg-dark text-white">
-        <div class="card-body">
-          <h5 class="card-title">1. Processed Bins</h5>
-          <div class="textarea-container">
-            <div id="lineNumbers1" class="line-numbers"></div>
-            <textarea id="processedBins" class="form-control textarea" rows="12" placeholder="Enter details..." oninput="updateLineNumbers(this, 'lineNumbers1')">{{ processed_bins }}</textarea>          
-          </div>
-          <div id="statusBar1" class="status-bar">Total Lines: 0 | Selected: 0 characters</div>
-          <button onclick="copyText('processedBins', this)" class="btn btn-primary copy-btn">Copy</button>
-        </div>        
-      </div>
-    </div>
-    <!-- Repeat similar structure for Production Data, UAT Data, and Insert Statement sections -->
-  </div>
-</div>
-<!-- JavaScript functions as needed -->
-</body>
-</html>
-
-
-
-
 def bin_blocking_editor(request):
     logger.info("Bin blocking editor view accessed")
     result = None
@@ -134,7 +42,7 @@ def bin_blocking_editor(request):
         bins_with_neighbors = calculate_bins_with_neighbors(processed_bins)
         logger.info(f"Bins with neighbors: {bins_with_neighbors}")
 
-        # Load the generated Prod SQL statements (assume they are stored in a list or file)
+        # Load the generated Prod SQL statements
         prod_sql_statements = generate_sql_insert_statements_for_prod()
         uat_sql_statements = generate_sql_insert_statements_for_uat()  # Assuming you have a similar function for UAT
 
