@@ -1,46 +1,117 @@
-2024-09-24 11:51:52,421 [DEBUG] splunkparser.views: Combined DE 55: 2309F02060000000110009F03060000000000009F26080123456789ABCDEF82021A2B9F3602C3D49F34031F03029F2701CC8407A00000000430609F1E08123456789F1006010003A410009F3303E0E8809F1A02826950580000000005F2A029789A03904099C0109F3704CCDDEEFF
-2024-09-24 11:51:52,422 [DEBUG] splunkparser.views: Parsing DE 55 data with available subfields: dict_keys(['5F2A', '71', '72', '82', '84', '8A', '91', '95', '96', '9A', '9C', '9F02', '9F03', '9F09', '9F10', '9F1A', '9F1E', '9F26', '9F27', '9F33', '9F34', '9F35', '9F36', '9F37', '9F53', '9F5B', '9F60', 'DF31', '9F6E', 'DF3F'])
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 23 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 09 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag F0 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 20 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 60 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 11 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 09 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag F0 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 30 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 60 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,422 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 00 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 09 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag F2 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 60 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 80 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 12 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 34 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 56 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 78 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Truncating length for tag 9A from 2718960557141260143573869874376366452154271546965252456843973089056918478665385384919452438763148750963357592102243513792574401214027662688092160 to 3.
-2024-09-24 11:51:52,425 [DEBUG] splunkparser.views: Parsed TLV 9A: 000000
-2024-09-24 11:51:52,425 [DEBUG] splunkparser.views: Parsed TLV 5F2A: 9789
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag A0 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 39 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 04 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 09 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [DEBUG] splunkparser.views: Parsed TLV 9C: 09
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag F3 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 70 not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag 4C not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag CD not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag DE not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag EF not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [WARNING] splunkparser.views: Tag F not defined in DE 55 subfields.
-2024-09-24 11:51:52,425 [INFO] splunkparser.views: Completed parsing DE 55.
-2024-09-24 11:51:52,425 [INFO] splunkparser.views: Parsed BM 055: {'9A': '000000', '5F2A': '9789', '9C': '09'}
+24.x9.23 x9:28:x9.474 [ FromIso:12648738]************** INBOUND MESSAGE ID[AAEAwQEiZvExqQAA] ***************
+ in[129: ]<1xx>
+ in[129: ]<723E668128Ex821x>
+Bits found in Message:[2,3,4,7,11,12,13,14,15,18,19,22,23,25,32,35,37,41,42,43,49,55,6x,]
+msgno[  x]<1xx>
+Bitmap: [723e668128ex821x]
+ in[  2: ]<4818********9669>
+ in[  3: ]<x>
+ in[  4: ]<xxxxxxxxx123>
+ in[  7: ]<923>
+ in[  7: ]<928x9>
+ in[ 11: ]<52xx52>
+ in[ 12: ]<928x9>
+ in[ 13: ]<923>
+ in[ 14: ]<********>
+ in[ 15: ]<923>
+ in[ 18: ]<7x11>
+ in[ 19: ]<826>
+ in[ 22: ]<73>
+ in[ 23: ]<x>
+ in[ 25: ]<9>
+ in[ 32: ]<6>
+ in[ 32: ]<xxxx49>
+ in[ 35: ]<********>
+ in[ 37: ]<4267x952xx52>
+ in[ 41: ]<12345678>
+ in[ 42: ]<xxx1x496xx31723>
+ in[ 43: ]<Trust Payments POS TEST  >
+ in[ 43: ]<Carlisle     >
+ in[ 43: ]<GB>
+ in[ 49: ]<826>
+ in[ 49: ]<826>
+ in[ 55: ]<314>
+ in[ 55: ]<9F>
+ in[ 55: ]<x2>
+ in[ 55: ]<x6>
+ in[ 55: ]<xxxxxxxxx123>
+ in[ 55: ]<9F>
+ in[ 55: ]<x3>
+ in[ 55: ]<x6>
+ in[ 55: ]<xxxxxxxxxxxx>
+ in[ 55: ]<9F>
+ in[ 55: ]<26>
+ in[ 55: ]<x8>
+ in[ 55: ]<2ADDx16C9EF2B445>
+ in[ 55: ]<82>
+ in[ 55: ]<x2>
+ in[ 55: ]<xx6x>
+ in[ 55: ]<9F>
+ in[ 55: ]<36>
+ in[ 55: ]<x2>
+ in[ 55: ]<x226>
+ in[ 55: ]<9F>
+ in[ 55: ]<34>
+ in[ 55: ]<x3>
+ in[ 55: ]<3Fxxxx>
+ in[ 55: ]<9F>
+ in[ 55: ]<27>
+ in[ 55: ]<x1>
+ in[ 55: ]<8x>
+ in[ 55: ]<84>
+ in[ 55: ]<x7>
+ in[ 55: ]<Axxxxxxxx31x1x>
+ in[ 55: ]<9F>
+ in[ 55: ]<35>
+ in[ 55: ]<x1>
+ in[ 55: ]<21>
+ in[ 55: ]<9F>
+ in[ 55: ]<6E>
+ in[ 55: ]<x4>
+ in[ 55: ]<2388xx8x>
+ in[ 55: ]<9F>
+ in[ 55: ]<1E>
+ in[ 55: ]<x8>
+ in[ 55: ]<xx4b14a9>
+ in[ 55: ]<9F>
+ in[ 55: ]<1x>
+ in[ 55: ]<2x>
+ in[ 55: ]<1F426332Axxxxxxxxx1xx3x273xxxxxxxx4xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>
+ in[ 55: ]<9F>
+ in[ 55: ]<x9>
+ in[ 55: ]<x2>
+ in[ 55: ]<xxAx>
+ in[ 55: ]<9F>
+ in[ 55: ]<33>
+ in[ 55: ]<x3>
+ in[ 55: ]<xx68x8>
+ in[ 55: ]<9F>
+ in[ 55: ]<1A>
+ in[ 55: ]<x2>
+ in[ 55: ]<826>
+ in[ 55: ]<95>
+ in[ 55: ]<x5>
+ in[ 55: ]<xxxxxxxxxx>
+ in[ 55: ]<5F>
+ in[ 55: ]<2A>
+ in[ 55: ]<x2>
+ in[ 55: ]<826>
+ in[ 55: ]<9A>
+ in[ 55: ]<x3>
+ in[ 55: ]<24x923>
+ in[ 55: ]<9C>
+ in[ 55: ]<x1>
+ in[ 55: ]<x>
+ in[ 55: ]<9F>
+ in[ 55: ]<37>
+ in[ 55: ]<x4>
+ in[ 55: ]<xx84D3xB>
+ in[ 6x: ]<2x>
+ in[ 6x: ]<xx935CA3 xEUxx553xxK>
+ in[129: ]<9>
+ in[129: ]<35>
+ in[129: ]<CA3 xEU>
+ in[129: ]<5>
+ in[129: ]<53>
+ in[129: ]<xxK>
+ 
