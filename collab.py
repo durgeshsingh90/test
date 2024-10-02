@@ -1,117 +1,40 @@
-24.x9.23 x9:28:x9.474 [ FromIso:12648738]************** INBOUND MESSAGE ID[AAEAwQEiZvExqQAA] ***************
- in[129: ]<1xx>
- in[129: ]<723E668128Ex821x>
-Bits found in Message:[2,3,4,7,11,12,13,14,15,18,19,22,23,25,32,35,37,41,42,43,49,55,6x,]
-msgno[  x]<1xx>
-Bitmap: [723e668128ex821x]
- in[  2: ]<4818********9669>
- in[  3: ]<x>
- in[  4: ]<xxxxxxxxx123>
- in[  7: ]<923>
- in[  7: ]<928x9>
- in[ 11: ]<52xx52>
- in[ 12: ]<928x9>
- in[ 13: ]<923>
- in[ 14: ]<********>
- in[ 15: ]<923>
- in[ 18: ]<7x11>
- in[ 19: ]<826>
- in[ 22: ]<73>
- in[ 23: ]<x>
- in[ 25: ]<9>
- in[ 32: ]<6>
- in[ 32: ]<xxxx49>
- in[ 35: ]<********>
- in[ 37: ]<4267x952xx52>
- in[ 41: ]<12345678>
- in[ 42: ]<xxx1x496xx31723>
- in[ 43: ]<Trust Payments POS TEST  >
- in[ 43: ]<Carlisle     >
- in[ 43: ]<GB>
- in[ 49: ]<826>
- in[ 49: ]<826>
- in[ 55: ]<314>
- in[ 55: ]<9F>
- in[ 55: ]<x2>
- in[ 55: ]<x6>
- in[ 55: ]<xxxxxxxxx123>
- in[ 55: ]<9F>
- in[ 55: ]<x3>
- in[ 55: ]<x6>
- in[ 55: ]<xxxxxxxxxxxx>
- in[ 55: ]<9F>
- in[ 55: ]<26>
- in[ 55: ]<x8>
- in[ 55: ]<2ADDx16C9EF2B445>
- in[ 55: ]<82>
- in[ 55: ]<x2>
- in[ 55: ]<xx6x>
- in[ 55: ]<9F>
- in[ 55: ]<36>
- in[ 55: ]<x2>
- in[ 55: ]<x226>
- in[ 55: ]<9F>
- in[ 55: ]<34>
- in[ 55: ]<x3>
- in[ 55: ]<3Fxxxx>
- in[ 55: ]<9F>
- in[ 55: ]<27>
- in[ 55: ]<x1>
- in[ 55: ]<8x>
- in[ 55: ]<84>
- in[ 55: ]<x7>
- in[ 55: ]<Axxxxxxxx31x1x>
- in[ 55: ]<9F>
- in[ 55: ]<35>
- in[ 55: ]<x1>
- in[ 55: ]<21>
- in[ 55: ]<9F>
- in[ 55: ]<6E>
- in[ 55: ]<x4>
- in[ 55: ]<2388xx8x>
- in[ 55: ]<9F>
- in[ 55: ]<1E>
- in[ 55: ]<x8>
- in[ 55: ]<xx4b14a9>
- in[ 55: ]<9F>
- in[ 55: ]<1x>
- in[ 55: ]<2x>
- in[ 55: ]<1F426332Axxxxxxxxx1xx3x273xxxxxxxx4xxxxxxxxxxxxxxxxxxxxxxxxxxxxx>
- in[ 55: ]<9F>
- in[ 55: ]<x9>
- in[ 55: ]<x2>
- in[ 55: ]<xxAx>
- in[ 55: ]<9F>
- in[ 55: ]<33>
- in[ 55: ]<x3>
- in[ 55: ]<xx68x8>
- in[ 55: ]<9F>
- in[ 55: ]<1A>
- in[ 55: ]<x2>
- in[ 55: ]<826>
- in[ 55: ]<95>
- in[ 55: ]<x5>
- in[ 55: ]<xxxxxxxxxx>
- in[ 55: ]<5F>
- in[ 55: ]<2A>
- in[ 55: ]<x2>
- in[ 55: ]<826>
- in[ 55: ]<9A>
- in[ 55: ]<x3>
- in[ 55: ]<24x923>
- in[ 55: ]<9C>
- in[ 55: ]<x1>
- in[ 55: ]<x>
- in[ 55: ]<9F>
- in[ 55: ]<37>
- in[ 55: ]<x4>
- in[ 55: ]<xx84D3xB>
- in[ 6x: ]<2x>
- in[ 6x: ]<xx935CA3 xEUxx553xxK>
- in[129: ]<9>
- in[129: ]<35>
- in[129: ]<CA3 xEU>
- in[129: ]<5>
- in[129: ]<53>
- in[129: ]<xxK>
- 
+2024-10-02 13:16:17,409 [INFO] slot_booking: entering add_cron_job
+2024-10-02 13:16:17,409 [DEBUG] paramiko.transport: starting thread (client mode): 0x78dc7f50
+2024-10-02 13:16:17,420 [DEBUG] paramiko.transport: Local version/idstring: SSH-2.0-paramiko_3.4.0
+2024-10-02 13:16:17,470 [DEBUG] paramiko.transport: Remote version/idstring: SSH-2.0-OpenSSH_8.1
+2024-10-02 13:16:17,470 [INFO] paramiko.transport: Connected (version 2.0, client OpenSSH_8.1)
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: === Key exchange possibilities ===
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: kex algos: curve25519-sha256, curve25519-sha256@libssh.org, ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521, diffie-hellman-group-exchange-sha256, diffie-hellman-group16-sha512, diffie-hellman-group18-sha512, diffie-hellman-group14-sha256, diffie-hellman-group14-sha1, kex-strict-s-v00@openssh.com
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: server key: rsa-sha2-512, rsa-sha2-256, ssh-rsa, ecdsa-sha2-nistp256, ssh-ed25519
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: client encrypt: aes128-ctr, aes192-ctr, aes256-ctr
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: server encrypt: aes128-ctr, aes192-ctr, aes256-ctr
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: client mac: umac-64-etm@openssh.com, umac-128-etm@openssh.com, hmac-sha2-256-etm@openssh.com, hmac-sha2-512-etm@openssh.com, hmac-sha1-etm@openssh.com, umac-64@openssh.com, umac-128@openssh.com, hmac-sha2-256, hmac-sha2-512, hmac-sha1
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: server mac: umac-64-etm@openssh.com, umac-128-etm@openssh.com, hmac-sha2-256-etm@openssh.com, hmac-sha2-512-etm@openssh.com, hmac-sha1-etm@openssh.com, umac-64@openssh.com, umac-128@openssh.com, hmac-sha2-256, hmac-sha2-512, hmac-sha1
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: client compress: none, zlib@openssh.com
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: server compress: none, zlib@openssh.com
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: client lang: <none>
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: server lang: <none>
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: kex follows: False
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: === Key exchange agreements ===
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: Strict kex mode: True
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: Kex: curve25519-sha256@libssh.org
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: HostKey: ssh-ed25519
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: Cipher: aes128-ctr
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: MAC: hmac-sha2-256
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: Compression: none
+2024-10-02 13:16:17,472 [DEBUG] paramiko.transport: === End of kex handshake ===
+2024-10-02 13:16:17,640 [DEBUG] paramiko.transport: Resetting outbound seqno after NEWKEYS due to strict mode
+2024-10-02 13:16:17,640 [DEBUG] paramiko.transport: kex engine KexCurve25519 specified hash_algo <built-in function openssl_sha256>
+2024-10-02 13:16:17,648 [DEBUG] paramiko.transport: Switch to new keys ...
+2024-10-02 13:16:17,648 [DEBUG] paramiko.transport: Resetting inbound seqno after NEWKEYS due to strict mode
+2024-10-02 13:16:17,648 [DEBUG] paramiko.transport: Got EXT_INFO: {'server-sig-algs': b'ssh-ed25519,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521'}
+2024-10-02 13:16:17,648 [DEBUG] paramiko.transport: Adding ssh-ed25519 host key for A5CVAP1004: b'17e13c6335e42505c5aff90d6c66a99d'
+2024-10-02 13:16:17,681 [DEBUG] paramiko.transport: Trying discovered key b'3a87564dd10cee3c6c5afd1deb619f79' in C:\Users\f94gdos/.ssh/id_rsa
+2024-10-02 13:16:17,720 [DEBUG] paramiko.transport: userauth is OK
+2024-10-02 13:16:17,720 [DEBUG] paramiko.transport: Finalizing pubkey algorithm for key of type 'ssh-rsa'
+2024-10-02 13:16:17,720 [DEBUG] paramiko.transport: Our pubkey algorithm list: ['rsa-sha2-512', 'rsa-sha2-256', 'ssh-rsa']
+2024-10-02 13:16:17,720 [DEBUG] paramiko.transport: Server-side algorithm list: ['ssh-ed25519', 'ssh-rsa', 'rsa-sha2-256', 'rsa-sha2-512', 'ssh-dss', 'ecdsa-sha2-nistp256', 'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521']
+2024-10-02 13:16:17,720 [DEBUG] paramiko.transport: Agreed upon 'rsa-sha2-512' pubkey algorithm
+2024-10-02 13:16:17,760 [INFO] paramiko.transport: Auth banner: b'The computer you are logging into and the systems to which it is connected (collectively Systems) are proprietary corporate systems that contain confidential and proprietary information.  The owner will pursue any and all available legal remedies to address unauthorized users.  All use of the system is subject to monitoring.  By proceeding further you indicate your consent to such monitoring.\n'
+2024-10-02 13:16:17,760 [INFO] paramiko.transport: Authentication (publickey) failed.
+2024-10-02 13:16:17,760 [WARNING] django.request: Forbidden: /slot_booking/add-cron-job/
