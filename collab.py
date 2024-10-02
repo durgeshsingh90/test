@@ -1,3 +1,4 @@
+
 import paramiko
 import os
 
@@ -39,8 +40,8 @@ def test_ssh_connection(server, owner, private_key_path='~/.ssh/id_rsa'):
 
 # Test the connection by calling the function
 if __name__ == "__main__":
-    server = 'your_server_address_here'  # Replace with your server address
-    owner = 'your_ssh_username_here'     # Replace with the SSH username
-    private_key_path = '~/.ssh/id_rsa'    # Adjust if your private key is in a different location
+    server = 'A5CVAP1004'  # Replace with your server address
+    owner = 'z94gdos'     # Replace with the SSH username
+    private_key_path = r'C:\Users\f94gdos\.ssh\id_rsa'    # Adjust if your private key is in a different location
 
     test_ssh_connection(server, owner, private_key_path)
