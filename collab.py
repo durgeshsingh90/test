@@ -1,26 +1,46 @@
 import paramiko
 import os
-import logging
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-def test_ssh_connection():
-    server = 'your-server-address'  # Replace with your server address
-    owner = 'your-username'  # Replace with the username to login with
-    private_key_path = os.path.expanduser('~/.ssh/id_rsa')  # Adjust path if your private key is elsewhere
+def test_ssh_connection(server, owner, private_key_path='~/.ssh/id_rsa'):
+    # Expand the private key path
+    private_key_path = os.path.expanduser(private_key_path)
+    
+    # Setup the SSH client
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
         # Load the private key
         private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
-
-        # Initialize the SSH client
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
+        
         # Connect to the server
-        logger.info(f"Connecting to {server} with user {owner}...")
         ssh.connect(server, username=owner, pkey=private_key)
+        print(f"Successfully connected to {server} as {owner}")
 
-        logger.info(f"Connected successfully to
+        # Run a test command (e.g., 'whoami' to check the user)
+        stdin, stdout, stderr = ssh.exec_command('whoami')
+        output = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+
+        if error:
+            print(f"Error running command: {error}")
+        else:
+            print(f"Command output: {output}")
+
+        # Close the SSH connection
+        ssh.close()
+
+    except paramiko.AuthenticationException:
+        print("Authentication failed. Please check your credentials or SSH key.")
+    except FileNotFoundError:
+        print(f"Private key not found: {private_key_path}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+# Test the connection by calling the function
+if __name__ == "__main__":
+    server = 'your_server_address_here'  # Replace with your server address
+    owner = 'your_ssh_username_here'     # Replace with the SSH username
+    private_key_path = '~/.ssh/id_rsa'    # Adjust if your private key is in a different location
+
+    test_ssh_connection(server, owner, private_key_path)
