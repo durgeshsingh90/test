@@ -1,47 +1,100 @@
+function modifyNumbers() {
+    const input = document.getElementById('inputNumbers').value;
+    localStorage.setItem('inputNumbers', input); // Save input to local storage
 
-import paramiko
-import os
+    const addIndex = document.getElementById('addIndex').checked;
+    const addHost1 = document.getElementById('addHost1').checked;
+    const addHost2 = document.getElementById('addHost2').checked;
+    const addHost3 = document.getElementById('addHost3').checked;
+    const addHost4 = document.getElementById('addHost4').checked;
+    const addHost5 = document.getElementById('addHost5').checked;
 
-def test_ssh_connection(server, owner, private_key_path='~/.ssh/id_rsa'):
-    # Expand the private key path
-    private_key_path = os.path.expanduser(private_key_path)
-    
-    # Setup the SSH client
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    const lines = input.split('\n').filter(line => line.trim() !== ''); // Filter out empty lines
+    let modifiedLines = [];
+    let useAnd = false; // To keep track if "AND" should be used between lines
 
-    try:
-        # Load the private key
-        private_key = paramiko.RSAKey.from_private_key_file(private_key_path)
-        
-        # Connect to the server
-        ssh.connect(server, username=owner, pkey=private_key)
-        print(f"Successfully connected to {server} as {owner}")
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].replace(/\s/g, ''); // Remove spaces from each line
+        let modifiedLine = line;
 
-        # Run a test command (e.g., 'whoami' to check the user)
-        stdin, stdout, stderr = ssh.exec_command('whoami')
-        output = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
+        // Check if the line contains more than 30 digits
+        if (line.length > 30) {
+            let cleanedNumber = '';
+            // Remove '3' before every digit (hexadecimal removal)
+            for (let j = 0; j < line.length; j += 2) {
+                if (line[j] === '3') {
+                    cleanedNumber += line[j + 1];
+                }
+            }
+            modifiedLines.push(cleanedNumber); // Just push the cleaned number
+            continue; // Skip further processing for this line
+        }
 
-        if error:
-            print(f"Error running command: {error}")
-        else:
-            print(f"Command output: {output}")
+        // Check for 12-digit number
+        let match12 = line.match(/"(\d{12})"/) || line.match(/(\d{12})/);
+        if (match12) {
+            let originalNumber = match12[1];
+            let modifiedNumber = '';
+            for (let j = 0; j < originalNumber.length; j++) {
+                modifiedNumber += '3' + originalNumber[j];
+            }
+            if (line.includes(`"${originalNumber}"`)) {
+                modifiedLine = line.replace(`"${originalNumber}"`, `"${originalNumber}" OR "${modifiedNumber}"`);
+            } else {
+                modifiedLine = line.replace(originalNumber, `"${originalNumber}" OR "${modifiedNumber}"`);
+            }
+        }
 
-        # Close the SSH connection
-        ssh.close()
+        // Check for 24-digit number
+        let match24 = line.match(/"(\d{24})"/) || line.match(/(\d{24})/);
+        if (match24) {
+            let originalNumber = match24[1];
+            let cleanedNumber = '';
 
-    except paramiko.AuthenticationException:
-        print("Authentication failed. Please check your credentials or SSH key.")
-    except FileNotFoundError:
-        print(f"Private key not found: {private_key_path}")
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+            // Remove '3' before every digit (hexadecimal removal)
+            for (let j = 0; j < originalNumber.length; j += 2) {
+                if (originalNumber[j] === '3') {
+                    cleanedNumber += originalNumber[j + 1];
+                }
+            }
 
-# Test the connection by calling the function
-if __name__ == "__main__":
-    server = 'A5CVAP1004'  # Replace with your server address
-    owner = 'z94gdos'     # Replace with the SSH username
-    private_key_path = r'C:\Users\f94gdos\.ssh\id_rsa'    # Adjust if your private key is in a different location
+            // Replace in the line if applicable
+            if (line.includes(`"${originalNumber}"`)) {
+                modifiedLine = line.replace(`"${originalNumber}"`, `"${cleanedNumber}"`);
+            } else {
+                modifiedLine = line.replace(originalNumber, `"${cleanedNumber}"`);
+            }
+        }
 
-    test_ssh_connection(server, owner, private_key_path)
+        // Check if the current line contains "AND" after a number
+        if (line.trim().endsWith(" AND")) {
+            useAnd = true; // Set flag to use "AND" for the next line
+            modifiedLine = modifiedLine.replace(" AND", ""); // Remove the "AND" from the line
+        }
+
+        modifiedLines.push(modifiedLine);
+    }
+
+    // Construct the output with the correct separators
+    let output = "";
+    for (let i = 0; i < modifiedLines.length; i++) {
+        output += modifiedLines[i];
+        if (i < modifiedLines.length - 1) {
+            output += useAnd ? ' AND ' : ' OR ';
+            useAnd = false; // Reset the flag after using "AND"
+        }
+    }
+
+    // Add index and host options if checkboxes are checked
+    if (addIndex) {
+        let hosts = '';
+        if (addHost1) hosts += ' host = a4pvap068';
+        if (addHost2) hosts += ' host = a5pvap039';
+        if (addHost3) hosts += ' host = a5pvap040';
+        if (addHost4) hosts += ' host = a4pvap1003';
+        if (addHost5) hosts += ' host = a4pvap1004';
+        output = `index = "application_omnipay" ${hosts} ${output} | reverse`;
+    }
+
+    document.getElementById('outputNumbers').value = output;
+}
