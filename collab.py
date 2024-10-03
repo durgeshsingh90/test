@@ -11,27 +11,12 @@
         .flex-container {
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .input-section, .output-section {
             flex: 1;
-            margin-right: 20px;
-        }
-
-        .line-numbers {
-            border: 1px solid #ced4da;
-            background-color: #f8f9fa;
-            padding: 8px;
-            text-align: right;
-            color: #6c757d;
-            user-select: none;
-            width: 30px;
-            height: 100%;
-            overflow: hidden;
-            position: absolute;
-            left: 0;
-            top: 0;
         }
 
         .textarea-wrapper {
@@ -46,12 +31,27 @@
             height: 100%;
         }
 
+        .line-numbers {
+            border: 1px solid #ced4da;
+            background-color: #f8f9fa;
+            padding: 8px;
+            text-align: right;
+            color: #6c757d;
+            user-select: none;
+            width: 40px;
+            height: 100%;
+            overflow: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
         .btn-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             gap: 10px;
-            margin-top: 20px;
         }
 
         .form-section {
@@ -69,60 +69,60 @@
     <a href="{% url 'first_page:home' %}" class="btn btn-primary position-fixed" style="top: 10px; left: 10px;">Home</a>
     
     <div class="container bg-white p-4 rounded shadow w-75">
-        <div class="row">
-            <div class="col-md-6">
+        <div class="row flex-container">
+            <div class="col-md-5">
                 <div class="input-section">
                     <label for="inputNumbers" class="font-weight-bold">Enter RRN numbers:</label>
                     <div class="textarea-wrapper">
                         <div id="lineNumbers" class="line-numbers">1</div>
                         <textarea id="inputNumbers" class="form-control" rows="10" oninput="modifyNumbers(); updateLineNumbers();"></textarea>
                     </div>
-                    <!-- Status for Total Number of Lines -->
                     <div id="lineStatus" class="line-status">Total Lines: 1</div>
-                    <!-- Form section for Checkboxes -->
-                    <div class="form-section">
-                        <!-- Checkbox for Additional Options -->
-                        <div class="form-check">
-                            <input type="checkbox" id="addIndex" class="form-check-input" onchange="modifyNumbers()" checked>
-                            <label for="addIndex" class="form-check-label">Add "index = 'application_omnipay'"</label>
-                        </div>
-                        <!-- Checkboxes for Host Options -->
-                        <div class="form-check">
-                            <input type="checkbox" id="addHost1" class="form-check-input" onchange="modifyNumbers()">
-                            <label for="addHost1" class="form-check-label">Add "host = a4pvap068"</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" id="addHost2" class="form-check-input" onchange="modifyNumbers()">
-                            <label for="addHost2" class="form-check-label">Add "host = a5pvap039"</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" id="addHost3" class="form-check-input" onchange="modifyNumbers()">
-                            <label for="addHost3" class="form-check-label">Add "host = a5pvap040"</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" id="addHost4" class="form-check-input" onchange="modifyNumbers()">
-                            <label for="addHost4" class="form-check-label">Add "host = a4pvap1003"</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" id="addHost5" class="form-check-input" onchange="modifyNumbers()">
-                            <label for="addHost5" class="form-check-label">Add "host = a4pvap1004"</label>
-                        </div>
-                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
+
+            <!-- Middle section for Checkboxes and Buttons -->
+            <div class="col-md-2 btn-container">
+                <div class="form-section">
+                    <!-- Checkbox for Additional Options -->
+                    <div class="form-check">
+                        <input type="checkbox" id="addIndex" class="form-check-input" onchange="modifyNumbers()" checked>
+                        <label for="addIndex" class="form-check-label">Add "index = 'application_omnipay'"</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="addHost1" class="form-check-input" onchange="modifyNumbers()">
+                        <label for="addHost1" class="form-check-label">Add "host = a4pvap068"</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="addHost2" class="form-check-input" onchange="modifyNumbers()">
+                        <label for="addHost2" class="form-check-label">Add "host = a5pvap039"</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="addHost3" class="form-check-input" onchange="modifyNumbers()">
+                        <label for="addHost3" class="form-check-label">Add "host = a5pvap040"</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="addHost4" class="form-check-input" onchange="modifyNumbers()">
+                        <label for="addHost4" class="form-check-label">Add "host = a4pvap1003"</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="addHost5" class="form-check-input" onchange="modifyNumbers()">
+                        <label for="addHost5" class="form-check-label">Add "host = a4pvap1004"</label>
+                    </div>
+                </div>
+
+                <!-- Buttons Section -->
+                <button class="btn btn-secondary mt-3" onclick="removeEmptyLines()">Remove Empty Lines</button>
+                <button id="copyButton" class="btn btn-primary mt-2" onclick="copyToClipboard()">Copy</button>
+            </div>
+
+            <!-- Output Section -->
+            <div class="col-md-5">
                 <div class="output-section">
                     <label for="outputNumbers" class="font-weight-bold">Splunk Search:</label>
-                    <!-- Enlarged Output Textarea -->
                     <textarea id="outputNumbers" class="form-control" readonly></textarea>
                 </div>
             </div>
-        </div>
-
-        <!-- Buttons Section -->
-        <div class="btn-container">
-            <button class="btn btn-secondary" onclick="removeEmptyLines()">Remove Empty Lines</button>
-            <button id="copyButton" class="btn btn-primary" onclick="copyToClipboard()">Copy</button>
         </div>
     </div>
 
@@ -143,19 +143,35 @@
         });
 
         function modifyNumbers() {
-            // Your existing modifyNumbers function logic
+            const input = document.getElementById('inputNumbers').value;
+            const output = document.getElementById('outputNumbers');
+            const addIndex = document.getElementById('addIndex').checked;
+
+            let lines = input.split('\n').filter(line => line.trim() !== ''); // Remove empty lines
+            let modifiedLines = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                modifiedLines.push(line); // Simulate modification here
+            }
+
+            output.value = modifiedLines.join('\n'); // Show modified lines
+
+            // Add index to the output if checked
+            if (addIndex) {
+                output.value = `index = "application_omnipay" ${output.value}`;
+            }
         }
 
         function updateLineNumbers() {
             const input = document.getElementById('inputNumbers');
             const lineNumbers = document.getElementById('lineNumbers');
-            const lines = input.value.split('\n').filter(line => line.trim() !== ''); // Exclude empty lines
+            const lines = input.value.split('\n');
             const totalLines = lines.length;
 
-            // Generate line numbers
-            lineNumbers.innerHTML = Array(totalLines).fill(0).map((_, i) => i + 1).join('<br>');
+            // Generate line numbers dynamically
+            lineNumbers.innerHTML = Array.from({ length: totalLines }, (v, i) => i + 1).join('<br>');
 
-            // Update total line count status
             document.getElementById('lineStatus').textContent = `Total Lines: ${totalLines}`;
         }
 
