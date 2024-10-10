@@ -1,31 +1,809 @@
-# Function to read and clean numbers from a file
-def read_and_clean_file(file_path):
-    with open(file_path, 'r') as file:
-        # Read numbers, remove duplicates by converting to a set, and strip whitespace
-        numbers = set(line.strip() for line in file if line.strip())
-    # Convert the set back to a sorted list
-    return sorted(numbers)
-
-# Function to write sorted numbers back to a file
-def write_numbers_to_file(numbers, file_path):
-    with open(file_path, 'w') as file:
-        for number in numbers:
-            file.write(number + '\n')
-
-# Read and clean both files
-file1_numbers = read_and_clean_file('file1.txt')  # Replace with your actual file path
-file2_numbers = read_and_clean_file('file2.txt')  # Replace with your actual file path
-
-# Save cleaned and sorted numbers back to files (optional)
-write_numbers_to_file(file1_numbers, 'file1_cleaned_sorted.txt')
-write_numbers_to_file(file2_numbers, 'file2_cleaned_sorted.txt')
-
-# Find matching numbers
-matching_numbers = set(file1_numbers).intersection(file2_numbers)
-
-# Write matching numbers to a new file
-with open('matching_numbers.txt', 'w') as output_file:
-    for number in sorted(matching_numbers):
-        output_file.write(number + '\n')
-
-print(f"Found {len(matching_numbers)} matching numbers.")
+<STYLE type="text/css">
+TH.greenline  { TEXT-ALIGN: left; BACKGROUND-COLOR: #aaffaa;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%; BORDER-TOP: #808080 1px solid; BORDER-LEFT: #808080 1px solid; BORDER-BOTTOM: #808080 1px solid; BORDER-RIGHT: #808080 1px solid; }
+TH.redline    { TEXT-ALIGN: left; BACKGROUND-COLOR: #ffaaaa;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%; BORDER-TOP: #808080 1px solid; BORDER-LEFT: #808080 1px solid; BORDER-BOTTOM: #808080 1px solid; BORDER-RIGHT: #808080 1px solid; }
+TD.rawdatahdr { TEXT-ALIGN: left; BACKGROUND-COLOR: #ffff80;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;                                BORDER-LEFT: #808080 1px solid; BORDER-BOTTOM: #808080 1px solid;                                  }
+TD.rawdatacell{ TEXT-ALIGN: left; BACKGROUND-COLOR: #ffffff;  FONT-FAMILY: "courier new";   FONT-SIZE:75%;                                                                BORDER-BOTTOM: #808080 1px solid; BORDER-RIGHT: #808080 1px solid; }
+TD.cell1norm  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #000000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 7%;  -ms-word-break: break-all; word-break: break-all; }
+TD.cell1warn  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #FF0000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 7%;  -ms-word-break: break-all; word-break: break-all; }
+TD.cell2norm  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #000000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 10%; -ms-word-break: break-all; word-break: break-all; }
+TD.cell2warn  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #FF0000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 10%; -ms-word-break: break-all; word-break: break-all;  font-weight: bold; }
+TD.cell3      { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;                   border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 7%;  -ms-word-break: break-all; word-break: break-all; }
+TD.cell4      { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "courier new";   FONT-SIZE:75%;                   border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 5%;  -ms-word-break: break-all; word-break: break-all; }
+TD.cell5      { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "courier new";   FONT-SIZE:75%;                   border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 25%; -ms-word-break: break-all; word-break: break-all; }
+TD.cell6      { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "courier new";   FONT-SIZE:75%;                   border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 5%;  -ms-word-break: break-all; word-break: break-all; }
+TD.cell7      { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "courier new";   FONT-SIZE:75%;                   border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 25%; -ms-word-break: break-all; word-break: break-all; }
+TD.cell8norm  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #000000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 16%; -ms-word-break: break-all; word-break: break-all; }
+TD.cell8warn  { TEXT-ALIGN: left; BACKGROUND-COLOR: #eeeeee;  FONT-FAMILY: "trebuchet ms";  FONT-SIZE:75%;   COLOR: #FF0000; border-bottom: #d0d0d0 1px solid; border-right: #dddddd 1px solid; width: 16%; -ms-word-break: break-all; word-break: break-all; font-weight: bold; }
+</STYLE>
+<TABLE cellspacing="0">
+  <TBODY>
+    <tr>
+      <th class="greenline" colspan="8"></th>
+    </tr>
+    <tr>
+      <td class="rawdatahdr"></td>
+      <td class="rawdatacell" colspan="7"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+  </TBODY>
+</TABLE>
+<BR>
+</BR>
+<TABLE cellspacing="0">
+  <TBODY>
+    <tr>
+      <th class="greenline" colspan="8"></th>
+    </tr>
+    <tr>
+      <td class="rawdatahdr"></td>
+      <td class="rawdatacell" colspan="7"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7">
+      </td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+    <tr>
+      <td class="cell1norm"></td>
+      <td class="cell2norm"></td>
+      <td class="cell3"></td>
+      <td class="cell4"></td>
+      <td class="cell5"></td>
+      <td class="cell6"></td>
+      <td class="cell7"></td>
+      <td class="cell8norm"></td>
+    </tr>
+  </TBODY>
+</TABLE>
+<BR>
+</BR>
