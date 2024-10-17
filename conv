@@ -1,1 +1,300 @@
-
+html
+vx1:yz5:rxyz.7rxvx vxvxvxvx: Received by [DCI Relay Xpress (rxvxrxyz.rx), 'Diners/Discover'], &nbsp;
+&nbsp;Raw data
+rx79 (vxx117) bytes: yz1 yz1 yzvx yzvx Frx yzvx vx5 41 A8 Evx 8vx vxvx vxvx vxvx vxvx 1vx 1vx vxvx vxvx vxvx yz1 yz4 yzyz yz6 yzrx yz5 yz9 yz6 yzvx yzvx yz5 yzvx yzvx yz1 yzvx yzrx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yz1 yzyz yzvx yz1 yzvx yz1 yzvx yzvx yzvx yzyz yz5 yzrx yzyz yz9 yz1 yz4 yz6 yz6 yz1 yzrx yz4 yz1 yzvx yz1 yzvx yzvx yzvx yzyz yz5 yzrx yzyz yz9 yzvx yzvx yz5 yz9 yzvx yz1 yzvx yzvx yz8 yzvx yzvx yz1 yzvx yzvx yz7 yzvx yz1 yz1 yz1 yz1 yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz7 yz1 yz9 yz1 yz1 yz1 yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz1 yz9 yzvx yzvx yzyz yz7 yzyz yz6 yzrx yz5 yz9 yz6 yzvx yzvx yz5 yzvx yzvx yz1 yzvx yzrx yzD yzrx yz4 yzvx yz7 yz1 yzvx yz1 yz1 yz6 yzvx yz8 yzvx yzvx yzvx yz7 yz9 yz9 yzvx yzvx yzvx yzvx yzvx yz4 yz9 yz4 yz8 yz7 yz8 yz1 yz7 yz7 yzrx yz5 yz8 yzrx yzrx yzyz yzyz yz4 yz4 yz9 yz9 yzvx yzvx yzvx yz1 yzvx yzrx yzrx yzvx yzvx yzvx yzvx yzvx yz6 yz6 yz6 yz5 yz7 41 5vx 5rx 4D 41 yzvx yz1 rxvx rxvx rxvx rxvx rxvx rxvx rxvx 45 4D 56 rxvx 4F 7vx 74 69 6F 6E 61 5C 5C 6C rxvx yz5 yz5 rxvx 6F 6D 69 74 74 65 64 rxvx 5C rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx yz8 yzrx yz6 yz8 yzrx yz6 yz8 yzrx yz6 yz1 yz1 yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz1 yz5 yz8 yz9
+&nbsp;MTI
+MTI
+N4
+&nbsp;
+yz1 yz1 yzvx yzvx
+&nbsp;
+11vxvx
+[11vxvx] Authorization request
+&nbsp;BM1
+Primary bitmap
+B8
+&nbsp;
+Frx yzvx vx5 41 A8 Evx 8vx vxvx
+&nbsp;
+Frx yzvx vx5 41 A8 Evx 8vx vxvx
+Bitmap: 18 fields: 1, rx, yz, 4, 7, 11, 1rx, rxrx, rx4, rx6, yzrx, yzyz, yz5, yz7, 41, 4rx, 4yz, 49
+&nbsp;BMrx
+Secondary bitmap
+B8
+&nbsp;
+vxvx vxvx vxvx 1vx 1vx vxvx vxvx vxvx
+&nbsp;
+vxvx vxvx vxvx 1vx 1vx vxvx vxvx vxvx
+Bitmap: rx fields: 9rx, 1vxvx
+&nbsp;DEvxvxrx
+Primary account number
+N..19
+yz1 yz4
+yzyz yz6 yzrx yz5 yz9 yz6 yzvx yzvx yz5 yzvx yzvx yz1 yzvx yzrx
+14
+yz6rx596vxvx5vxvx1vxrx
+&nbsp;
+&nbsp;DEvxvxyz
+Processing code
+AN6
+&nbsp;
+yzvx yzvx yzvx yzvx yzvx yzvx
+&nbsp;
+vxvxvxvxvxvx
+&nbsp;
+&nbsp;&nbsp;DEvxvxyzSvx1
+Processing code
+ANrx
+&nbsp;
+yzvx yzvx
+&nbsp;
+vxvx
+[vxvx] Goods and services
+&nbsp;&nbsp;DEvxvxyzSvxrx
+From account
+Nrx
+&nbsp;
+yzvx yzvx
+&nbsp;
+vxvx
+[vxvx] Default account
+&nbsp;&nbsp;DEvxvxyzSvxyz
+To account
+Nrx
+&nbsp;
+yzvx yzvx
+&nbsp;
+vxvx
+[vxvx] Default account
+&nbsp;DEvxvx4
+Amount, transaction
+N1rx
+&nbsp;
+yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yzvx yz1 yzyz yzvx
+&nbsp;
+vxvxvxvxvxvxvxvxvx1yzvx
+Value of 1yzvx
+&nbsp;DEvxvx7
+Date + time, transmission
+N1vx
+&nbsp;
+yz1 yzvx yz1 yzvx yzvx yzvx yzyz yz5 yzrx yzyz
+&nbsp;
+1vx1vxvxvxyz5rxyz
+Date and time of [rxvxrx4-1vx-1vx vxvx:yz5:rxyz]
+&nbsp;DEvx11
+System trace audit number
+AN6
+&nbsp;
+yz9 yz1 yz4 yz6 yz6 yz1
+&nbsp;
+914661
+&nbsp;
+&nbsp;DEvx1rx
+Date + time, local transaction
+N1rx
+&nbsp;
+yzrx yz4 yz1 yzvx yz1 yzvx yzvx yzvx yzyz yz5 yzrx yzyz
+&nbsp;
+rx41vx1vxvxvxyz5rxyz
+Date and time of [rxvxrx4-1vx-1vx vxvx:yz5:rxyz]
+&nbsp;DEvxrxrx
+POS entry mode
+AN1rx
+&nbsp;
+yz9 yzvx yzvx yz5 yz9 yzvx yz1 yzvx yzvx yz8 yzvx yzvx
+&nbsp;
+9vxvx59vx1vxvx8vxvx
+&nbsp;
+&nbsp;&nbsp;DEvxrxrxSvx1
+Card data input capability
+AN1
+&nbsp;
+yz9
+&nbsp;
+9
+[9] Hybrid Terminal
+&nbsp;&nbsp;DEvxrxrxSvxrx
+Cardmember authentication capability
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] No Electronic Authentication
+&nbsp;&nbsp;DEvxrxrxSvxyz
+Card capture capability
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] None
+&nbsp;&nbsp;DEvxrxrxSvx4
+Operating environment
+AN1
+&nbsp;
+yz5
+&nbsp;
+5
+[5] On premises of cardmember, unattended
+&nbsp;&nbsp;DEvxrxrxSvx5
+Cardmember present
+AN1
+&nbsp;
+yz9
+&nbsp;
+9
+[9] Cardmember not present, internet
+&nbsp;&nbsp;DEvxrxrxSvx6
+Card present
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] Card not present
+&nbsp;&nbsp;DEvxrxrxSvx7
+Card data input mode
+AN1
+&nbsp;
+yz1
+&nbsp;
+1
+[1] Manual
+&nbsp;&nbsp;DEvxrxrxSvx8
+Cardmember authentication
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] No authentication
+&nbsp;&nbsp;DEvxrxrxSvx9
+Cardmember authentication entity
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] No authentication
+&nbsp;&nbsp;DEvxrxrxS1vx
+Card data output capability
+AN1
+&nbsp;
+yz8
+&nbsp;
+8
+[8] Contactless
+&nbsp;&nbsp;DEvxrxrxS11
+Terminal output capability
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] Unknown
+&nbsp;&nbsp;DEvxrxrxS1rx
+PIN capture capability
+AN1
+&nbsp;
+yzvx
+&nbsp;
+vx
+[vx] No pin capture capability
+&nbsp;DEvxrx4
+Function code
+Nyz
+&nbsp;
+yz1 yzvx yzvx
+&nbsp;
+1vxvx
+[1vxvx] Original authorization - amount accurate
+&nbsp;DEvxrx6
+Merchant category code
+N4
+&nbsp;
+yz7 yzvx yz1 yz1
+&nbsp;
+7vx11
+[7vx11] - Lodging Hotels, Motels, And Resorts
+&nbsp;DEvxyzrx
+Acquirer institution ID
+N..11
+yz1 yz1
+yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz7 yz1 yz9 yz1
+11
+vxvxvxvxvxyz67191
+&nbsp;
+&nbsp;DEvxyzyz
+Forwarding institution ID
+N..11
+yz1 yz1
+yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz1 yz9 yzvx yzvx
+11
+vxvxvxvxvxyz619vxvx
+&nbsp;
+&nbsp;DEvxyz5
+Track rx Data
+Z=D..4vx
+yzyz yz7
+yzyz yz6 yzrx yz5 yz9 yz6 yzvx yzvx yz5 yzvx yzvx yz1 yzvx yzrx yzD yzrx yz4 yzvx yz7 yz1 yzvx yz1 yz1 yz6 yzvx yz8 yzvx yzvx yzvx yz7 yz9 yz9 yzvx yzvx yzvx yzvx yzvx
+yz7
+yz6rx596vxvx5vxvx1vxrx=rx4vx71vx116vx8vxvxvx799vxvxvxvxvx
+PAN [yz6rx596vxvx5vxvx1vxrx], Expiry [rxvxrx4-vx7-yz1], Service code [1vx1], Discretionary data [16vx8vxvxvx799vxvxvxvxvx]
+&nbsp;DEvxyz7
+Acquirer reference number
+AN1rx
+&nbsp;
+yz4 yz9 yz4 yz8 yz7 yz8 yz1 yz7 yz7 yzrx yz5 yz8
+&nbsp;
+494878177rx58
+&nbsp;
+&nbsp;DEvx41
+Card acceptor terminal ID
+ANS8
+&nbsp;
+yzrx yzrx yzyz yzyz yz4 yz4 yz9 yz9
+&nbsp;
+rxrxyzyz4499
+&nbsp;
+&nbsp;DEvx4rx
+Card acceptor ID
+ANS15
+&nbsp;
+yzvx yzvx yzvx yz1 yzvx yzrx yzrx yzvx yzvx yzvx yzvx yzvx yz6 yz6 yz6
+&nbsp;
+vxvxvx1vxrxrxvxvxvxvxvx666
+&nbsp;
+&nbsp;DEvx4yz
+Card acceptor name, location
+ANS..99
+yz5 yz7
+41 5vx 5rx 4D 41 yzvx yz1 rxvx rxvx rxvx rxvx rxvx rxvx rxvx 45 4D 56 rxvx 4F 7vx 74 69 6F 6E 61 5C 5C 6C rxvx yz5 yz5 rxvx 6F 6D 69 74 74 65 64 rxvx 5C rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx rxvx yz8 yzrx yz6
+57
+APRMAvx1       EMV Optiona\\l 55 omitted \             8rx6
+&nbsp;
+&nbsp;DEvx49
+Currency code, transaction
+Nyz
+&nbsp;
+yz8 yzrx yz6
+&nbsp;
+8rx6
+UK Pound Sterling (8rx6, GBP)
+&nbsp;DEvx9rx
+Country code, transaction origin
+Nyz
+&nbsp;
+yz8 yzrx yz6
+&nbsp;
+8rx6
+United Kingdom (8rx6/GB/GBR)
+&nbsp;DE1vxvx
+Receiving institution ID
+N..11
+yz1 yz1
+yzvx yzvx yzvx yzvx yzvx yzyz yz6 yz1 yz5 yz8 yz9
+11
+vxvxvxvxvxyz61589
+&nbsp;
