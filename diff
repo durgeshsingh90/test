@@ -1,1 +1,189 @@
-
+2wx22-wx6-15T1ax:yz2:1ax.618
+ASTREX
+2axyz6
+1.wx
+1.1
+Logged by UL ASTREX on 2wx22-wx6-15T1ax:yz2:1ax.618
+Visa BASE I
+VISABASEI
+2wx22.Q2
+Default
+axyz2yz
+ax bytes, PDP Order
+false
+EBCDIC
+MasterCard GCIS
+MASTERCARDGCIS
+2wx22.Q2
+Default
+6wxyzax
+2 bytes, Network Order
+false
+EBCDIC
+DCI Relay Xpress
+DNI
+2wx22.1
+Default
+7wxwxyz
+ax bytes, Host Order
+false
+ASCII
+16 wx1 wx2 wxwx D2 wxwx wxwx wxwx 81 62 2yz wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wx1 wxwx F2 2ax 6ax 81 wx8 Ewx 8wx 12 wxwx wxwx wxwx wxwx wx1 wxwx wxwx wxax 1wx axwx 12 wxwx 1wx yz7 66 axax axax wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wxwx wx6 1yz 1yz wx6 21 59 yz2 8ax 2ax 11 59 99 wx8 26 wx1 2wx 51 wx6 ax1 72 68 F2 F1 F6 Fax F1 Fyz F5 F9 Fyz F2 F8 Fax F8 Fwx Fwx Fwx F1 Fyz F5 Fyz F5 F2 Fwx Fyz Fyz Fax F5 Fwx F2 Fyz F2 F5 Fax F2 F6 Cax 85 Aax Ayz A2 8yz 88 5C C9 D7 C7 axwx Eyz 85 A2 Ayz axwx E2 88 96 97 axwx axwx axwx axwx C2 81 A2 89 9yz 8ax 96 95 axwx axwx axwx axwx axwx C7 C2 wx9 78 wx1 wx9 wx5 8wx wxwx wxwx wxwx wxwx 1E 56 wxwx 1B wx1 wx8 F1 Fwx Fwx F1 F2 Fyz Fax F5 wx2 wxF F5 F2 Fwx Fyz Fyz Fax F5 Fwx F2 Fyz F2 F5 Fax F2 F6 wxE wxwx axwx wxwx wxwx wxwx wxwx wxwx wxwx F1 F1 axwx F1 F2 Fyz
+2wx22-wx6-1yzT1ax:wx6:22.25wxZ
+MTI
+B2
+wx1 wxwx
+wx1wxwx
+[wx1wxwx] Authorization request
+INFO
+Primary account number
+N..19
+axwx 12 wxwx 1wx yz7 66 axax axax
+axwx12wxwx1wxyz766axaxaxax
+Default
+Processing Code
+N6
+wxwx wxwx wxwx
+wxwxwxwxwxwx
+Default
+Transaction Type
+N2
+wxwx
+wxwx
+[wxwx] Goods/ service purchase (POS transaction only)
+INFO
+Account Type (from)
+N2
+wxwx
+wxwx
+[wxwx] Not applicable or not specified
+INFO
+Account Type (to)
+N2
+wxwx
+wxwx
+[wxwx] Not applicable or not specified
+INFO
+Amt, Trans
+N12
+wxwx wxwx wxwx wxwx wxwx wxwx
+wxwxwxwxwxwxwxwxwxwxwxwx
+Default
+Xmit Date &amp; Time
+N1wx
+wx6 1yz 1yz wx6 21
+wx61yz1yzwx621
+Date and time of [2wx22-wx6-1yz 1yz:wx6:21]
+INFO
+STAN
+N6
+59 yz2 8ax
+59yz28ax
+Default
+Date, Expiry
+Nax
+2ax 11
+2ax11
+Date of [2wx2ax-11-yzwx]
+INFO
+Merchant type
+Nax
+59 99
+5999
+Default
+Acquirer institution country
+Nax
+wx8 26
+wx826
+United Kingdom (826/GB/GBR)
+INFO
+POS Entry Mode
+Nax
+wx1 2wx
+wx12wx
+Default
+POS Condition Code
+N2
+51
+51
+[51] Request for Account Number and/or Address/CVV2 verification without authorization
+INFO
+Acquirer institution ID
+N..11
+ax1 72 68
+ax17268
+Default
+Retrieval Reference Number
+AN12
+F2 F1 F6 Fax F1 Fyz F5 F9 Fyz F2 F8 Fax
+216ax1yz59yz28ax
+Default
+Terminal ID
+ANS8
+F8 Fwx Fwx Fwx F1 Fyz F5 Fyz
+8wxwxwx1yz5yz
+Default
+Card Acceptor ID
+ANS15
+F5 F2 Fwx Fyz Fyz Fax F5 Fwx F2 Fyz F2 F5 Fax F2 F6
+52wxyzyzax5wx2yz25ax26
+Default
+Card Accept Name/Loc
+ANSaxwx
+Cax 85 Aax Ayz A2 8yz 88 5C C9 D7 C7 axwx Eyz 85 A2 Ayz axwx E2 88 96 97 axwx axwx axwx axwx C2 81 A2 89 9yz 8ax 96 95 axwx axwx axwx axwx axwx C7 C2
+Deutsch*IPG Test Shop    Basildon     GB
+Default
+Currency Code, Transaction
+Nax
+wx9 78
+wx978
+Euro (978, EUR)
+INFO
+Additional POS data
+N..12
+wx9
+wx9
+Default
+Terminal type
+N1
+yzwx
+wx
+[wx] Terminal type: Unspecified
+INFO
+Terminal entry capability
+N1
+yz9
+9
+[9] Terminal entry capability: Terminal does not have the capability to read card data
+INFO
+Reserved, Private
+B..256
+8wx wxwx wxwx wxwx wxwx
+8wx wxwx wxwx wxwx wxwx
+Default
+Transaction-specific data
+B..255
+56 wxwx 1B wx1 wx8 F1 Fwx Fwx F1 F2 Fyz Fax F5 wx2 wxF F5 F2 Fwx Fyz Fyz Fax F5 Fwx F2 Fyz F2 F5 Fax F2 F6
+56 wxwx 1B wx1 wx8 F1 Fwx Fwx F1 F2 Fyz Fax F5 wx2 wxF F5 F2 Fwx Fyz Fyz Fax F5 Fwx F2 Fyz F2 F5 Fax F2 F6
+Default
+Visa private-use fields
+B..256
+wxwx axwx wxwx wxwx wxwx wxwx wxwx wxwx F1 F1 axwx F1 F2 Fyz
+wxwx axwx wxwx wxwx wxwx wxwx wxwx wxwx F1 F1 axwx F1 F2 Fyz
+Default
+CVV2 Authorization Request Data and American Express CID Data
+ANS6
+F1 F1 axwx F1 F2 Fyz
+11 12yz
+Default
+Bitmap
+B8
+wxwx axwx wxwx wxwx wxwx wxwx wxwx wxwx
+wxwx axwx wxwx wxwx wxwx wxwx wxwx wxwx
+Bitmap: one field: 1wx
+INFO
+eomumOjWax/M97XyzBqLmn1ZfvuE8=
+Cyz6axR7e56lWFFTZW519QsSAAZ1PREaax6DBYyzBgw9MDybK2sQ/rtiFEtceyzVces6uB/jyHFOpnXt6BwofeqQDYAB/BdmwxdVX+V8ozKFoMnfmpCVtdPATc1BbrNegFL/Ib+LtdCH2TX5zOms8FFRqIaEnspQcsrbaBhL9Fc929szc=
+Fime ASTREX Key 1
+m81uEmyzyhkWp+n+pwxbByzufwY/daxVjwpNXFvmkI6v6xStgmtjkWnBN7vXLwMKsgaxovxV2bax+hQ9dGDn+Yjk2Ftgpax6cyYNC5MDSYJpibyiVplchFjZklHhvGBAZvyzm9QjnyimMRFGJoztwWUkgKrlANklIfSISmAEdcwxaB/tlQWM=
+AQAB
