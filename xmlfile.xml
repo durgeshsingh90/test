@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EMVCoL3OnlineMessageFormat>
+  <LogDetails>
+    <Date-Time>2022-06-15T11:32:11.618</Date-Time>
+    <LoggingTool>
+      <ProductName>ASTREX</ProductName>
+      <ProductVersion>2136</ProductVersion>
+    </LoggingTool>
+    <SchemaSelectionIndex>1.0</SchemaSelectionIndex>
+    <L3OMLVersion>1.1</L3OMLVersion>
+    <Reference>Logged by UL ASTREX on 2022-06-15T11:32:11.618</Reference>
+  </LogDetails>
+  <ConnectionList>
+    <Connection ID="{42CBCA90-18A7-4C3B-8BFA-24D3B1DE134E}">
+      <Protocol>
+        <FriendlyName>Visa BASE I</FriendlyName>
+        <SymbolicName>VISABASEI</SymbolicName>
+        <VersionInfo>2022.Q2</VersionInfo>
+      </Protocol>
+      <TCPIPParameters>
+        <Address>Default</Address>
+        <Port>1323</Port>
+        <Header>1 bytes, PDP Order</Header>
+        <Client>false</Client>
+        <Format>EBCDIC</Format>
+      </TCPIPParameters>
+    </Connection>
+    <Connection ID="{CCE2A97D-B51C-4008-ACC4-5E971DEC382D}">
+      <Protocol>
+        <FriendlyName>MasterCard GCIS</FriendlyName>
+        <SymbolicName>MASTERCARDGCIS</SymbolicName>
+        <VersionInfo>2022.Q2</VersionInfo>
+      </Protocol>
+      <TCPIPParameters>
+        <Address>Default</Address>
+        <Port>6031</Port>
+        <Header>2 bytes, Network Order</Header>
+        <Client>false</Client>
+        <Format>EBCDIC</Format>
+      </TCPIPParameters>
+    </Connection>
+    <Connection ID="{AA4D2A9C-F547-4720-8BD0-5D00CBCCC89A}">
+      <Protocol>
+        <FriendlyName>DCI Relay Xpress</FriendlyName>
+        <SymbolicName>DNI</SymbolicName>
+        <VersionInfo>2022.1</VersionInfo>
+      </Protocol>
+      <TCPIPParameters>
+        <Address>Default</Address>
+        <Port>7003</Port>
+        <Header>1 bytes, Host Order</Header>
+        <Client>false</Client>
+        <Format>ASCII</Format>
+      </TCPIPParameters>
+    </Connection>
+  </ConnectionList>
+  <OnlineMessageList>
+    <OnlineMessage Class="REQUEST" Source="{CCE2A97D-B51C-4008-ACC4-5E971DEC382D}" Destination="{42CBCA90-18A7-4C3B-8BFA-24D3B1DE134E}">
+      <RawData>16 01 02 00 D2 00 00 00 81 62 23 00 00 00 00 00 00 00 00 00 00 00 01 00 F2 21 61 81 08 E0 80 12 00 00 00 00 01 00 00 01 10 10 12 00 10 37 66 11 11 00 00 00 00 00 00 00 00 00 06 13 13 06 21 59 32 81 21 11 59 99 08 26 01 20 51 06 11 72 68 F2 F1 F6 F1 F1 F3 F5 F9 F3 F2 F8 F1 F8 F0 F0 F0 F1 F3 F5 F3 F5 F2 F0 F3 F3 F1 F5 F0 F2 F3 F2 F5 F1 F2 F6 C1 85 A1 A3 A2 83 88 5C C9 D7 C7 10 E3 85 A2 A3 10 E2 88 96 97 10 10 10 10 C2 81 A2 89 93 81 96 95 10 10 10 10 10 C7 C2 09 78 01 09 05 80 00 00 00 00 1E 56 00 1B 01 08 F1 F0 F0 F1 F2 F3 F1 F5 02 0F F5 F2 F0 F3 F3 F1 F5 F0 F2 F3 F2 F5 F1 F2 F6 0E 00 10 00 00 00 00 00 00 F1 F1 10 F1 F2 F3</RawData>
+      <MessageInfo>
+        <Date-Time>2022-06-13T11:06:22.250Z</Date-Time>
+      </MessageInfo>
+      <FieldList>
+        <Field ID="MTI">
+          <FriendlyName>MTI</FriendlyName>
+          <FieldType>B2</FieldType>
+          <FieldBinary>01 00</FieldBinary>
+          <FieldViewable>0100</FieldViewable>
+          <ToolComment>[0100] Authorization request</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.002">
+          <FriendlyName>Primary account number</FriendlyName>
+          <FieldType>N..19</FieldType>
+          <FieldBinary>10 12 00 10 37 66 11 11</FieldBinary>
+          <FieldViewable>1012001037661111</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.003">
+          <FriendlyName>Processing Code</FriendlyName>
+          <FieldType>N6</FieldType>
+          <FieldBinary>00 00 00</FieldBinary>
+          <FieldViewable>000000</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.003.SE.001">
+          <FriendlyName>Transaction Type</FriendlyName>
+          <FieldType>N2</FieldType>
+          <FieldBinary>00</FieldBinary>
+          <FieldViewable>00</FieldViewable>
+          <ToolComment>[00] Goods/ service purchase (POS transaction only)</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.003.SE.002">
+          <FriendlyName>Account Type (from)</FriendlyName>
+          <FieldType>N2</FieldType>
+          <FieldBinary>00</FieldBinary>
+          <FieldViewable>00</FieldViewable>
+          <ToolComment>[00] Not applicable or not specified</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.003.SE.003">
+          <FriendlyName>Account Type (to)</FriendlyName>
+          <FieldType>N2</FieldType>
+          <FieldBinary>00</FieldBinary>
+          <FieldViewable>00</FieldViewable>
+          <ToolComment>[00] Not applicable or not specified</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.004">
+          <FriendlyName>Amt, Trans</FriendlyName>
+          <FieldType>N12</FieldType>
+          <FieldBinary>00 00 00 00 00 00</FieldBinary>
+          <FieldViewable>000000000000</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.007">
+          <FriendlyName>Xmit Date &amp; Time</FriendlyName>
+          <FieldType>N10</FieldType>
+          <FieldBinary>06 13 13 06 21</FieldBinary>
+          <FieldViewable>0613130621</FieldViewable>
+          <ToolComment>Date and time of [2022-06-13 13:06:21]</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.011">
+          <FriendlyName>STAN</FriendlyName>
+          <FieldType>N6</FieldType>
+          <FieldBinary>59 32 81</FieldBinary>
+          <FieldViewable>593281</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.014">
+          <FriendlyName>Date, Expiry</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>21 11</FieldBinary>
+          <FieldViewable>2111</FieldViewable>
+          <ToolComment>Date of [2021-11-30]</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.018">
+          <FriendlyName>Merchant type</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>59 99</FieldBinary>
+          <FieldViewable>5999</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.019">
+          <FriendlyName>Acquirer institution country</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>08 26</FieldBinary>
+          <FieldViewable>0826</FieldViewable>
+          <ToolComment>United Kingdom (826/GB/GBR)</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.022">
+          <FriendlyName>POS Entry Mode</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>01 20</FieldBinary>
+          <FieldViewable>0120</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.025">
+          <FriendlyName>POS Condition Code</FriendlyName>
+          <FieldType>N2</FieldType>
+          <FieldBinary>51</FieldBinary>
+          <FieldViewable>51</FieldViewable>
+          <ToolComment>[51] Request for Account Number and/or Address/CVV2 verification without authorization</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.032">
+          <FriendlyName>Acquirer institution ID</FriendlyName>
+          <FieldType>N..11</FieldType>
+          <FieldBinary>11 72 68</FieldBinary>
+          <FieldViewable>117268</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.037">
+          <FriendlyName>Retrieval Reference Number</FriendlyName>
+          <FieldType>AN12</FieldType>
+          <FieldBinary>F2 F1 F6 F1 F1 F3 F5 F9 F3 F2 F8 F1</FieldBinary>
+          <FieldViewable>216113593281</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.041">
+          <FriendlyName>Terminal ID</FriendlyName>
+          <FieldType>ANS8</FieldType>
+          <FieldBinary>F8 F0 F0 F0 F1 F3 F5 F3</FieldBinary>
+          <FieldViewable>80001353</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.042">
+          <FriendlyName>Card Acceptor ID</FriendlyName>
+          <FieldType>ANS15</FieldType>
+          <FieldBinary>F5 F2 F0 F3 F3 F1 F5 F0 F2 F3 F2 F5 F1 F2 F6</FieldBinary>
+          <FieldViewable>520331502325126</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.043">
+          <FriendlyName>Card Accept Name/Loc</FriendlyName>
+          <FieldType>ANS10</FieldType>
+          <FieldBinary>C1 85 A1 A3 A2 83 88 5C C9 D7 C7 10 E3 85 A2 A3 10 E2 88 96 97 10 10 10 10 C2 81 A2 89 93 81 96 95 10 10 10 10 10 C7 C2</FieldBinary>
+          <FieldViewable>Deutsch*IPG Test Shop    Basildon     GB</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.049">
+          <FriendlyName>Currency Code, Transaction</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>09 78</FieldBinary>
+          <FieldViewable>0978</FieldViewable>
+          <ToolComment>Euro (978, EUR)</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.060">
+          <FriendlyName>Additional POS data</FriendlyName>
+          <FieldType>N..12</FieldType>
+          <FieldBinary>09</FieldBinary>
+          <FieldViewable>09</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.060.SE.001">
+          <FriendlyName>Terminal type</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>30</FieldBinary>
+          <FieldViewable>0</FieldViewable>
+          <ToolComment>[0] Terminal type: Unspecified</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.060.SE.002">
+          <FriendlyName>Terminal entry capability</FriendlyName>
+          <FieldType>N1</FieldType>
+          <FieldBinary>39</FieldBinary>
+          <FieldViewable>9</FieldViewable>
+          <ToolComment>[9] Terminal entry capability: Terminal does not have the capability to read card data</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+        <Field ID="NET.0100.DE.062">
+          <FriendlyName>Reserved, Private</FriendlyName>
+          <FieldType>B..256</FieldType>
+          <FieldBinary>80 00 00 00 00</FieldBinary>
+          <FieldViewable>80 00 00 00 00</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.063">
+          <FriendlyName>Transaction-specific data</FriendlyName>
+          <FieldType>B..255</FieldType>
+          <FieldBinary>56 00 1B 01 08 F1 F0 F0 F1 F2 F3 F1 F5 02 0F F5 F2 F0 F3 F3 F1 F5 F0 F2 F3 F2 F5 F1 F2 F6</FieldBinary>
+          <FieldViewable>56 00 1B 01 08 F1 F0 F0 F1 F2 F3 F1 F5 02 0F F5 F2 F0 F3 F3 F1 F5 F0 F2 F3 F2 F5 F1 F2 F6</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.064">
+          <FriendlyName>Visa private-use fields</FriendlyName>
+          <FieldType>B..256</FieldType>
+          <FieldBinary>00 10 00 00 00 00 00 00 F1 F1 10 F1 F2 F3</FieldBinary>
+          <FieldViewable>00 10 00 00 00 00 00 00 F1 F1 10 F1 F2 F3</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.128">
+          <FriendlyName>CVV2 Authorization Request Data and American Express CID Data</FriendlyName>
+          <FieldType>ANS6</FieldType>
+          <FieldBinary>F1 F1 10 F1 F2 F3</FieldBinary>
+          <FieldViewable>11 123</FieldViewable>
+          <ToolComment>Default</ToolComment>
+        </Field>
+        <Field ID="NET.0100.DE.129">
+          <FriendlyName>Bitmap</FriendlyName>
+          <FieldType>B8</FieldType>
+          <FieldBinary>00 10 00 00 00 00 00 00</FieldBinary>
+          <FieldViewable>00 10 00 00 00 00 00 00</FieldViewable>
+          <ToolComment>Bitmap: one field: 10</ToolComment>
+          <ToolCommentLevel>INFO</ToolCommentLevel>
+        </Field>
+      </FieldList>
+    </OnlineMessage>
+  </OnlineMessageList>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <DigestValue></DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue></SignatureValue>
+    <KeyInfo>
+      <KeyName>Fime ASTREX Key 1</KeyName>
+      <KeyValue>
+        <RSAKeyValue>
+          <Modulus>m81uEm3yhkWp+n+p0bB3ufwY/d1VjwpNXFvmkI6v6xStgmtjkWnBN7vXLwMKsg1ovxV2b1+hQ9dGDn+Yjk2Ftgp16cyYNC5MDSYJpibyiVplchFjZklHhvGBAZv3m9QjnyimMRFGJoztwWUkgKrlANklIfSISmAEdc0aB/tlQWM=</Modulus>
+          <Exponent>AQAB</Exponent>
+        </RSAKeyValue>
+      </KeyValue>
+    </KeyInfo>
+  </Signature>
+</EMVCoL3OnlineMessageFormat>
