@@ -86,31 +86,41 @@ create_element(root, "ToolComment", "Default")
 # Create a FieldList element
 field_list = SubElement(root, "FieldList")
 
-# Parse the remaining rows and create subfields, but ignore rows where cell1norm does not contain "EMVTAG"
+# A flag to track if we are still under DE055
+is_de055_active = False
+
+# Parse the remaining rows and create subfields
 for row in soup.find_all('tr')[1:]:
     tds = row.find_all('td')
     cell1_text = tds[0].text.strip()
 
-    # Skip rows where the first cell does not contain "EMVTAG"
-    if "EMVTAG" not in cell1_text:
-        continue
+    # Check if a new DE tag is encountered
+    if "DE" in cell1_text and "055" not in cell1_text:
+        is_de055_active = False  # Stop processing EMVTAGs when another DE is encountered
 
-    field = SubElement(field_list, "Field", {"ID": "NET.1100.DE.055.TAG." + cell1_text.split('-')[-1]})
-    create_element(field, "FriendlyName", tds[1].text.strip())
-    create_element(field, "FieldType", tds[2].text.strip())
-    emv_data = SubElement(field, "EMVData", {
-        "Tag": cell1_text.split('-')[-1],
-        "Name": tds[1].text.strip(),
-        "Format": tds[2].text.strip()
-    })
-    create_element(field, "FieldBinary", tds[4].text.strip())
-    create_element(field, "FieldViewable", tds[6].text.strip())
-    if len(tds) > 7:
-        create_element(field, "ToolComment", tds[7].text.strip())
-    else:
-        create_element(field, "ToolComment", "Default")
-    create_element(field, "ToolCommentLevel", "INFO")
-    create_element(field, "FieldList")
+    # Mark that we're under DE055
+    if "DE055" in cell1_text:
+        is_de055_active = True
+        continue  # DE055 itself has been processed already
+
+    # Only process EMVTAGs under DE055
+    if is_de055_active and "EMVTAG" in cell1_text:
+        field = SubElement(field_list, "Field", {"ID": "NET.1100.DE.055.TAG." + cell1_text.split('-')[-1]})
+        create_element(field, "FriendlyName", tds[1].text.strip())
+        create_element(field, "FieldType", tds[2].text.strip())
+        emv_data = SubElement(field, "EMVData", {
+            "Tag": cell1_text.split('-')[-1],
+            "Name": tds[1].text.strip(),
+            "Format": tds[2].text.strip()
+        })
+        create_element(field, "FieldBinary", tds[4].text.strip())
+        create_element(field, "FieldViewable", tds[6].text.strip())
+        if len(tds) > 7:
+            create_element(field, "ToolComment", tds[7].text.strip())
+        else:
+            create_element(field, "ToolComment", "Default")
+        create_element(field, "ToolCommentLevel", "INFO")
+        create_element(field, "FieldList")
 
 # Generate and print the prettified XML
 xml_output = prettify_xml(root)
