@@ -1,6 +1,7 @@
 from xml.etree.ElementTree import Element, SubElement, tostring
 import xml.dom.minidom
 from bs4 import BeautifulSoup
+import re
 
 # Sample HTML snippet as a string
 html_snippet = """
@@ -54,6 +55,16 @@ html_snippet = """
   <td class="cell7"> </td>
   <td class="cell8norm">KDI (Key Derivation Index): 0x01</td>
 </tr>
+<tr>
+  <td class="cell1norm">&nbsp;DE060</td>
+  <td class="cell2norm">Other Data</td>
+  <td class="cell3">B...128</td>
+  <td class="cell4">11 22 33</td>
+  <td class="cell5">AB CD EF</td>
+  <td class="cell6">50</td>
+  <td class="cell7">AB CD EF</td>
+  <td class="cell8norm">&nbsp;</td>
+</tr>
 """
 
 # Function to create XML element with text content
@@ -75,36 +86,33 @@ soup = BeautifulSoup(html_snippet, "html.parser")
 # Create the root element for the XML
 root = Element("Field", {"ID": "NET.1100.DE.055"})
 
-# Parse the first row
-first_row = soup.find_all('tr')[0]
-create_element(root, "FriendlyName", first_row.find_all('td')[1].text.strip())
-create_element(root, "FieldType", first_row.find_all('td')[2].text.strip())
-create_element(root, "FieldBinary", first_row.find_all('td')[4].text.strip())
-create_element(root, "FieldViewable", first_row.find_all('td')[6].text.strip())
-create_element(root, "ToolComment", "Default")
+# A flag to track when we encounter DE055 and when to stop
+within_de055 = False
 
 # Create a FieldList element
 field_list = SubElement(root, "FieldList")
 
-# A flag to track if we are still under DE055
-is_de055_active = False
-
-# Parse the remaining rows and create subfields
-for row in soup.find_all('tr')[1:]:
+# Parse all rows and process them according to the DE055 logic
+for row in soup.find_all('tr'):
     tds = row.find_all('td')
     cell1_text = tds[0].text.strip()
 
-    # Check if a new DE tag is encountered
-    if "DE" in cell1_text and "055" not in cell1_text:
-        is_de055_active = False  # Stop processing EMVTAGs when another DE is encountered
+    # Check if we encounter a DE tag (e.g., DE055, DE060, etc.)
+    if re.match(r'DE\d+', cell1_text):
+        # Start processing if DE055 is encountered
+        if cell1_text == "DE055":
+            within_de055 = True
+            create_element(root, "FriendlyName", tds[1].text.strip())
+            create_element(root, "FieldType", tds[2].text.strip())
+            create_element(root, "FieldBinary", tds[4].text.strip())
+            create_element(root, "FieldViewable", tds[6].text.strip())
+            create_element(root, "ToolComment", "Default")
+        # Stop processing if any other DE tag (excluding DE055) is encountered
+        elif within_de055:
+            break
 
-    # Mark that we're under DE055
-    if "DE055" in cell1_text:
-        is_de055_active = True
-        continue  # DE055 itself has been processed already
-
-    # Only process EMVTAGs under DE055
-    if is_de055_active and "EMVTAG" in cell1_text:
+    # Process rows only if within DE055 and only if EMVTAG is present in the first cell
+    elif within_de055 and "EMVTAG" in cell1_text:
         field = SubElement(field_list, "Field", {"ID": "NET.1100.DE.055.TAG." + cell1_text.split('-')[-1]})
         create_element(field, "FriendlyName", tds[1].text.strip())
         create_element(field, "FieldType", tds[2].text.strip())
