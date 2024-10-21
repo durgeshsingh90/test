@@ -41,13 +41,8 @@ def add_field_to_list(parent, field_data, is_subfield=False):
                     ET.SubElement(field_elt, 'SearchSymbol', Name=search_symbol_name, Value=field_data['viewable'])
                     break
 
-    if field_id.startswith("NET.") and ".DE.055" in field_id:
-        # Specifically handle DE.055 fields using the custom logic
-        cleaned_binary = format_binary(field_data['binary'])
-        cleaned_viewable = field_data['viewable'].replace(' ', '').replace('-', '')
-    else:
-        cleaned_binary = field_data['binary']
-        cleaned_viewable = field_data['viewable']
+    cleaned_binary = format_binary(field_data['binary']) if field_id.startswith("NET.") and ".DE.055" in field_id else field_data['binary']
+    cleaned_viewable = field_data['viewable'].replace(' ', '').replace('-', '') if field_id.startswith("NET.") and ".DE.055" in field_id else field_data['viewable']
 
     ET.SubElement(field_elt, 'FieldType').text = field_data['type']
     ET.SubElement(field_elt, 'FieldBinary').text = cleaned_binary
@@ -62,10 +57,11 @@ def add_field_to_list(parent, field_data, is_subfield=False):
     return field_elt, field_list_elt
 
 def handle_de55_fields(parent, field_data):
-    """Add DE.055 field with EMVTAG subfields to the parent element."""
+    """Handle DE.055 fields with special handling for binary and viewable formatting."""
     field_elt = ET.Element('Field', ID=field_data['field_id'])
     ET.SubElement(field_elt, 'FriendlyName').text = field_data['friendly_name']
     ET.SubElement(field_elt, 'FieldType').text = field_data['type']
+
     cleaned_binary = format_binary(field_data['binary'])
     ET.SubElement(field_elt, 'FieldBinary').text = cleaned_binary
     ET.SubElement(field_elt, 'FieldViewable').text = field_data['viewable'].replace(' ', '').replace('-', '')
@@ -73,7 +69,6 @@ def handle_de55_fields(parent, field_data):
 
     field_list_elt = ET.SubElement(field_elt, 'FieldList')
     parent.append(field_elt)
-
     return field_elt, field_list_elt
 
 def convert_html_to_xml_with_field_list(html_table):
@@ -117,6 +112,7 @@ def convert_html_to_xml_with_field_list(html_table):
             add_field_to_list(root, field_data)
             continue
 
+        # Handling DE055 with specific formatting and special processing for subfields
         if field_id == "DE055":
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -134,11 +130,12 @@ def convert_html_to_xml_with_field_list(html_table):
                 'mti_value': mti_value
             }
 
-            # Call the custom DE.055 handler
+            # Handle DE.055 differently using the custom handler
             de55_field, de55_field_list = handle_de55_fields(root, field_data)
             parent_fields[field_data['field_id']] = de55_field_list
             continue
 
+        # Handling EMVTAG under DE055
         if field_id.startswith("EMVTAG") and de55_field_list:
             tag_value = field_id.split('-')[-1]
             friendly_name = tds[1].get_text(strip=True)
@@ -182,16 +179,7 @@ def convert_html_to_xml_with_field_list(html_table):
             de55_field_list.append(field_elt)
             continue
 
-        if de55_field_list and (
-                not field_id.startswith("EMVTAG") or
-                any(keyword in field_id for keyword in ["Byte", "oooo"])
-        ):
-            continue
-
-        if any(field_id.startswith(de) for de in skip_de):
-            continue
-
-        # Handling of all other fields
+        # Handle other DE fields with default logic
         friendly_name = tds[1].get_text(strip=True)
         field_type = tds[2].get_text(strip=True)
         field_binary = tds[4].get_text(strip=True)
@@ -221,24 +209,16 @@ def convert_html_to_xml_with_field_list(html_table):
             'mti_value': mti_value
         }
 
-        if ".SE." in field_data_id:
-            parent_field_id = field_data_id.rsplit(".SE.", 1)[0]
-            if parent_field_id in parent_fields:
-                add_field_to_list(parent_fields[parent_field_id], field_data, is_subfield=True)
-            else:
-                parent_field_elt, parent_field_list_elt = add_field_to_list(root, field_data, is_subfield=True)
-                parent_fields[parent_field_id] = parent_field_list_elt
-        else:
-            field_elt, field_list_elt = add_field_to_list(root, field_data)
-            if field_elt is not None and field_list_elt is not None:
-                parent_fields[field_data_id] = field_list_elt
+        field_elt, field_list_elt = add_field_to_list(root, field_data)
+        if field_elt is not None and field_list_elt is not None:
+            parent_fields[field_data_id] = field_list_elt
 
     xml_str = ET.tostring(root, encoding='utf-8')
     dom = xml.dom.minidom.parseString(xml_str)
     no_decl_xml_str_pretty = dom.toprettyxml(indent="  ").split('\n', 1)[1]
     return no_decl_xml_str_pretty
 
-# Example usage
+# Example of reading HTML input and writing XML output
 with open('input.html', 'r') as file:
     html_table = file.read()
 
