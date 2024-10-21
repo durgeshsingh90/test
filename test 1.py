@@ -86,14 +86,20 @@ create_element(root, "ToolComment", "Default")
 # Create a FieldList element
 field_list = SubElement(root, "FieldList")
 
-# Parse the remaining rows and create subfields
+# Parse the remaining rows and create subfields, but ignore rows where cell1norm does not contain "EMVTAG"
 for row in soup.find_all('tr')[1:]:
     tds = row.find_all('td')
-    field = SubElement(field_list, "Field", {"ID": "NET.1100.DE.055.TAG." + tds[0].text.strip().split('-')[-1]})
+    cell1_text = tds[0].text.strip()
+
+    # Skip rows where the first cell does not contain "EMVTAG"
+    if "EMVTAG" not in cell1_text:
+        continue
+
+    field = SubElement(field_list, "Field", {"ID": "NET.1100.DE.055.TAG." + cell1_text.split('-')[-1]})
     create_element(field, "FriendlyName", tds[1].text.strip())
     create_element(field, "FieldType", tds[2].text.strip())
     emv_data = SubElement(field, "EMVData", {
-        "Tag": tds[0].text.strip().split('-')[-1],
+        "Tag": cell1_text.split('-')[-1],
         "Name": tds[1].text.strip(),
         "Format": tds[2].text.strip()
     })
