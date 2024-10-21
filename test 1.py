@@ -5,6 +5,16 @@ import re
 
 # Sample HTML snippet as a string
 html_snippet = """
+    <tr>
+        <td class="cell1norm">&nbsp;DE052</td>
+        <td class="cell2norm">Primary PIN block</td>
+        <td class="cell3">B8</td>
+        <td class="cell4">&nbsp;</td>
+        <td class="cell5">C6 84 6D 34 25 5F 5C 87</td>
+        <td class="cell6">&nbsp;</td>
+        <td class="cell7">C6 84 6D 34 25 5F 5C 87</td>
+        <td class="cell8norm">&nbsp;</td>
+      </tr>
 <tr>
   <td class="cell1norm">&nbsp;DE055</td>
   <td class="cell2norm">ICC data</td>
@@ -65,6 +75,28 @@ html_snippet = """
   <td class="cell7">AB CD EF</td>
   <td class="cell8norm">&nbsp;</td>
 </tr>
+    <tr>
+      <td class="cell1norm">&nbsp;DE092</td>
+      <td class="cell2norm">Country code, transaction origin</td>
+      <td class="cell3">N3</td>
+      <td class="cell4">&nbsp;</td>
+      <td class="cell5">30 34 30</td>
+      <td class="cell6">&nbsp;</td>
+      <td class="cell7">040</td>
+      <td class="cell8norm">Austria (040/AT/AUT)</td>
+    </tr>
+    <tr>
+      <td class="cell1norm">&nbsp;DE100</td>
+      <td class="cell2norm">Receiving institution ID</td>
+      <td class="cell3">N..11</td>
+      <td class="cell4">31 31</td>
+      <td class="cell5">30 30 30 30 30 33 36 31 35 38 39</td>
+      <td class="cell6">11</td>
+      <td class="cell7">00000361589</td>
+      <td class="cell8norm">&nbsp;</td>
+    </tr>
+  </TBODY>
+</TABLE>
 """
 
 # Function to create XML element with text content
