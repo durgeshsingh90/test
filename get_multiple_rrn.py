@@ -61,53 +61,13 @@ def add_field_to_list(parent, field_data, is_subfield=False):
     parent.append(field_elt)
     return field_elt, field_list_elt
 
-def add_de55_field(parent, mti_value, field_data):
-    """Add DE55 field with its subtags to the parent element."""
-    de55_field = ET.Element('Field', ID=f"NET.{mti_value}.DE.055")
-    ET.SubElement(de55_field, 'FriendlyName').text = field_data['friendly_name']
-    ET.SubElement(de55_field, 'FieldType').text = field_data['type']
-    ET.SubElement(de55_field, 'FieldBinary').text = field_data['binary']
-    ET.SubElement(de55_field, 'FieldViewable').text = field_data['viewable']
-    ET.SubElement(de55_field, 'ToolComment').text = field_data['comment']
-
-    field_list_elt = ET.SubElement(de55_field, 'FieldList')
-    parent.append(de55_field)
-    return de55_field, field_list_elt
-
-def add_emv_tag_field(parent, mti_value, field_data):
-    """Add EMV tag fields under DE55."""
-    tag_value = field_data['field_id'].split('-')[-1]
-    
-    field_elt = ET.Element('Field', ID=f"NET.{mti_value}.DE.055.TAG.{tag_value}")
-    ET.SubElement(field_elt, 'FriendlyName').text = field_data['friendly_name']
-    ET.SubElement(field_elt, 'FieldType').text = field_data['type']
-    
-    # Add EMVData element
-    emv_data_elt = ET.Element('EMVData')
-    emv_data_elt.set("Tag", tag_value)
-    emv_data_elt.set("Name", field_data['friendly_name'])
-    emv_data_elt.set("Format", "TLV")
-    field_elt.append(emv_data_elt)
-
-    cleaned_binary = format_binary(field_data['binary'])
-    cleaned_viewable = field_data['viewable'].replace(' ', '').replace('-', '').strip()
-
-    ET.SubElement(field_elt, 'FieldBinary').text = cleaned_binary
-    ET.SubElement(field_elt, 'FieldViewable').text = cleaned_viewable
-    ET.SubElement(field_elt, 'ToolComment').text = field_data['comment']
-    ET.SubElement(field_elt, 'ToolCommentLevel').text = 'INFO'
-
-    parent.append(field_elt)
-    return field_elt
-
 def convert_html_to_xml_with_field_list(html_table):
     soup = BeautifulSoup(html_table, 'html.parser')
     rows = soup.find_all('tr')
     root = ET.Element('FieldList')
     mti_value = None
     parent_fields = {}
-    de55_field = None
-    de55_field_list = None
+    de55_field_list = None  # Initialize DE55 handling
 
     for row in rows:
         tds = row.find_all('td')
@@ -115,10 +75,12 @@ def convert_html_to_xml_with_field_list(html_table):
             continue
 
         field_id = tds[0].get_text().replace("&nbsp;", "").strip()
+        print("Processing field_id:", field_id)
 
         if field_id == "":
             continue
 
+        # Process MTI field
         if 'MTI' in field_id:
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -141,6 +103,12 @@ def convert_html_to_xml_with_field_list(html_table):
             add_field_to_list(root, field_data)
             continue
 
+        # Skip any BM fields or other non-DE fields (like BM1, BM2)
+        if field_id.startswith('BM'):
+            print(f"Skipping non-DE field: {field_id}")
+            continue
+
+        # Process DE055 specifically with EMV tags
         if field_id == "DE055":
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -158,11 +126,13 @@ def convert_html_to_xml_with_field_list(html_table):
                 'mti_value': mti_value
             }
 
-            de55_field, de55_field_list = add_de55_field(root, mti_value, field_data)
+            # Add DE055 field to the list and capture de55_field_list for subfields
+            de55_field, de55_field_list = add_field_to_list(root, field_data)
             parent_fields[field_data['field_id']] = de55_field_list
             continue
 
-        if field_id.startswith("EMVTAG") and de55_field_list:
+        # Process EMV tags inside DE055
+        if field_id.startswith("EMVTAG") and de55_field_list is not None:
             tag_value = field_id.split('-')[-1]
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -182,68 +152,86 @@ def convert_html_to_xml_with_field_list(html_table):
                 'mti_value': mti_value
             }
 
-            add_emv_tag_field(de55_field_list, mti_value, field_data)
+            emv_data_elt = ET.Element('EMVData')
+            emv_data_elt.set("Tag", tag_value)
+            emv_data_elt.set("Name", friendly_name)
+            emv_data_elt.set("Format", "TLV")
+
+            field_elt = ET.Element('Field', ID=field_data['field_id'])
+            ET.SubElement(field_elt, 'FriendlyName').text = friendly_name
+            ET.SubElement(field_elt, 'FieldType').text = field_type
+            field_elt.append(emv_data_elt)
+
+            cleaned_binary = format_binary(field_binary)
+            cleaned_viewable = field_viewable
+
+            ET.SubElement(field_elt, 'FieldBinary').text = cleaned_binary
+            ET.SubElement(field_elt, 'FieldViewable').text = cleaned_viewable
+            ET.SubElement(field_elt, 'ToolComment').text = tool_comment
+
+            if any(de in field_data['field_id'] for de in tool_comment_level_de):
+                ET.SubElement(field_elt, 'ToolCommentLevel').text = 'INFO'
+
+            # Append this EMV tag to the DE055 field list
+            de55_field_list.append(field_elt)
             continue
 
-        if any(field_id.startswith(de) for de in skip_de):
-            continue
+        # Ensure processing of other DE fields (non-DE055)
+        if field_id.startswith('DE'):
+            friendly_name = tds[1].get_text(strip=True)
+            field_type = tds[2].get_text(strip=True)
+            field_binary = tds[4].get_text(strip=True)
+            field_viewable = tds[6].get_text()
+            tool_comment = tds[7].get_text(strip=True) if tds[7].get_text(strip=True) else "Default"
 
-        # Handle other fields and subfields
-        friendly_name = tds[1].get_text(strip=True)
-        field_type = tds[2].get_text(strip=True)
-        field_binary = tds[4].get_text(strip=True)
-        field_viewable = tds[6].get_text()
-        tool_comment = tds[7].get_text(strip=True) if tds[7].get_text(strip=True) else "Default"
-
-        if 'S' in field_id and field_id.startswith('DE'):
-            parent_field_id = field_id.split('S')[0]
-            subfield_number = field_id.split('S')[-1]
-            subfield_number_padded = subfield_number.zfill(3)
-            field_data_id = f"NET.{mti_value}.DE.{parent_field_id[2:]}.SE.{subfield_number_padded}"
-        elif field_id.startswith('DE'):
-            field_data_id = f"NET.{mti_value}.DE.{field_id[2:]}"
-        elif field_id.startswith('EMVTAG'):
-            tag_value = field_id.split('-')[-1]
-            field_data_id = f"NET.{mti_value}.DE.055.TAG.{tag_value}"
-        else:
-            field_data_id = field_id
-
-        field_data = {
-            'field_id': field_data_id,
-            'friendly_name': friendly_name,
-            'type': field_type,
-            'binary': field_binary,
-            'viewable': field_viewable,
-            'comment': tool_comment,
-            'mti_value': mti_value
-        }
-
-        if ".SE." in field_data_id:
-            parent_field_id = field_data_id.rsplit(".SE.", 1)[0]
-            if parent_field_id in parent_fields:
-                add_field_to_list(parent_fields[parent_field_id], field_data, is_subfield=True)
+            if 'S' in field_id:
+                # Handle subfields of DE (e.g., DE003S01)
+                parent_field_id = field_id.split('S')[0]
+                subfield_number = field_id.split('S')[-1]
+                subfield_number_padded = subfield_number.zfill(3)
+                field_data_id = f"NET.{mti_value}.DE.{parent_field_id[2:]}.SE.{subfield_number_padded}"
             else:
-                parent_field_elt, parent_field_list_elt = add_field_to_list(root, field_data, is_subfield=True)
-                parent_fields[parent_field_id] = parent_field_list_elt
-        else:
+                # Handle regular DE fields
+                field_data_id = f"NET.{mti_value}.DE.{field_id[2:]}"
+
+            # Handle non-DE055 fields as usual
+            field_data = {
+                'field_id': field_data_id,
+                'friendly_name': friendly_name,
+                'type': field_type,
+                'binary': field_binary,
+                'viewable': field_viewable,
+                'comment': tool_comment,
+                'mti_value': mti_value
+            }
+
+            # Add other DE fields to the list
             field_elt, field_list_elt = add_field_to_list(root, field_data)
             if field_elt is not None and field_list_elt is not None:
                 parent_fields[field_data_id] = field_list_elt
 
+    # Convert XML to string and pretty print
     xml_str = ET.tostring(root, encoding='utf-8')
+    if xml_str:
+        print("XML generated successfully")
+    else:
+        print("Error generating XML")
     dom = xml.dom.minidom.parseString(xml_str)
     no_decl_xml_str_pretty = dom.toprettyxml(indent="  ").split('\n', 1)[1]
     return no_decl_xml_str_pretty
 
-# Reading and converting the HTML input
 with open('input.html', 'r') as file:
     html_table = file.read()
 
+print("HTML Content:", html_table)  # Debug: Check if the HTML content is being read correctly
+
 xml_output = convert_html_to_xml_with_field_list(html_table)
 
-# Writing the output to the XML file
-with open('output.xml', 'w', encoding='utf-8') as file:
-    file.write('<?xml version="1.0" encoding="utf-8"?>\n')
-    file.write(xml_output)
+if xml_output is None:
+    print("Error: The XML output is None. Check the conversion function.")
+else:
+    with open('output.xml', 'w', encoding='utf-8') as file:
+        file.write('<?xml version="1.0" encoding="utf-8"?>\n')
+        file.write(xml_output)
 
 print("XML output has been saved to 'output.xml'")
