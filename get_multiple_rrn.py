@@ -67,7 +67,6 @@ def convert_html_to_xml_with_field_list(html_table):
     root = ET.Element('FieldList')
     mti_value = None
     parent_fields = {}
-    de55_field_list = None  # Initialize DE55 handling
 
     for row in rows:
         tds = row.find_all('td')
@@ -103,12 +102,7 @@ def convert_html_to_xml_with_field_list(html_table):
             add_field_to_list(root, field_data)
             continue
 
-        # Skip any BM fields or other non-DE fields (like BM1, BM2)
-        if field_id.startswith('BM'):
-            print(f"Skipping non-DE field: {field_id}")
-            continue
-
-        # Process DE055 specifically with EMV tags
+        # Handle DE055 similar to DE022 but as a new DataFrame-like structure
         if field_id == "DE055":
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -126,12 +120,12 @@ def convert_html_to_xml_with_field_list(html_table):
                 'mti_value': mti_value
             }
 
-            # Add DE055 field to the list and capture de55_field_list for subfields
+            # Add DE055 field to the list and initialize for subfields
             de55_field, de55_field_list = add_field_to_list(root, field_data)
             parent_fields[field_data['field_id']] = de55_field_list
             continue
 
-        # Process EMV tags inside DE055
+        # Handle EMV tags inside DE055
         if field_id.startswith("EMVTAG") and de55_field_list is not None:
             tag_value = field_id.split('-')[-1]
             friendly_name = tds[1].get_text(strip=True)
@@ -176,7 +170,7 @@ def convert_html_to_xml_with_field_list(html_table):
             de55_field_list.append(field_elt)
             continue
 
-        # Ensure processing of other DE fields (non-DE055)
+        # Process other DE fields
         if field_id.startswith('DE'):
             friendly_name = tds[1].get_text(strip=True)
             field_type = tds[2].get_text(strip=True)
@@ -185,16 +179,13 @@ def convert_html_to_xml_with_field_list(html_table):
             tool_comment = tds[7].get_text(strip=True) if tds[7].get_text(strip=True) else "Default"
 
             if 'S' in field_id:
-                # Handle subfields of DE (e.g., DE003S01)
                 parent_field_id = field_id.split('S')[0]
                 subfield_number = field_id.split('S')[-1]
                 subfield_number_padded = subfield_number.zfill(3)
                 field_data_id = f"NET.{mti_value}.DE.{parent_field_id[2:]}.SE.{subfield_number_padded}"
             else:
-                # Handle regular DE fields
                 field_data_id = f"NET.{mti_value}.DE.{field_id[2:]}"
 
-            # Handle non-DE055 fields as usual
             field_data = {
                 'field_id': field_data_id,
                 'friendly_name': friendly_name,
