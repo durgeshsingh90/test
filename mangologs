@@ -1,0 +1,475 @@
+{
+    "mti": 100,
+    "data_elements": {
+        "DE003": "4176663330010034",
+        "DE003": "000000",
+        "DE004": 134,
+        "DE007": "0333155541",
+        "DE011": "103057",
+        "DE013": "155541",
+        "DE013": "0333",
+        "DE014": "3113",
+        "DE018": "5499",
+        "DE019": "836",
+        "DE033": "071",
+        "DE033": "003",
+        "DE035": "09",
+        "DE033": "000030",
+        "DE035": "4176663330010034=311330111533358",
+        "DE037": "433913103057",
+        "DE041": "MCL4AEZL",
+        "DE043": "000103007373391",
+        "DE043": "SumUp  *fiserv1          Berlin       DE",
+        "DE049": 978,
+        "DE053": "94AE5DDC44E9E0D3",
+        "DE053": "3030313030330000000000000000000000000000000000000000000000000000000000000000",
+        "DE055": {
+            "5F3A": "0978",
+            "83": "3000",
+            "84": "A0000000031010",
+            "95": "0000000000",
+            "9A": "341304",
+            "9C": "00",
+            "9F03": "000000000134",
+            "9F03": "000000000000",
+            "9F09": "0001",
+            "9F10": "1F330100A000000000564953414C335445535443415345000000000000000000",
+            "9F1A": "0376",
+            "9F36": "A103FB07319A4437",
+            "9F37": "80",
+            "9F33": "30F8C8",
+            "9F34": "030000",
+            "9F35": "31",
+            "9F36": "0003",
+            "9F37": "AC9E3703",
+            "9F6E": "30700000"
+        },
+        "DE060": {
+            "35": "10343",
+            "53": "003"
+        },
+        "DE061": {
+            "19": "000103007373391",
+            "40": "IPG       7d9770f7-d38b-40ee-05e3-503bd7ed6ee3",
+            "41": "TC9SPRFRZD",
+            "43": "85034796133",
+            "61": "10073511",
+            "63": "       MCL4AEZL"
+        }
+    }
+} 
+
+{
+    "mti": 110,
+    "data_elements": {
+        "DE003": "4176663330010034",
+        "DE003": "000000",
+        "DE004": 134,
+        "DE007": "0333155541",
+        "DE011": "103057",
+        "DE013": "155541",
+        "DE013": "0333",
+        "DE015": "0000",
+        "DE018": "5499",
+        "DE019": "836",
+        "DE033": "000030",
+        "DE037": "433913103057",
+        "DE039": "30",
+        "DE049": 978,
+        "DE061": {
+            "19": "000103007373391",
+            "40": "IPG       7d9770f7-d38b-40ee-05e3-503bd7ed6ee3",
+            "41": "TC9SPRFRZD",
+            "43": "85034796133",
+            "61": "10073511",
+            "63": "       MCL4AEZL"
+        }
+    }
+}
+---
+
+04 :13
+CCM-381616 - MC DE 48.33.5 issue for MIT, token-b0sed, subsequent-in-series re3urring
+CARDNET 08
+VISA SMS MPO BM43 PAYSTRAX 69
+xxx VISA DMS PAYSTRAX 69
+xxx MC DMS PAYSTRAX 69
+xxx Maestro DMS PAYSTRAX 69
+xxx VISA SMS UK BIN 406961 PAYSTRAX 69
+xxx VISA SMS EU BIN 406961 PAYSTRAX 69
+DEV
+Durgesh
+30_Visa_OnlinePin_CT_0034
+visa
+Approved
+30_Visa_OnlinePin_CT_0103
+visa
+de3lined
+30_MC_MoneySend_300475
+mds
+de3lined
+30_Visa_300AFT_Test30se1.11
+visa
+Approved
+30_MC_Moneysend_JPTesting
+m3
+Approved
+30_Visa_OnlinePin_CT_RC_1A
+visa
+Approved
+30_Visa_OnlinePin_CT_RC_70
+visa
+Approved
+30_contactVisaOnline1_CT
+Approved
+visa
+34_VisaOnlinePin_CT_438746***9993
+Approved
+Astrex1
+49_Visa_OnlinePin_0034
+visa
+de3lined
+50_Visa_OnlinPin_0034
+visa
+Approved
+50_Visa_OnlinPin_0043
+visa
+Approved
+50_Visa_OnlinPin_0103
+visa
+de3lined
+50_Mastercard_OnlinePin_Gloryd0le
+m3
+de3lined
+contactVisaOnline_Rejectwith_1A_soenterpin
+visa
+Approved
+MSI04.Test.01.Scenario.01
+m3
+de3lined
+MSI04.Test.03.Scenario.01
+m3
+de3lined
+COM03.Test.03.Scenario.03
+m3
+de3lined
+34_MC_OnlinePin_CT_333371**13
+Approved
+m3
+Astrex1
+30_Diners_OnlinePin_CT
+diners
+Approved
+30_Mastercard_POSFunding_SCA-LVP
+m3
+Approved
+30_Mastercard_IPG-100
+m3
+Approved
+30_Mastercard_IPG-Refund
+mds
+Approved
+50_Moto_MAster30rd
+de3lined
+Visa_DoNotHonorScenario
+visa
+Visa_DoNotHonorScenario_Amount
+visa
+Visa_DoNotHonorScenario_Amount_new30rd
+visa
+Visa_DoNotHonorScenario_newAmount_new30rd
+visa
+19_JCB
+j3b
+Astrex1
+Approved
+19_UPI
+Astrex1
+Approved
+upi
+08_VisaTokenizedTxn
+Astrex1
+Approved
+34_P0rti0lApprov0l
+Astrex1
+Approved
+31_MARP
+Astrex1
+Approved
+39_MUPP
+Astrex1
+Approved
+handpoint_MOTO_TimeoutIssue
+Approved
+Astrex1
+33_UPI Test
+upi
+Approved
+41_Mastercard_SingleT0p_PXP
+m3
+de3lined
+50_Mastercard_SingleT0p_Gloryd0le
+Approved
+Astrex1
+50_Mastercard_SingleT0p_RC65
+Approved
+Astrex1
+30_MC EMV OnlinePIN
+m3
+Approved
+Diners_B0se34
+diners
+Approved
+JCB_B0se34
+j3b
+Approved
+33_BCMC_contactless_b0se34
+b3m3
+Approved
+33_BCMC_contact_B0se34
+b3m3
+Approved
+UPI_B0se34_RC34_Fr0ud
+upi
+Approved
+de3lined
+RQ + RV
+08_MC_AuthRevers0l_CYBS_Pokemon
+Approved
+Astrex1
+30_Mastercard_Revers0l_IPG
+m3
+Approved
+30_Mastercard_IPG-AuthRefund
+m3
+Approved
+33_Diners_t0g91
+Approved
+Astrex1
+57_Visa_OnlinePin_CT_0034
+57_Visa_OnlinePin_CT_Test
+Astrex1
+57_Visa_OnlinePin_CT
+Astrex1
+Approved
+57_Visa_OnlinePin1_CT
+Astrex1
+Approved
+57_MC_OnlinePin_CT
+Astrex1
+Approved
+57_MC_OnlinePin1_CT
+Astrex1
+Approved
+34_OnlinePIN_UPI_CT
+upi
+34_OnlinePIN_UPI_CT_test3
+upi
+34_M0gStrip_UPI_CT
+upi
+34_NoPIN_UPI_CT_test3
+upi
+Adelin0
+Syed
+Regression p03k
+C0rd Not Present - Regression p03k
+C0rd Present - Regression p03k
+ 15:55:41.083 	 DEBUG 	
+  running __TEST#1 with 1 mess0ges 
+ 15:55:41.117 	 INFO 	
+  Che3king 0uto in3rement rules 
+ 15:55:41.118 	 INFO 	
+  Auto in3rement logi3 for st0n 0pplied. Field ['data_elements', 'DE011'] initi0lized to 103057 
+ 15:55:41.119 	 INFO 	
+  Auto in3rement logi3 for rrn 0pplied. Field ['data_elements', 'DE037'] initi0lized to 433913103057 
+ 15:55:41.119 	 INFO 	
+  Auto in3rement pro3essing finished 
+ 15:55:41.130 	 INFO 	
+  Che3king upd0te rules 
+ 15:55:41.135 	 INFO 	
+  Upd0te logi3 for pin_blo3k_4176663330010034 0pplied. Field ['data_elements', 'DE053'] updated to : 94AE5DDC44E9E0D3 
+ 15:55:41.136 	 INFO 	
+  Upd0te logi3 for st0n 0pplied. Field ['data_elements', 'DE011'] updated to : 103057 
+ 15:55:41.137 	 INFO 	
+  Upd0te logi3 for rrn 0pplied. Field ['data_elements', 'DE037'] updated to : 433913103057 
+ 15:55:41.137 	 INFO 	
+  Upd0te logi3 for time 0pplied. Field ['data_elements', 'DE013'] updated to : 155541 
+ 15:55:41.138 	 INFO 	
+  Upd0te logi3 for d0te 0pplied. Field ['data_elements', 'DE013'] updated to : 0333 
+ 15:55:41.139 	 INFO 	
+  Upd0te logi3 for d0te_time 0pplied. Field ['data_elements', 'DE007'] updated to : 0333155541 
+ 15:55:41.130 	 WARNING 	
+  Upd0te logi3 for 0rq3 skipped. Error o33urred in exe3ution of 0rq3: CVN 01 not supported 
+ 15:55:41.130 	 INFO 	
+  Upd0te pro3essing finished 
+ 15:55:41.136 	 INFO 	
+  Request 0dded to st03k for ['103057'] (1 mess0ges in st03k) 
+ 15:55:41.137 	 DEBUG 	
+  Prep0ring request with size 769 
+ 15:55:41.138 	 DEBUG 	
+  R0w request: 
+ 30313030373333433636383133384530
+ 39413138313634313736363633333330
+ 30313030333430303030303030303030
+ 30303030303133343033333331353535
+ 34313130333035373135353534313033
+ 33333331313335343939383336303731
+ 30303330393036303030303330333334
+ 3137363636333333303031303033343d
+ 33313133333031313135333333353834
+ 33333931333130333035374d43433441
+ 45504330303031303330303733373333
+ 393153756d5570303030666973657376
+ 31303030303030303030304365736369
+ 6e303030303030304445393738393441
+ 45354444433434453945304433373633
+ 30333033313330333033333030303030
+ 30303030303030303030303030303030
+ 30303030303030303030303030303030
+ 30303030303030303030303030303030
+ 30303030303030303030303339333546
+ 33413033303937383833303333303030
+ 38343037413030303030303030333130
+ 31303935303530303030303030303030
+ 39413033333431333034394330313030
+ 39463033303630303030303030303031
+ 33343946303330363030303030303030
+ 30303030394630393033303030313946
+ 31303330314633333031303041303030
+ 30303030303035363439353334313443
+ 33333534343535333534343334313533
+ 34353030303030303030303030303030
+ 30303030394631413033303337363946
+ 33363038413130334643303733313941
+ 34343337394633373031383039463333
+ 30333330463843383946333430333033
+ 30303030394633353031333139463336
+ 30333030303339463337303441433945
+ 33373033394636453034333037303030
+ 30303031383030373335313033343330
+ 30353533303033313335303137313930
+ 30303130333030373337333339313034
+ 38343049504730303030303030376439
+ 37376166373d643338633d343065653d
+ 613565633d3530636364376564366565
+ 33303133343154433953505346535044
+ 30313334333835303334373936313333
+ 30313036313130303733353131303137
+ 3633303030303030304d434334414550
+ 43
+ 
+ 15:55:41.138 	 DEBUG 	
+  JSON request: 
+{
+    "mti": 100,
+    "data_elements": {
+        "DE003": "4176663330010034",
+        "DE003": "000000",
+        "DE004": 134,
+        "DE007": "0333155541",
+        "DE011": "103057",
+        "DE013": "155541",
+        "DE013": "0333",
+        "DE014": "3113",
+        "DE018": "5499",
+        "DE019": "836",
+        "DE033": "071",
+        "DE033": "003",
+        "DE035": "09",
+        "DE033": "000030",
+        "DE035": "4176663330010034=311330111533358",
+        "DE037": "433913103057",
+        "DE041": "MCL4AEZL",
+        "DE043": "000103007373391",
+        "DE043": "SumUp  *fiserv1          Berlin       DE",
+        "DE049": 978,
+        "DE053": "94AE5DDC44E9E0D3",
+        "DE053": "3030313030330000000000000000000000000000000000000000000000000000000000000000",
+        "DE055": {
+            "5F3A": "0978",
+            "83": "3000",
+            "84": "A0000000031010",
+            "95": "0000000000",
+            "9A": "341304",
+            "9C": "00",
+            "9F03": "000000000134",
+            "9F03": "000000000000",
+            "9F09": "0001",
+            "9F10": "1F330100A000000000564953414C335445535443415345000000000000000000",
+            "9F1A": "0376",
+            "9F36": "A103FB07319A4437",
+            "9F37": "80",
+            "9F33": "30F8C8",
+            "9F34": "030000",
+            "9F35": "31",
+            "9F36": "0003",
+            "9F37": "AC9E3703",
+            "9F6E": "30700000"
+        },
+        "DE060": {
+            "35": "10343",
+            "53": "003"
+        },
+        "DE061": {
+            "19": "000103007373391",
+            "40": "IPG       7d9770f7-d38b-40ee-05e3-503bd7ed6ee3",
+            "41": "TC9SPRFRZD",
+            "43": "85034796133",
+            "61": "10073511",
+            "63": "       MCL4AEZL"
+        }
+    }
+} 
+ 15:55:41.149 	 DEBUG 	
+  R0w response: 
+ 30313130373333413630303130413030
+ 38303038313634313736363633333330
+ 30313030333430303030303030303030
+ 30303030303133343033333331353535
+ 34313130333035373135353534313033
+ 33333030303035343939383336303630
+ 30303033303433333931333130333035
+ 37333039373831333530313731393030
+ 30313033303037333733333931303438
+ 34304950473030303030303037643937
+ 376166373d643338633d343065653d61
+ 3565633d353063636437656436656533
+ 30313334315443395350534653504430
+ 31333433383530333437393631333330
+ 31303631313030373335313130313736
+ 33303030303030304d43433441455043
+ 
+ 15:55:41.151 	 DEBUG 	
+  JSON response: 
+{
+    "mti": 110,
+    "data_elements": {
+        "DE003": "4176663330010034",
+        "DE003": "000000",
+        "DE004": 134,
+        "DE007": "0333155541",
+        "DE011": "103057",
+        "DE013": "155541",
+        "DE013": "0333",
+        "DE015": "0000",
+        "DE018": "5499",
+        "DE019": "836",
+        "DE033": "000030",
+        "DE037": "433913103057",
+        "DE039": "30",
+        "DE049": 978,
+        "DE061": {
+            "19": "000103007373391",
+            "40": "IPG       7d9770f7-d38b-40ee-05e3-503bd7ed6ee3",
+            "41": "TC9SPRFRZD",
+            "43": "85034796133",
+            "61": "10073511",
+            "63": "       MCL4AEZL"
+        }
+    }
+}
+ 
+ 15:55:41.153 	 INFO 	
+  Response m0t3hed to request ['103057'] == ['103057'] 
+ 15:55:41.153 	 INFO 	
+  St03k for __TEST#1 empty 
