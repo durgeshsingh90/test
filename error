@@ -1,0 +1,69 @@
+Test No,Tested functionality,Message Type,Description,Capture method,PAN,Processing Code,Transaction Amount,Pos Entry Mode,POS Condition Code,Currency,Additional Amount ,Expected Response Code,RRN,"FP Internal Use
+Request ID",Auth Code,Currency AMT,Currency Used,,MID NUMBER,Pop Guide section,SALE /REFUND,POS Terminal Capability,Cardholder Id Method,POS Entry Mode
+,,,,,BM 02,BM 03,BM04,BM 22,BM 25,BM 49,BM 54,BM 39,BM 37,,,,,,,,,,,
+KEY ENTRY TRANSACTIONS,,,,,,,,,,,,,,,PLEASE FILL,PLEASE FILL,PLEASE FILL,,,KEY ENTRY TRANSACTIONS,,,,
+1,Keyed,0100,Sale,Keyed,4761731000000126,000000,6,01x,00,EUR,N/A,00 - Approval,,,,,,,,Reversed transaction- not to appear on 80 byte,,,,
+2,Keyed,0400,Reversal of previous,Keyed,4761731000000126,000000,6,01x,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+3,Keyed,0100,Sale,Keyed,4761731000000126,000000,6,01x,00,EUR,N/A,00 - Approval,510113100384,01Z6MQIJHC99D5SP6OKQ0H6AANUVAJVM,700645,,,,,PAN Key Entry– Signature Transaction,SALE,5,1,01
+4,Keyed,0100,Refund,Keyed,4761731000000126,200000,6,01x,00,EUR,N/A,00 - Approval,,,,,,,,PAN Key Entry– Signature Transaction,REFUND,5,1,01
+MAG STRIPE TRANSACTIONS,,,,,,,,,,,,,,,,,,,,MAG STRIPE TRANSACTIONS,,,,
+5,Card,0100,Sale,Swiped,Client Defined,000000,11,901,00,EUR,N/A,00 - Approval,,,,,,,,Reversed transaction- not to appear on 80 byte,,,,
+6,Card,0400,Reversal of previous,Swiped,Client Defined,000000,11,901,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+7,Card,0100,Sale,Swiped,Client Defined,000000,11,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe – ‘NO CVM’ Transaction,SALE,5,,90
+8,Card,0100,Refund ,Swiped,Client Defined,200000,11,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe – ‘NO CVM’ Transaction,REFUND,5,,90
+11,Card,0100,Sale,Swiped,Client Defined,000000,21,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Signature Transaction,SALE,5,1,90
+12,Card,0100,Refund ,Swiped,Client Defined,200000,21,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Signature Transaction,REFUND,5,1,90
+13,Card,0100,Sale,Swiped,Client Defined,000000,21,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Signature Transaction,SALE,5,1,90
+14,Card,0100,Refund ,Swiped,Client Defined,200000,21,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Signature Transaction,REFUND,5,1,90
+15,Card,0100,Sale,Swiped,Client Defined,000000,31,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe - Online PIN Transaction,SALE,5,2,90
+16,Card,0100,Refund ,Swiped,Client Defined,200000,31,901,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe - Online PIN Transaction,REFUND,5,2,90
+CHIP READ TRANSACTIONS,,,,,,,,,,,,,,,,,,,,CHIP READ TRANSACTIONS,,,,
+19,Card,0100,Sale,Card,VISA.CI.2010,000000,50,051,00,EUR,N/A,00 - Approval,,,,,,,,Reversed transaction- not to appear on 80 byte,,,,
+20,Card,0400,Reversal of previous,Card,VISA.CI.2010,000000,50,051,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+21,Card,0100,Sale,Card,VISA.CI.2005,000000,50,051,00,EUR,N/A,00 - Approval,510113100385,01Z6MQIJJU99D5SP6OLNAIG5UC2NTGIP,047854,,,,,OnlIne Authorised Chip read – ‘NO CVM’ Transaction,SALE,5,,05
+22,Card,0100,Refund,Card,VISA.CI.2005,200000,10,051,00,EUR,N/A,00 - Approval,,,,,,,,OnlIne Authorised Chip read – ‘NO CVM’ Transaction,REFUND,5,,05
+25,Card,0100,Sale,Card,No card available,000000,50,051,00,EUR,N/A,00 - Approval,,,,,,,,OnlIne Authorised Chip read - Signature Transaction,SALE,5,1,05
+26,Card,0100,Refund,Card,No card available,200000,10,051,00,EUR,N/A,00 - Approval,,,,,,,,OnlIne Authorised Chip read - Signature Transaction,REFUND,5,1,05
+,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+29,Card,0100,Sale,Card,VISA.CI.2013,000000,50,051,00,EUR,N/A,00 - Approval,510113100390,01Z6MQIJO099D5SP6OQ42O6Q7IHO2JBW,702282,,,,,OnlIne Authorised Chip read -  Online  PIN Transaction,SALE,5,2,05
+30,Card,0100,Refund ,Card,VISA.CI.2013,200000,50,051,00,EUR,N/A,00 - Approval,,,,,,,,OnlIne Authorised Chip read - Online PIN Transaction,REFUND,5,2,05
+29,Card,0100,Sale,Card,VISA.CI.0008 (123412),000000,50,051,00,EUR,N/A,00 - Approval,510113100391,01Z6MQIJPF99D5SP6ORNA4BA2AG5B0B8,087471,,,,,OnlIne Authorised Chip read -  Offline  PIN Transaction,SALE,5,2,05
+30,Card,0100,Refund ,Card,VISA.CI.0008,200000,50,051,00,EUR,N/A,00 - Approval,,,,,,,,OnlIne Authorised Chip read - Offline PIN Transaction,REFUND,5,2,05
+,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+33,Card,0100,Sale - Fallback to magstripe,Swiped,ICC ADVT 8,000000,50,801,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Signature Transaction,SALE,5,1,90
+CONTACTLESS CHIP READ ,,,,,,,,,,,,,,,,,,,,CONTACTLESS CHIP READ,,,,
+34,Card,0100,Sale,Contactless,VISA.CI.1002,000000,4,071,00,EUR,N/A,00 - Approval,510113100392,01Z6MQIJRF99D5SP6OS1Q0LUSMMGMQEQ,601662,,,,,Reversed transaction- not to appear on 80 byte,,,,
+35,Card,0400,Reversal of previous,Contactless,VISA.CI.1002,000000,4,071,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+36,Card,0100,Sale,Contactless,VISA.CI.2112,000000,4,071,00,EUR,N/A,00 - Approval,510113100399,01Z6MQIK1S99D5SP6P25TNM0HJE1LP3F,207479,,,,,Online Authorised Chip read – ‘NO CVM’ Contactless Transaction,SALE,5,,07
+37,Card,0100,Refund,Contactless,VISA.CI.2112,200000,4,071,00,EUR,N/A,00 - Approval,,,,,,,,Online Authorised Chip read – ‘NO CVM’ Contactless Transaction,REFUND,5,,07
+38,Card,0100,Sale,Contactless,VISA.CI.1035,000000,41,071,00,EUR,N/A,00 - Approval,510113100400,01Z6MQIK4F99D5SP6P3605HLIFRIN1MO,966286,,,,,Online Authorised Chip read – Signature Contactless Transaction,SALE,5,1,07
+39,Card,0100,Refund ,Contactless,VISA.CI.1035,200000,41,071,00,EUR,N/A,00 - Approval,,,,,,,,Online Authorised Chip read – Signature Contactless Transaction,REFUND,5,1,07
+40,Card,0100,Sale,Contactless,VISA.CI.2111,000000,42,071,00,EUR,N/A,00 - Approval,510113100402,01Z6MQIK6B99D5SP6P5OCEKS4HNOOJVI,555186,,,,,Online Authorised Chip read – PIN Contactless Transaction,SALE,5,2,07
+41,Card,0100,Refund ,Contactless,VISA.CI.2111,200000,42,071,00,EUR,N/A,00 - Approval,,,,,,,,Online Authorised Chip read – PIN Contactless Transaction,REFUND,5,2,07
+CONTACTLESS MAG STRIPE,,,,,,,,,,,,,,,,,,,,CONTACTLESS MAG STRIPE,,,,
+42,Card,0100,Sale,Contactless,VISA.CI.1002,000000,5,911,00,EUR,N/A,00 - Approval,510113100408,01Z6MQIK8599D5SP6PA7K76JSEFQF1HI,581535,,,,,Reversed transaction- not to appear on 80 byte,,,,
+43,Card,0400,Reversal of previous,Contactless,,000000,5,911,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+44,Card,0100,Sale,Contactless,VISA.CI.2112,000000,5,911,00,EUR,N/A,00 - Approval,510113100411,01Z6MQIKBN99D5SP6PCPJDNQTR7K6UKN,594403,,,,,Magnetic Stripe 'No CVM' Contactless Transactions,SALE,5,,91
+45,Card,0100,Refund,Contactless,,200000,5,911,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe 'No CVM' Contactless Transactions,REFUND,5,,91
+46,Card,0100,Sale,Contactless,CI 1035,000000,43,911,00,EUR,N/A,00 - Approval,510113100412,01Z6MQIKD699D5SP6PDFREOL656LLHL8,135450,,,,,Magnetic Stripe – Signature Contactless Transaction,SALE,5,1,91
+47,Card,0100,Refund ,Contactless,,200000,43,911,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe – Signature Contactless Transaction,REFUND,5,1,91
+48,Card,0100,Sale,Contactless,CI 1025,000000,44,911,00,EUR,N/A,00 - Approval,510113100413,01Z6MQIKEH99D5SP6PE08GRNVPGK0V1H,338424,,,,,Magnetic Stripe – Online PIN Contactless Transaction,SALE,5,2,91
+49,Card,0100,Refund ,Contactless,,200000,44,911,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe – Online PIN Contactless Transaction,REFUND,5,2,91
+,,,,,,,,,,,,,,,,,,,,,,,,
+Online PIN ,,,,,,,,,,,,,,,,,,,,,,,,
+50,Card,0100,Sale - EMV,Card,VISA.CI.2013,000000,21,051,00,EUR,N/A,00 - Approval,,,,,,,,Reversed transaction- not to appear on 80 byte,,,,
+51,Card,0400,Reversal of previous,Card,VISA.CI.2013,000000,21,051,00,EUR,N/A,00 - Approval,,,,,,,,Reversal- not to appear on 80 byte,,,,
+52,Card,0100,Sale - EMV,Card,VISA.CI.2013,000000,21,051,00,EUR,N/A,00 - Approval,510113100414,01Z6MQIKGM99D5SP6PF38MN6S3IL8GQS,864805,,,,,Chip read – PIN Transaction,SALE,5,2,05
+53,Card,0100,Refund - EMV,Card,VISA.CI.2013,200000,21,051,00,EUR,N/A,00 - Approval,,,,,,,,Chip read – PIN Transaction,SALE,5,2,05
+54,Card,0100,Sale - ICC fallback to magstripe,Swiped,No card applicable,000000,36,801,00,EUR,N/A,00 - Approval,,,,,,,,Magnetic Stripe– Online PIN Transaction,SALE,5,2,90
+55,Card,0100,Sale - contactless,Contactless,CI 2111,000000,51,071,00,EUR,N/A,00 - Approval,510113100419,01Z6MQIKID99D5SP6PKA94UB1I7CDMGG,741186,,,,,Magnetic Stripe–– PIN Contactless Transaction,SALE,5,2,91
+56,Card,0100,Sale - Swiped,Swiped,No card applicable,000000,51,901,00,00 - Approval,N/A,00 - Approval,,,,,,,,Magnetic Stripe - Online PIN Transaction,SALE,5,2,90
+57,Card,0100,Sale - contactless swiped,Swiped,CI 1025,000000,51,911,00,00 - Approval,N/A,00 - Approval,,,,,,,,Magnetic Stripe – Online PIN Contactless Transaction,SALE,5,2,91
+,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,
+Offline Authorised,,,,,,,,,,,,,,,,,,,,Offline Authorised Chip read - Signature Transaction,SALE,5,1,05
+,,,,,,,,,,,,,,,,,,,,Offline Authorised Chip read - Signature Transaction,REFUND,5,1,05
+,,,,,,,,,,,,,,,,,,,,Offline Authorised Chip read - Offline PIN  Transaction,SALE,5,2,05
+,,,,,,,,,,,,,,,,,,,,Offline Authorised Chip read - Offline PIN  Transaction,REFUND,5,2,05
