@@ -1,16 +1,16 @@
 SELECT 
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'DD/MM/YYYY HH:MI:SS AM'), 1, 5) AS Date_,
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'), 10, 2) || ' ' || SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'), -2) AS HOUR_,
-    COUNT(*) AS Total_Transactions
+    TO_CHAR(omni_log_dt_utc, 'DD/MM') AS DATE_,
+    TO_CHAR(omni_log_dt_utc, 'HH12 AM') AS HOUR_,
+    COUNT(*) AS TOTAL_TRANSACTIONS
 FROM 
     oasis77.shclog
 WHERE  
-    omni_log_dt_utc BETWEEN TO_DATE('11-JUN-2025 11:00:00', 'DD-MON-YYYY HH24:MI:SS') AND TO_DATE('12-JUN-2025 13:00:00', 'DD-MON-YYYY HH24:MI:SS')  -- Search for a specific time
--- AND acceptorname LIKE 'SumUp%'
+    omni_log_dt_utc BETWEEN TO_TIMESTAMP('2025-06-11 11:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    AND TO_TIMESTAMP('2025-06-12 13:00:00', 'YYYY-MM-DD HH24:MI:SS')
+    -- AND acceptorname LIKE 'SumUp%'
 GROUP BY     
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'), 10, 2),
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'DD/MM/YYYY HH:MI:SS AM'), 1, 5),
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'), -2),
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH24:MI:SS'), 10, 2)
+    TO_CHAR(omni_log_dt_utc, 'DD/MM'),
+    TO_CHAR(omni_log_dt_utc, 'HH12 AM'),
+    TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24')  -- used only for correct ordering
 ORDER BY     
-    SUBSTR(TO_CHAR(omni_log_dt_utc, 'YYYYMMDD HH24:MI:SS'), 10, 2);
+    TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24');
