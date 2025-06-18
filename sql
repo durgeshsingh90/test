@@ -1,6 +1,6 @@
 SELECT
   TO_CHAR(omni_log_dt_utc, 'DD/MM') AS DATE,
-  TO_CHAR(omni_log_dt_utc, 'HH24') AS HOUR,
+  TO_CHAR(omni_log_dt_utc, 'HH12 AM') AS HOUR,
   COUNT(*) AS TOTAL_TRANSACTIONS
 FROM
   oasis77.schlog
@@ -10,7 +10,7 @@ WHERE
   AND acceptorname LIKE 'SumUp%'
 GROUP BY
   TO_CHAR(omni_log_dt_utc, 'DD/MM'),
-  TO_CHAR(omni_log_dt_utc, 'HH24')
+  TO_CHAR(omni_log_dt_utc, 'HH12 AM'),
+  TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24') -- for proper sorting
 ORDER BY
-  TO_CHAR(omni_log_dt_utc, 'DD/MM'),
-  TO_CHAR(omni_log_dt_utc, 'HH24');
+  TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24');
