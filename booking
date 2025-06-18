@@ -1,97 +1,29 @@
 #!/usr/bin/ksh
 
 # -----------------------------------------------------------------------------
-# Script Name: booking.sh
-# Author     : Durgesh Singh
-# Version    : 3.0
-# Date       : 2023-10-01
-# -----------------------------------------------------------------------------
-# Description:
-# This script updates the `istparam.cfg` file to:
-# - Unhash the `port.name` lines that match the provided port name and IP.
-# - Hash all other `port.name` lines with the same port name but different IPs.
-# - Leave lines unchanged if they have no IP.
-# - Optionally create a backup of the original file.
-# - Optionally generate a log file with all changes made.
-# - Restart appropriate routes based on the port names given.
-#
-# Special restart logic is applied for these ports:
-#   - VisaRoute         uses `visaredo`
-#   - MasterCardRoute   uses `mcredo`
-#   - DinersRoute       uses `dredo`
-#   - All others        restarted via `defaultredo`
-#
-# -----------------------------------------------------------------------------
-# Usage:
-#   ./booking.sh [-e] [-l] name:ip [name2:ip2 ...]
-#
-# Options:
-#   -e     Enable backup of istparam.cfg to istparam.cfg.bak
-#   -l     Enable logging to a timestamped log file
-#   -h     Show help and usage examples
-#
-# Arguments:
-#   name:ip    A pair representing a port name and its associated IP address.
-# -----------------------------------------------------------------------------
-# Examples:
-#
-#   Basic usage:
-#     ./booking.sh VisaRoute:10.0.0.1
-#
-#   With backup and logging:
-#     ./booking.sh -e -l MasterCardRoute:10.0.0.2 DinersRoute:10.0.0.3
-#
-#   To update multiple ports at once:
-#     ./booking.sh VisaRoute:10.0.0.1 VisaRouteIPG:10.0.0.10
-#
-#   Show help:
-#     ./booking.sh -h
+# Cron-Ready Script: booking.sh
 # -----------------------------------------------------------------------------
 
-PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/app/cert77/product/bin
 export PATH
+export LD_LIBRARY_PATH=/app/cert77/lib:$LD_LIBRARY_PATH
+export SHELL=/usr/bin/ksh
+export HOME=/home/youruser         # 🔁 Change to actual home path
+export LOGNAME=youruser            # 🔁 Change to actual user name
 
 INPUT_FILE="/app/cert77/site/cfg/istparam.cfg"
-# SHC_COMMAND="/app/cert77/product/bin/shccmd"
-# MBPORT_COMMAND="/app/cert77/product/bin/mbportcmd"
-
 TMP_FILE="${INPUT_FILE}.tmp"
 BACKUP_FILE="${INPUT_FILE}.bak"
 MAKE_BACKUP=false
 MAKE_LOG=false
 LOG_FILE=""
 
+# Default log location for cron safety
+DEFAULT_CRON_LOG="/tmp/booking_cron.log"
+
 # Function to show help
 show_help() {
-    echo ""
-    echo "Usage:"
-    echo "  $0 [OPTIONS] name:ip [name2:ip2 ...]"
-    echo ""
-    echo "Description:"
-    echo "  Updates 'istparam.cfg' by unhashing lines that match the given port name"
-    echo "  and IP, while hashing lines with the same port name but different IPs."
-    echo ""
-    echo "Options:"
-    echo "  -e        Enable backup. Saves original file as 'istparam.cfg.bak'"
-    echo "  -l        Enable logging. Writes changes to a timestamped log file"
-    echo "  -h        Show this help message and exit"
-    echo ""
-    echo "Arguments:"
-    echo "  name:ip   Port name and its corresponding IP address (e.g., VisaRoute:10.0.0.1)"
-    echo ""
-    echo "Examples:"
-    echo "  $0 VisaRoute:10.0.0.1"
-    echo "  $0 -e -l MasterCardRoute:10.0.0.2 DinersRoute:10.0.0.3"
-    echo ""
-    echo "Notes:"
-    echo "  - The script safely processes the config file line-by-line"
-    echo "  - Lines without IPs are never hashed"
-    echo "  - Recognized routes are restarted automatically:"
-    echo "      VisaRoute         uses visaredo"
-    echo "      MasterCardRoute   uses mcredo"
-    echo "      DinersRoute       uses dredo"
-    echo "      Other names       use defaultredo"
-    echo ""
+    echo "Usage: $0 [-e] [-l] name:ip [name2:ip2 ...]"
     exit 1
 }
 
@@ -110,23 +42,20 @@ done
 
 [ -z "$ARGUMENTS" ] && echo "Error: No name:ip arguments given" && show_help
 
+# Set fallback log if needed
+[ "$MAKE_LOG" = false ] && LOG_FILE="$DEFAULT_CRON_LOG"
+
+echo "[$(date)] Script started. Args: $ARGUMENTS" >> "$LOG_FILE"
+
 # Backup
 if $MAKE_BACKUP; then
-    cp "$INPUT_FILE" "$BACKUP_FILE" && echo "Backup created: $BACKUP_FILE"
-    $MAKE_LOG && echo "[$(date)] Backup created: $BACKUP_FILE" >> "$LOG_FILE"
-fi
-
-# Logging
-if $MAKE_LOG; then
-    echo "[$(date)] Log Start" > "$LOG_FILE"
-    echo "[$(date)] Arguments: $ARGUMENTS" >> "$LOG_FILE"
+    cp "$INPUT_FILE" "$BACKUP_FILE" && echo "Backup created: $BACKUP_FILE" >> "$LOG_FILE"
 fi
 
 cp "$INPUT_FILE" "$TMP_FILE"
 > "$TMP_FILE.new"
 
-start_time=$(date +%s)  # Record start time
-
+start_time=$(date +%s)
 processed_ports=""
 
 while IFS= read -r line || [ -n "$line" ]; do
@@ -155,7 +84,7 @@ while IFS= read -r line || [ -n "$line" ]; do
                 \#port.name*)
                     if [ "$ip_present" -eq 0 ]; then
                         echo "${line#\#}" >> "$TMP_FILE.new"
-                        $MAKE_LOG && echo "[$(date)] Unhashed: ${line#\#}" >> "$LOG_FILE"
+                        echo "[$(date)] Unhashed: ${line#\#}" >> "$LOG_FILE"
                         processed=true
                         processed_ports="$processed_ports $name"
                         break
@@ -164,7 +93,7 @@ while IFS= read -r line || [ -n "$line" ]; do
                 port.name*)
                     if [ "$has_ip" -eq 0 ] && [ "$ip_present" -ne 0 ]; then
                         echo "#$line" >> "$TMP_FILE.new"
-                        $MAKE_LOG && echo "[$(date)] Hashed: $line" >> "$LOG_FILE"
+                        echo "[$(date)] Hashed: $line" >> "$LOG_FILE"
                         processed=true
                         processed_ports="$processed_ports $name"
                         break
@@ -177,55 +106,34 @@ while IFS= read -r line || [ -n "$line" ]; do
 done < "$TMP_FILE"
 
 mv "$TMP_FILE.new" "$INPUT_FILE"
-echo "[$(date)] istparam.cfg updated."
-$MAKE_LOG && echo "[$(date)] Config file updated: $INPUT_FILE" >> "$LOG_FILE"
 rm -f "$TMP_FILE"
 
-# Check if VisaRoute, MasterCardRoute, or DinersRoute were processed and restart them accordingly
-if echo "$processed_ports" | grep -q "VisaRoute"; then
-/app/cert77/product/bin/shccmd send 9002 to 1 4
-/app/cert77/product/bin/mbportcmd stop visaroute
-sleep 2
-/app/cert77/product/bin/mbportcmd add port visaroute
-sleep 2
-/app/cert77/product/bin/mbportcmd start visaroute
-sleep 2
-/app/cert77/product/bin/shccmd send 9001 to 1 4
-sleep 2
-/app/cert77/product/bin/mbportcmd l visaroute
-echo "[$(date)] visaroute restart completed" >> "$LOG_FILE"
-fi
+echo "[$(date)] istparam.cfg updated." >> "$LOG_FILE"
 
-if echo "$processed_ports" | grep -q "MasterCardRoute"; then
-/app/cert77/product/bin/shccmd send 9002 to 1 5
-/app/cert77/product/bin/mbportcmd stop MasterCardRoute
-sleep 2
-/app/cert77/product/bin/mbportcmd add port MasterCardRoute
-sleep 2
-/app/cert77/product/bin/mbportcmd start MasterCardRoute
-sleep 2
-/app/cert77/product/bin/shccmd send 9001 to 1 5
-sleep 2
-/app/cert77/product/bin/mbportcmd l MasterCardRoute
-echo "[$(date)] MasterCardRoute restart completed" >> "$LOG_FILE"
-fi
+# Restart logic
+restart_port() {
+    route_name=$1
+    cmd_name=$2
+    port_id=$3
 
-if echo "$processed_ports" | grep -q "DinersRoute"; then
-/app/cert77/product/bin/shccmd send 9001 to 1 7
-/app/cert77/product/bin/mbportcmd stop DinersRoute
-sleep 2
-/app/cert77/product/bin/mbportcmd add port DinersRoute
-sleep 2
-/app/cert77/product/bin/mbportcmd start DinersRoute
-sleep 2
-/app/cert77/product/bin/shccmd send 9001 to 1 7
-sleep 2
-/app/cert77/product/bin/mbportcmd l DinersRoute
-echo "[$(date)] DinersRoute restart completed" >> "$LOG_FILE"
-fi
+    /app/cert77/product/bin/shccmd send 9002 to 1 "$port_id" </dev/null >> "$LOG_FILE" 2>&1
+    /app/cert77/product/bin/mbportcmd stop "$route_name" </dev/null >> "$LOG_FILE" 2>&1
+    sleep 2
+    /app/cert77/product/bin/mbportcmd add port "$route_name" </dev/null >> "$LOG_FILE" 2>&1
+    sleep 2
+    /app/cert77/product/bin/mbportcmd start "$route_name" </dev/null >> "$LOG_FILE" 2>&1
+    sleep 2
+    /app/cert77/product/bin/shccmd send 9001 to 1 "$port_id" </dev/null >> "$LOG_FILE" 2>&1
+    sleep 2
+    /app/cert77/product/bin/mbportcmd l "$route_name" </dev/null >> "$LOG_FILE" 2>&1
+    echo "[$(date)] $route_name restart completed" >> "$LOG_FILE"
+}
 
-end_time=$(date +%s)  # Record end time
-elapsed_time=$((end_time - start_time))  # Calculate elapsed time
+echo "$processed_ports" | grep -q "VisaRoute" && restart_port "visaroute" "visaredo" 4
+echo "$processed_ports" | grep -q "MasterCardRoute" && restart_port "MasterCardRoute" "mcredo" 5
+echo "$processed_ports" | grep -q "DinersRoute" && restart_port "DinersRoute" "dredo" 7
 
-echo "[$(date)] Script execution time: $elapsed_time seconds"
-$MAKE_LOG && echo "[$(date)] Script execution time: $elapsed_time seconds" >> "$LOG_FILE"
+end_time=$(date +%s)
+elapsed_time=$((end_time - start_time))
+
+echo "[$(date)] Script execution time: $elapsed_time seconds" >> "$LOG_FILE"
