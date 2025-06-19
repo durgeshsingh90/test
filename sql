@@ -1,34 +1,33 @@
-select substr(to_char(omni_log_dt_utc, 'DD/MM/YYYY HH:MI:SS AM'),1,9)|| '             '||substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'),10,5) || ' '|| substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'),-2) AS DATE______HOUR_MIN,
+SELECT 
+    TO_CHAR(omni_log_dt_utc, 'DD/MM/YYYY') || '           ' || TO_CHAR(omni_log_dt_utc, 'HH12 AM') AS DATE______HOUR,
 
-count(*) as Total_Transactions,SUM (DECODE (respcode, '0', 1, 0)) AS approvals,
+    COUNT(*) AS Total_Transactions,
+    SUM(DECODE(respcode, '0', 1, 0)) AS Approvals,
+    SUM(DECODE(respcode, '8', 1, 0)) AS Timeouts,
+    SUM(DECODE(respcode, '68', 1, 0)) AS Response_rec_late,
 
-SUM (DECODE (respcode, '8', 1, 0)) Timeouts,   
+    (SUM(DECODE(respcode, '0', 0, 1)) 
+     - SUM(DECODE(respcode, '8', 1, 0)) 
+     - SUM(DECODE(respcode, '68', 1, 0))) AS Other_Declines,
 
-SUM (DECODE (respcode, '68', 1, 0)) Response_rec_late,  
+    ROUND(
+        SUM(DECODE(respcode, '0', 1, 0)) / 
+        (SUM(DECODE(respcode, '0', 0, 1)) + SUM(DECODE(respcode, '0', 1, 0))), 4
+    ) * 100 || '%' AS Percentage
 
-           (SUM (DECODE (respcode, '0', 0, 1))-SUM (DECODE (respcode, '8', 1, 0))-SUM (DECODE (respcode, '68', 1, 0))) Other_Declines,
+FROM 
+    oasis77.shclog
 
-       (Round(SUM (DECODE (respcode, '0', 1, 0))/(SUM (DECODE (respcode, '0', 0, 1)) + SUM (DECODE (respcode, '0', 1, 0))),4)*100)  || '%' AS Percentage
- 
-from         oasis77.shclog
+WHERE 
+    omni_log_dt_utc BETWEEN TO_DATE('11-JUN-2025 12:00:00', 'DD-MON-YYYY HH24:MI:SS') 
+                        AND TO_DATE('12-JUN-2025 15:00:00', 'DD-MON-YYYY HH24:MI:SS')
 
---where OMNI_LOG_DT_UTC >= (sysdate-1/24)-5/1440 -- past 15 mins BST
+-- AND acceptorname LIKE 'SumUp%'
 
---WHERE OMNI_LOG_DT_UTC >= sysdate -15/1440 -- Winter Time GMT
+GROUP BY 
+    TO_CHAR(omni_log_dt_utc, 'DD/MM/YYYY'),
+    TO_CHAR(omni_log_dt_utc, 'HH12 AM'),
+    TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24')  -- used only for ordering
 
-where   omni_log_dt_utc between to_date('11-JUN-2025 12:00:00', 'dd-mon-yyyy hh24:mi:ss')and 
-
-                              to_date('12-JUN-2025 15:00:00', 'dd-mon-yyyy hh24:mi:ss')  --Search for a specific time
-
---and acceptorname like 'SumUp%'
- 
-group by     substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'),10,5),
-
-            substr(to_char(omni_log_dt_utc, 'DD/MM/YYYY HH:MI:SS AM'),1,9), 
-
-            substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'),-2), 
-
-            substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH24:MI:SS'),10,2)
-
-order by    substr(to_char(omni_log_dt_utc, 'YYYYMMDD HH:MI:SS AM'),10,5)desc;
- 
+ORDER BY 
+    TO_CHAR(omni_log_dt_utc, 'YYYYMMDDHH24');
