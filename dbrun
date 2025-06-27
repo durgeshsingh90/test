@@ -1,0 +1,17 @@
+container1.js:61 Uncaught (in promise) TypeError: editor(...).setValue is not a function
+    at select (container1.js:61:14)
+    at container1.js:153:7
+select @ container1.js:61
+(anonymous) @ container1.js:153Understand this error
+dbrun/api/tables/uat_ist/:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+favicon.ico:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+dbrun/api/refresh-tables/uat_ist/:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)
