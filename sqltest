@@ -1,97 +1,35 @@
-WITH respcode_lookup AS (
-  SELECT '00' AS respcode, 'Approved or completed successfully' AS description FROM dual UNION ALL
-  SELECT '02', 'Refer to card issuer' FROM dual UNION ALL
-  SELECT '03', 'Invalid merchant' FROM dual UNION ALL
-  SELECT '04', 'Do not honour' FROM dual UNION ALL
-  SELECT '05', 'Do not Honour' FROM dual UNION ALL
-  SELECT '06', 'Invalid Transaction for Terminal' FROM dual UNION ALL
-  SELECT '07', 'Honour with ID' FROM dual UNION ALL
-  SELECT '08', 'Time-Out' FROM dual UNION ALL
-  SELECT '09', 'No Original' FROM dual UNION ALL
-  SELECT '10', 'Unable to Reverse' FROM dual UNION ALL
-  SELECT '11', 'Partial Approval' FROM dual UNION ALL
-  SELECT '12', 'Invalid transaction card / issuer / acquirer' FROM dual UNION ALL
-  SELECT '13', 'Invalid amount' FROM dual UNION ALL
-  SELECT '14', 'Invalid card number' FROM dual UNION ALL
-  SELECT '17', 'Invalid Capture date (terminal business date)' FROM dual UNION ALL
-  SELECT '19', 'System Error; Re-enter transaction' FROM dual UNION ALL
-  SELECT '20', 'No From Account' FROM dual UNION ALL
-  SELECT '21', 'No To Account' FROM dual UNION ALL
-  SELECT '22', 'No Checking Account' FROM dual UNION ALL
-  SELECT '23', 'No Saving Account' FROM dual UNION ALL
-  SELECT '24', 'No Credit Account' FROM dual UNION ALL
-  SELECT '25', 'Cannot Authorize at this time (Life cycle)' FROM dual UNION ALL
-  SELECT '26', 'Cannot Authorize at this time (Policy)' FROM dual UNION ALL
-  SELECT '30', 'Format error' FROM dual UNION ALL
-  SELECT '31', 'Blocked, first Used' FROM dual UNION ALL
-  SELECT '34', 'Implausible card data' FROM dual UNION ALL
-  SELECT '39', 'Transaction Not Allowed' FROM dual UNION ALL
-  SELECT '41', 'Lost Card, Pickup' FROM dual UNION ALL
-  SELECT '42', 'Special Pickup' FROM dual UNION ALL
-  SELECT '43', 'Hot Card, Pickup (if possible)' FROM dual UNION ALL
-  SELECT '44', 'Pickup Card' FROM dual UNION ALL
-  SELECT '45', 'Fallback transaction not allowed (Union Pay only)' FROM dual UNION ALL
-  SELECT '46', 'Closed account' FROM dual UNION ALL
-  SELECT '51', 'Not sufficient funds' FROM dual UNION ALL
-  SELECT '54', 'Expired card' FROM dual UNION ALL
-  SELECT '55', 'Incorrect PIN; Re-enter' FROM dual UNION ALL
-  SELECT '57', 'Transaction not permitted on card' FROM dual UNION ALL
-  SELECT '58', 'Transaction Not Permitted on Terminal' FROM dual UNION ALL
-  SELECT '59', 'Suspected Fraud' FROM dual UNION ALL
-  SELECT '61', 'Exceeds amount limit' FROM dual UNION ALL
-  SELECT '62', 'Restricted card' FROM dual UNION ALL
-  SELECT '63', 'MAC Key Error' FROM dual UNION ALL
-  SELECT '65', 'Exceeds frequency limit/Additional SCA required' FROM dual UNION ALL
-  SELECT '66', 'Exceeds Acquirer Limit' FROM dual UNION ALL
-  SELECT '67', 'Retain Card; no reason specified' FROM dual UNION ALL
-  SELECT '68', 'Response received too late.' FROM dual UNION ALL
-  SELECT '70', 'PIN data required' FROM dual UNION ALL
-  SELECT '75', 'Exceeds PIN Retry' FROM dual UNION ALL
-  SELECT '76', 'Invalid Account' FROM dual UNION ALL
-  SELECT '77', 'Issuer Does Not Participate in The Service' FROM dual UNION ALL
-  SELECT '78', 'Function Not Available' FROM dual UNION ALL
-  SELECT '79', 'Key Validation Error' FROM dual UNION ALL
-  SELECT '80', 'Approval for Purchase Amount Only' FROM dual UNION ALL
-  SELECT '81', 'Unable to Verify PIN' FROM dual UNION ALL
-  SELECT '82', 'Invalid Card Verification Value' FROM dual UNION ALL
-  SELECT '83', 'Not declined (Valid for zero amount/Visa refunds)' FROM dual UNION ALL
-  SELECT '84', 'Invalid Life Cycle of transaction' FROM dual UNION ALL
-  SELECT '85', 'No Keys to Use' FROM dual UNION ALL
-  SELECT '86', 'K M E Sync Error' FROM dual UNION ALL
-  SELECT '87', 'PIN Key Error' FROM dual UNION ALL
-  SELECT '88', 'MAC sync Error' FROM dual UNION ALL
-  SELECT '89', 'Security Violation' FROM dual UNION ALL
-  SELECT '91', 'Issuer not available' FROM dual UNION ALL
-  SELECT '92', 'Invalid Issuer' FROM dual UNION ALL
-  SELECT '93', 'Transaction cannot be completed' FROM dual UNION ALL
-  SELECT '94', 'Invalid originator' FROM dual UNION ALL
-  SELECT '95', 'Contact Acquirer' FROM dual UNION ALL
-  SELECT '96', 'System malfunction' FROM dual UNION ALL
-  SELECT '97', 'No Funds Transfer' FROM dual UNION ALL
-  SELECT '98', 'Duplicate Reversal' FROM dual UNION ALL
-  SELECT '99', 'Duplicate Transaction' FROM dual UNION ALL
-  SELECT 'N3', 'Cash Service Not Available' FROM dual UNION ALL
-  SELECT 'N4', 'Cash Back Request Exceeds Issuer Limit' FROM dual UNION ALL
-  SELECT 'N7', 'Decline CVV2 failure' FROM dual UNION ALL
-  SELECT 'R0', 'Stop Payment Order' FROM dual UNION ALL
-  SELECT 'R1', 'Revocation of Authorisation Order' FROM dual UNION ALL
-  SELECT 'R3', 'Revocation of all Authorisations Order' FROM dual UNION ALL
-  SELECT '6P', 'Verification Data failed' FROM dual UNION ALL
-  SELECT '5C', 'Transaction not supported/blocked by issuer' FROM dual UNION ALL
-  SELECT '9G', 'Blocked by cardholder/contact cardholder' FROM dual UNION ALL
-  SELECT 'AM', 'VAML Timeout' FROM dual
-)
 SELECT 
-  s.respcode,
-  rl.description AS respcode_description,
-  s.alpharesponsecode,
-  s.msgtype,
+  respcode,
+  CASE respcode
+    WHEN '00' THEN 'Approved or completed successfully'
+    WHEN '02' THEN 'Refer to card issuer'
+    WHEN '03' THEN 'Invalid merchant'
+    WHEN '04' THEN 'Do not honour'
+    WHEN '05' THEN 'Do not Honour'
+    WHEN '06' THEN 'Invalid Transaction for Terminal'
+    WHEN '07' THEN 'Honour with ID'
+    WHEN '08' THEN 'Time-Out'
+    WHEN '09' THEN 'No Original'
+    WHEN '10' THEN 'Unable to Reverse'
+    WHEN '11' THEN 'Partial Approval'
+    WHEN '12' THEN 'Invalid transaction card / issuer / acquirer'
+    WHEN '13' THEN 'Invalid amount'
+    WHEN '14' THEN 'Invalid card number'
+    WHEN '39' THEN 'Transaction Not Allowed'
+    WHEN '54' THEN 'Expired card'
+    WHEN '91' THEN 'Issuer not available'
+    -- Add more as needed
+    ELSE 'Unknown code'
+  END AS respcode_description,
+  alpharesponsecode,
+  msgtype,
   COUNT(*) AS response_code_count
-FROM oasis77.shclog s
-LEFT JOIN respcode_lookup rl ON s.respcode = rl.respcode
-WHERE s.omni_log_dt_utc BETWEEN TO_DATE('11-Jul-2025 00:00:00', 'DD-MON-YYYY HH24:MI:SS') 
-                            AND TO_DATE('11-Jul-2025 23:59:59', 'DD-MON-YYYY HH24:MI:SS')
-  AND s.acquirer LIKE '%50%'
+FROM oasis77.shclog
+WHERE omni_log_dt_utc BETWEEN TO_DATE('11-Jul-2025 00:00:00', 'DD-MON-YYYY HH24:MI:SS')
+                          AND TO_DATE('11-Jul-2025 23:59:59', 'DD-MON-YYYY HH24:MI:SS')
+  AND acquirer LIKE '%50%'
 GROUP BY 
-  s.respcode, rl.description, s.alpharesponsecode, s.msgtype
+  respcode,
+  alpharesponsecode,
+  msgtype
 ORDER BY response_code_count DESC
