@@ -1,0 +1,51 @@
+import pandas as pd
+
+# File name
+file_path = "ecom_data_analysis.xlsx"
+
+# Read the raw_data sheet
+df = pd.read_excel(file_path, sheet_name="raw_data")
+
+# Normalize card product names (lowercase for matching)
+df["CARDPRODUCT"] = df["CARDPRODUCT"].str.strip().str.lower()
+
+# Define product families
+visa_family = ["visa", "vaml", "vpay"]
+mc_family = ["europay", "maestro"]
+
+# Map card products to family
+def map_card_family(product):
+    if product in visa_family:
+        return "Visa"
+    elif product in mc_family:
+        return "Mastercard"
+    else:
+        return "Other"
+
+df["CARD_FAMILY"] = df["CARDPRODUCT"].apply(map_card_family)
+
+# Approved response codes
+approved_codes = ["00", "32", "68", "83", "102", "109", "999"]
+
+# Create Approved/Rejected flag
+df["STATUS"] = df["RESPCO"].astype(str).apply(lambda x: "Approved" if x in approved_codes else "Rejected")
+
+# Aggregate summary
+summary = df.groupby("CARD_FAMILY")["STATUS"].value_counts().unstack(fill_value=0)
+
+# Add total and approval %
+summary["Total Txn"] = summary.sum(axis=1)
+summary["Approval %"] = (summary["Approved"] / summary["Total Txn"]) * 100
+
+# Get Visa & Mastercard totals
+visa_txn = summary.loc["Visa", "Total Txn"] if "Visa" in summary.index else 0
+mc_txn = summary.loc["Mastercard", "Total Txn"] if "Mastercard" in summary.index else 0
+
+print("Visa Total Txn:", visa_txn)
+print("Mastercard Total Txn:", mc_txn)
+
+# Save to a new sheet called CardProductSummary
+with pd.ExcelWriter(file_path, mode="a", engine="openpyxl", if_sheet_exists="replace") as writer:
+    summary.to_excel(writer, sheet_name="CardProductSummary")
+
+print("✅ CardProductSummary sheet created successfully!")
