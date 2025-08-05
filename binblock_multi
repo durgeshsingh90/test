@@ -1,0 +1,306 @@
+import json
+import json5
+import os
+import asyncio
+from schemer.schemer import Schemer, SchemerException
+import time
+import datetime
+from tqdm import tqdm
+
+# Function to generate DE007 value (current GMT timestamp)
+def replace_de007_value(data_elements):
+    new_de007_value = time.strftime("%m%d%H%M%S", time.gmtime())
+    data_elements["DE007"] = new_de007_value
+
+# Function to generate DE011 value
+def generate_initial_de011_value():
+    return int(time.strftime("%H%M%S", time.gmtime()))
+
+# Function to update DE011 value
+def update_de011_value(data_elements, current_de011):
+    data_elements["DE011"] = "{:06}".format(current_de011)
+
+# Function to generate DE012 value (current local time)
+def replace_de012_value(data_elements):
+    new_de012_value = datetime.datetime.now().strftime("%H%M%S")
+    data_elements["DE012"] = new_de012_value
+
+# Function to generate DE013 value (current local date)
+def replace_de013_value(data_elements):
+    new_de013_value = datetime.datetime.now().strftime("%m%d")
+    data_elements["DE013"] = new_de013_value
+
+# Function to calculate Julian date from MMDD
+def calculate_julian_date(mmdd):
+    dt = datetime.datetime.strptime(mmdd, '%m%d')
+    julian_date = dt.strftime('%j')
+    return julian_date
+
+# Function to generate DE037 value
+def generate_initial_de037_value(de007, de011):
+    # DE007 format is MMDDHHMMSS
+    mmdd = de007[:4]
+    hh = de007[4:6]
+    julian_date = calculate_julian_date(mmdd)
+    de011_padded = f"{int(de011):06}"
+    initial_value = f"{julian_date}{hh}{de011_padded}"
+    # Ensure initial DE037 is 12 digits long
+    if len(initial_value) < 12:
+        initial_value = "4" + initial_value
+    return initial_value
+
+# Function to update DE037 value
+def update_de037_value(data_elements, current_de037):
+    # Ensure the DE037 is 12 digits
+    if len(current_de037) < 12:
+        current_de037 = "4" + current_de037
+    data_elements["DE037"] = current_de037
+
+# Function to replace DE002 and DE035 values based on card_numbers
+def replace_de002_and_de035_values(data_elements, card_number):
+    data_elements["DE002"] = card_number
+    if "DE035" in data_elements:
+        data_elements["DE035"] = card_number
+
+# Function to load card numbers from a text file
+def load_card_numbers(file_path):
+    card_numbers = []
+    with open(file_path, 'r') as file:
+        card_numbers.extend(file.read().splitlines())
+    return card_numbers
+
+# Function to log request and response
+def log_message(log_file, txn_id, request, response):
+    log_entry = {
+        'transaction_id': txn_id,
+        'request': request,
+        'response': response
+    }
+    with open(log_file, 'a', encoding='utf-8') as file:
+        file.write(json.dumps(log_entry, indent=4) + '\n')
+
+# Function to store DE037 values in a separate file
+def log_de037(de037_file, de037_value):
+    with open(de037_file, 'a', encoding='utf-8') as file:
+        file.write(de037_value + '\n')
+
+async def send_exact_message(host, port, full_message_str, progress_bar):
+    try:
+        # Compute 4-digit ASCII length prefix for the request
+        length_prefix = f"{len(full_message_str):04d}"
+        message_with_len = length_prefix + full_message_str
+
+        reader, writer = await asyncio.open_connection(host, port)
+        progress_bar.set_postfix_str(f"Connected to {host}:{port}", refresh=False)
+        
+        # Send prefixed message
+        writer.write(message_with_len.encode('ascii'))
+        await writer.drain()
+        progress_bar.set_postfix_str(f"Sent {len(message_with_len)} bytes", refresh=False)
+        
+        progress_bar.set_postfix_str("Waiting for response...", refresh=False)
+
+        # Read the 4-byte length prefix from the server
+        try:
+            resp_len_raw = await asyncio.wait_for(reader.readexactly(4), timeout=20)
+        except asyncio.TimeoutError:
+            progress_bar.set_postfix_str("Timeout", refresh=False)
+            writer.close()
+            await writer.wait_closed()
+            return ""  # No response
+
+        resp_len = int(resp_len_raw.decode("ascii"))
+        progress_bar.set_postfix_str(f"Response length = {resp_len} bytes", refresh=False)
+
+        # Now read the actual ISO message
+        resp_data = await reader.readexactly(resp_len)
+        response_str = resp_data.decode('ascii', errors='ignore')
+
+        progress_bar.set_postfix_str(f"Received {resp_len} bytes", refresh=False)
+
+        # Close connection
+        writer.close()
+        await writer.wait_closed()
+        progress_bar.set_postfix_str("Connection closed", refresh=False)
+
+        # Return ONLY actual ISO8583 message (no length prefix)
+        return response_str
+
+    except asyncio.TimeoutError:
+        progress_bar.set_postfix_str("Timeout", refresh=False)
+        return ""
+    except Exception as e:
+        progress_bar.set_postfix_str(f"Error: {e}", refresh=False)
+        return f"ERROR: {e}"
+
+async def convert_and_send_messages(input_files, transaction_card_map, host, port, log_file, de037_file):
+    schemer_instance = Schemer()
+    schemer_instance.load_schemas()
+
+    total_txns = 0
+    summation_info = {}
+
+    # Calculate the total transactions
+    for txn_scheme, card_files in transaction_card_map.items():
+        card_numbers = []
+        for card_file in card_files:
+            card_numbers.extend(load_card_numbers(card_file))
+        total_txns += len(card_numbers) * 2  # Each card number will run both transactions
+        summation_info[txn_scheme] = len(card_numbers) * 2
+
+    print(f"Summary of Transactions:")
+    print(f"Total transactions to send: {total_txns}")
+    for txn_scheme, count in summation_info.items():
+        print(f"- {txn_scheme}: {count} transactions")
+    print(f"Host: {host}")
+    print(f"Port: {port}")
+
+    confirm = input("Do you want to start the transaction processing? (yes/no): ")
+    if confirm.lower() != 'yes':
+        print("Transaction processing aborted.")
+        return
+
+    for txn_scheme, card_files in transaction_card_map.items():
+        card_numbers = []
+        for card_file in card_files:
+            card_numbers.extend(load_card_numbers(card_file))
+        
+        # Load the corresponding input transaction file
+        input_filename = input_files.get(txn_scheme)
+
+        if not input_filename:
+            print(f"⚠️ No input file for {txn_scheme}")
+            continue
+
+        total_cards = len(card_numbers)
+        overall_progress = tqdm(total=total_cards * 2, desc=f"Processing {txn_scheme}")
+
+        for card_number in card_numbers:
+            current_de011 = generate_initial_de011_value()
+
+            try:
+                with open(input_filename, "r", encoding="utf-8") as input_file:
+                    input_data = json.load(input_file)
+            except Exception as e:
+                print(f"❌ Failed to read {input_filename}: {e}")
+                overall_progress.update(2)
+                continue
+
+            for record in input_data:
+                if "rq_msgs" not in record:
+                    print(f"⚠️ 'rq_msgs' key not found in record: {record.get('id', 'unknown')}")
+                    continue
+
+                rq_msgs_json = record.get("rq_msgs", [])
+                rq_msgs_hex = []
+                rq_msgs_text = []
+
+                for idx, message in enumerate(rq_msgs_json):
+                    data_elements = message.get("data_elements", {})
+                    
+                    # Replace DE007 value
+                    replace_de007_value(data_elements)
+                    de007_value = data_elements["DE007"]
+
+                    # Update DE011 value
+                    update_de011_value(data_elements, current_de011)
+                    de011_value = data_elements["DE011"]
+                    current_de011 += 1
+
+                    # Replace DE012 value
+                    replace_de012_value(data_elements)
+
+                    # Replace DE013 value
+                    replace_de013_value(data_elements)
+
+                    replace_de002_and_de035_values(data_elements, card_number)
+
+                    if idx == 0:
+                        current_de037 = generate_initial_de037_value(de007_value, de011_value)
+                    
+                    # Update DE037 value
+                    update_de037_value(data_elements, current_de037)
+                    log_de037(de037_file, current_de037)
+                    
+                    # Increment DE037 while keeping it 12 digits long
+                    julian_part = current_de037[:5]
+                    hour_part = current_de037[5:7]
+                    serial_number = int(current_de037[7:])
+                    serial_number += 1
+                    next_de037 = f"{julian_part}{hour_part}{serial_number:05}"
+                    if len(next_de037) < 12:
+                        next_de037 = "4" + next_de037
+                    current_de037 = next_de037
+
+                    try:
+                        raw = schemer_instance.build(message, "OMNIPAY")
+                        hex_data = raw.hex()
+                        text_data = raw.decode('ascii', errors='replace')
+                        rq_msgs_hex.append(hex_data)
+                        rq_msgs_text.append(text_data)
+                    except SchemerException as e:
+                        print(f"⚠️ Error converting to hex: {e}")
+                        rq_msgs_hex.append(None)  # Or handle the error as needed
+                        rq_msgs_text.append(None)  # Or handle the error as needed
+
+                record["rq_msgs_json"] = rq_msgs_json
+                record["rq_msgs_hex"] = rq_msgs_hex
+                record["rq_msgs_text"] = rq_msgs_text
+                record["format"] = ["JSON", "HEX", "TEXT"]
+                # Remove the original rq_msgs key if it exists
+                if "rq_msgs" in record:
+                    del record["rq_msgs"]
+
+                # Send the transaction and wait for the response before moving to the next entry
+                for text_msg in rq_msgs_text:
+                    response = await send_exact_message(host, port, text_msg, overall_progress)
+                    log_message(log_file, record.get('id'), text_msg, response)
+                    overall_progress.update(1)  # Update after each message
+
+            # Write the updated input data to an output file specific to this txn scheme
+            output_filename = input_filename.replace(".json", "_allformat.json")
+            try:
+                with open(output_filename, "w", encoding="utf-8") as output_file:
+                    json.dump(input_data, output_file, indent=4, ensure_ascii=False)
+                    overall_progress.set_postfix_str(f"Output written to {output_filename}", refresh=False)
+            except Exception as e:
+                print(f"❌ Failed to write {output_filename}: {e}")
+
+        overall_progress.close()  # Close the progress bar after completing the processing for the current transaction scheme
+
+async def main():
+    input_files = {
+        "visa_txn": "test_txns/visa_txn.json",
+        "mc_txn": "test_txns/mc_txn.json",
+        # Add more test scripts here as needed
+    }
+
+    map_filename = "map_txn_card.json5"
+    log_file = "transaction_log.json"
+    de037_file = "de037_values.txt"
+    
+    host = 'A5CVAP1003.1dc.com'
+    port = 7534
+
+    # Track start time
+    start_time = time.time()
+
+    # Load the mapping from the JSON5 file
+    try:
+        with open(map_filename, "r", encoding="utf-8") as map_file:
+            transaction_card_map = json5.load(map_file)
+    except Exception as e:
+        print(f"❌ Failed to read {map_filename}: {e}")
+        return
+
+    await convert_and_send_messages(input_files, transaction_card_map, host, port, log_file, de037_file)
+
+    # Calculate and print elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    elapsed_time_str = str(datetime.timedelta(seconds=int(elapsed_time)))
+    print(f"⏱️ Script completed in {elapsed_time_str} (hh:mm:ss)")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
