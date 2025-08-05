@@ -1,0 +1,249 @@
+import json
+import json5
+import os
+import asyncio
+import time
+import datetime
+from tqdm import tqdm
+from multiprocessing import Pool, cpu_count
+
+from schemer.schemer import Schemer, SchemerException  # Ensure this is installed/importable
+
+
+# --- Field Helpers ---
+
+def replace_de007_value(data_elements):
+    data_elements["DE007"] = time.strftime("%m%d%H%M%S", time.gmtime())
+
+def generate_initial_de011_value():
+    return int(time.strftime("%H%M%S", time.gmtime()))
+
+def update_de011_value(data_elements, current_de011):
+    data_elements["DE011"] = "{:06}".format(current_de011)
+
+def replace_de012_value(data_elements):
+    data_elements["DE012"] = datetime.datetime.now().strftime("%H%M%S")
+
+def replace_de013_value(data_elements):
+    data_elements["DE013"] = datetime.datetime.now().strftime("%m%d")
+
+def calculate_julian_date(mmdd):
+    dt = datetime.datetime.strptime(mmdd, '%m%d')
+    return dt.strftime('%j')
+
+def generate_initial_de037_value(de007, de011):
+    mmdd = de007[:4]
+    hh = de007[4:6]
+    julian = calculate_julian_date(mmdd)
+    serial = f"{int(de011):06}"
+    initial = f"{julian}{hh}{serial}"
+    return initial if len(initial) >= 12 else "4" + initial
+
+def update_de037_value(data_elements, current_de037):
+    data_elements["DE037"] = current_de037 if len(current_de037) >= 12 else "4" + current_de037
+
+def replace_de002_and_de035_values(data_elements, card_number):
+    data_elements["DE002"] = card_number
+    if "DE035" in data_elements:
+        data_elements["DE035"] = card_number
+
+# --- File Helpers ---
+
+def load_card_numbers(file_path):
+    with open(file_path, 'r') as file:
+        return file.read().splitlines()
+
+def log_message(log_file, txn_id, request, response):
+    entry = {
+        'transaction_id': txn_id,
+        'request': request,
+        'response': response
+    }
+    with open(log_file, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(entry, indent=2) + '\n')
+
+def log_de037(de037_file, de037_value):
+    with open(de037_file, 'a', encoding='utf-8') as f:
+        f.write(de037_value + '\n')
+
+def chunk_card_numbers(card_numbers, chunk_size=5000):
+    for i in range(0, len(card_numbers), chunk_size):
+        yield card_numbers[i:i + chunk_size]
+
+# --- Network Send ---
+
+async def send_exact_message(host, port, full_message_str, progress_bar):
+    try:
+        length_prefix = f"{len(full_message_str):04d}"
+        message_with_len = length_prefix + full_message_str
+
+        reader, writer = await asyncio.open_connection(host, port)
+
+        writer.write(message_with_len.encode('ascii'))
+        await writer.drain()
+
+        try:
+            resp_len_raw = await asyncio.wait_for(reader.readexactly(4), timeout=20)
+        except asyncio.TimeoutError:
+            writer.close()
+            await writer.wait_closed()
+            return ""
+
+        resp_len = int(resp_len_raw.decode("ascii"))
+        response = await reader.readexactly(resp_len)
+        writer.close()
+        await writer.wait_closed()
+        return response.decode('ascii', errors='ignore')
+
+    except Exception as e:
+        return f"ERROR: {e}"
+
+# --- Async Processing ---
+
+async def convert_and_send_messages(input_files, transaction_card_map, host, port, log_file, de037_file):
+    schemer_instance = Schemer()
+    schemer_instance.load_schemas()
+
+    for txn_scheme, card_numbers in transaction_card_map.items():
+        input_filename = input_files.get(txn_scheme)
+        if not input_filename:
+            continue
+
+        total_cards = len(card_numbers)
+        progress = tqdm(total=total_cards * 2, desc=f"{txn_scheme} [{len(card_numbers)} cards]")
+
+        for card_number in card_numbers:
+            current_de011 = generate_initial_de011_value()
+
+            try:
+                with open(input_filename, "r", encoding="utf-8") as f:
+                    input_data = json.load(f)
+            except Exception as e:
+                print(f"❌ Failed to read {input_filename}: {e}")
+                progress.update(2)
+                continue
+
+            for record in input_data:
+                if "rq_msgs" not in record:
+                    continue
+
+                rq_msgs_json = record["rq_msgs"]
+                rq_msgs_hex, rq_msgs_text = [], []
+
+                for idx, message in enumerate(rq_msgs_json):
+                    de = message.get("data_elements", {})
+                    replace_de007_value(de)
+                    update_de011_value(de, current_de011)
+                    replace_de012_value(de)
+                    replace_de013_value(de)
+                    replace_de002_and_de035_values(de, card_number)
+
+                    de007 = de["DE007"]
+                    de011 = de["DE011"]
+
+                    if idx == 0:
+                        current_de037 = generate_initial_de037_value(de007, de011)
+
+                    update_de037_value(de, current_de037)
+                    log_de037(de037_file, current_de037)
+
+                    # Prepare next DE037
+                    julian = current_de037[:5]
+                    hour = current_de037[5:7]
+                    serial = int(current_de037[7:]) + 1
+                    current_de037 = f"{julian}{hour}{serial:05}"
+                    if len(current_de037) < 12:
+                        current_de037 = "4" + current_de037
+
+                    try:
+                        raw = schemer_instance.build(message, "OMNIPAY")
+                        rq_msgs_hex.append(raw.hex())
+                        rq_msgs_text.append(raw.decode('ascii', errors='replace'))
+                    except SchemerException as e:
+                        rq_msgs_hex.append(None)
+                        rq_msgs_text.append(None)
+                        print(f"⚠️ Error: {e}")
+
+                record["rq_msgs_json"] = rq_msgs_json
+                record["rq_msgs_hex"] = rq_msgs_hex
+                record["rq_msgs_text"] = rq_msgs_text
+                record["format"] = ["JSON", "HEX", "TEXT"]
+                record.pop("rq_msgs", None)
+
+                for text_msg in rq_msgs_text:
+                    if text_msg:
+                        response = await send_exact_message(host, port, text_msg, progress)
+                        log_message(log_file, record.get('id', 'unknown'), text_msg, response)
+                    progress.update(1)
+
+            # Save file with appended formats
+            out_file = input_filename.replace(".json", "_allformat.json")
+            try:
+                with open(out_file, "w", encoding="utf-8") as f:
+                    json.dump(input_data, f, indent=2, ensure_ascii=False)
+            except Exception as e:
+                print(f"❌ Failed to write {out_file}: {e}")
+
+        progress.close()
+
+# --- Multiprocessing ---
+
+def run_chunk(args):
+    txn_scheme, card_chunk, input_filename, host, port, log_file, de037_file = args
+    asyncio.run(
+        convert_and_send_messages(
+            input_files={txn_scheme: input_filename},
+            transaction_card_map={txn_scheme: card_chunk},
+            host=host,
+            port=port,
+            log_file=log_file,
+            de037_file=de037_file
+        )
+    )
+
+# --- Entrypoint ---
+
+def main():
+    input_files = {
+        "visa_txn": "test_txns/visa_txn.json",
+        "mc_txn": "test_txns/mc_txn.json",
+        # Add more
+    }
+
+    map_filename = "map_txn_card.json5"
+    log_file = "transaction_log.json"
+    de037_file = "de037_values.txt"
+
+    host = "A5CVAP1003.1dc.com"
+    port = 7534
+
+    try:
+        with open(map_filename, "r", encoding="utf-8") as f:
+            txn_card_map = json5.load(f)
+    except Exception as e:
+        print(f"❌ Failed to read {map_filename}: {e}")
+        return
+
+    start_time = time.time()
+
+    for txn_scheme, card_files in txn_card_map.items():
+        card_numbers = []
+        for card_file in card_files:
+            card_numbers += load_card_numbers(card_file)
+
+        print(f"\n🔄 Starting {txn_scheme.upper()} ({len(card_numbers)} cards)")
+        chunks = list(chunk_card_numbers(card_numbers, 5000))
+
+        args_list = [
+            (txn_scheme, chunk, input_files[txn_scheme], host, port, log_file, de037_file)
+            for chunk in chunks
+        ]
+
+        with Pool(processes=min(10, cpu_count())) as pool:
+            pool.map(run_chunk, args_list)
+
+    elapsed = str(datetime.timedelta(seconds=int(time.time() - start_time)))
+    print(f"\n✅ Completed all transactions in {elapsed}")
+
+if __name__ == "__main__":
+    main()
