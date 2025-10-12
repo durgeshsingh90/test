@@ -1,0 +1,260 @@
+07-10-25 00:00:00.992 [SWITCH-A-work-1     ] INFO  OMNIPAY    [ch: /127.0.0.1:56274 => /127.0.0.1:5534] [id: 0002106484] :acceptor-incoming-message n.core.processing.logging - Request IN -- 0002106484[ch: /127.0.0.1:56274 => /127.0.0.1:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "8"
+OMNIPAY | 1.3        | "0"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 7          | "1007000000"
+OMNIPAY | 11         | "770000"
+OMNIPAY | 32         | "000031"
+OMNIPAY | 70         | "301"
+
+07-10-25 00:00:00.995 [SWITCH-A-work-1     ] INFO  OMNIPAY    [ch: /127.0.0.1:56274 => /127.0.0.1:5534] [id: 0002106484] :acceptor-incoming-message n.core.processing.logging - Response OUT -- 0002106484[ch: /127.0.0.1:56274 => /127.0.0.1:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "8"
+OMNIPAY | 1.3        | "1"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 7          | "1007000000"
+OMNIPAY | 11         | "770000"
+OMNIPAY | 32         | "000031"
+OMNIPAY | 39         | "00"
+OMNIPAY | 70         | "301"
+
+07-10-25 00:00:00.995 [SWITCH-A-work-1     ] INFO  OMNIPAY    [ch: /127.0.0.1:56274 => /127.0.0.1:5534] [id: 0002106484] :acceptor-incoming-message  n.core.processing.stages - Not saving response because request hasn't been saved
+07-10-25 00:00:04.135 [SWITCH-A-work-4     ] INFO  OMNIPAY    [ch: /10.77.36.145:12267 => /10.77.36.145:5534] [id: 0002106485] :acceptor-incoming-message n.core.processing.logging - Request IN -- 0002106485[ch: /10.77.36.145:12267 => /10.77.36.145:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "2"
+OMNIPAY | 1.3        | "0"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 2          | "49218########921"
+OMNIPAY | 3.1        | "28"
+OMNIPAY | 3.2        | "00"
+OMNIPAY | 3.3        | "00"
+OMNIPAY | 4          | 2250
+OMNIPAY | 7          | "1007000001"
+OMNIPAY | 11         | "557339"
+OMNIPAY | 12         | "000001"
+OMNIPAY | 13         | "1007"
+OMNIPAY | 14         | <CARDHOLDER DATA>
+OMNIPAY | 18         | "7995"
+OMNIPAY | 19         | "826"
+OMNIPAY | 22.1       | "81"
+OMNIPAY | 22.2       | "2"
+OMNIPAY | 25         | "80"
+OMNIPAY | 32         | "000049"
+OMNIPAY | 37         | "528000557339"
+OMNIPAY | 41         | "55"
+OMNIPAY | 42         | "000104900016653"
+OMNIPAY | 43.1       | "Star Wins"
+OMNIPAY | 43.2       | "Guernsey"
+OMNIPAY | 43.3       | "GB"
+OMNIPAY | 49         | "826"
+OMNIPAY | 60.40      | "07"
+OMNIPAY | 61.10      | "55x70x122197339 "
+OMNIPAY | 61.12      | <CARDHOLDER DATA>
+OMNIPAY | 61.13      | <CARDHOLDER DATA>
+OMNIPAY | 61.14      | "Guernsey"
+OMNIPAY | 61.16      | "826"
+OMNIPAY | 61.17      | "05"
+OMNIPAY | 61.18      | "OG"
+OMNIPAY | 61.20      | <CARDHOLDER DATA>
+OMNIPAY | 61.86      | "Jumpman Gaming           "
+
+07-10-25 00:00:04.149 [SWITCH-A-work-4     ] INFO  VISA       [ch: /10.77.36.145:49789 => /10.68.37.115:13001] [id: 0002106485] :acceptor-incoming-message n.core.processing.logging - Request OUT -- 550001049000166535573392[ch: /10.77.36.145:49789 => /10.68.37.115:13001]
+VISA-BASE1 | 0.0.2      | 0x01
+VISA-BASE1 | 0.0.3      | 2
+VISA-BASE1 | 0.4        | 306
+VISA-BASE1 | 0.5        | "000000"
+VISA-BASE1 | 0.6        | "804501"
+VISA-BASE1 | 0.0.7      | 0x00
+VISA-BASE1 | 0.0.8      | 0x0000
+VISA-BASE1 | 0.0.9.1    | [0 0 0 0]
+VISA-BASE1 | 0.0.9.2    | 0x000000
+VISA-BASE1 | 0.0.9.3    | [0]
+VISA-BASE1 | 0.0.9.4    | 0x00
+VISA-BASE1 | 0.0.9.5    | 0x00
+VISA-BASE1 | 0.0.9.6    | 0x00
+VISA-BASE1 | 0.0.9.7    | 0x00
+VISA-BASE1 | 0.0.9.8    | 0x00
+VISA-BASE1 | 0.0.9.9    | 0x00
+VISA-BASE1 | 0.0.9.10   | [0]
+VISA-BASE1 | 0.0.9.11   | 0x00
+VISA-BASE1 | 0.0.9.12   | 0x00
+VISA-BASE1 | 0.0.9.13   | 0x000000
+VISA-BASE1 | 0.0.9.14   | [0 0 0 0]
+VISA-BASE1 | 0.0.10     | 0x00
+VISA-BASE1 | 0.0.11     | 0x000000
+VISA-BASE1 | 0.0.12     | 0x00
+VISA-BASE1 | 1.1        | "0"
+VISA-BASE1 | 1.2        | "2"
+VISA-BASE1 | 1.3        | "0"
+VISA-BASE1 | 1.4        | "0"
+VISA-BASE1 | 2          | "49218########921"
+VISA-BASE1 | 3.1        | "26"
+VISA-BASE1 | 3.2        | "00"
+VISA-BASE1 | 3.3        | "00"
+VISA-BASE1 | 4          | 2250
+VISA-BASE1 | 7          | "1007000001"
+VISA-BASE1 | 11         | "557339"
+VISA-BASE1 | 12         | "000001"
+VISA-BASE1 | 13         | "1007"
+VISA-BASE1 | 14         | <CARDHOLDER DATA>
+VISA-BASE1 | 18         | "7995"
+VISA-BASE1 | 19         | "826"
+VISA-BASE1 | 22.1       | "01"
+VISA-BASE1 | 22.2       | "2"
+VISA-BASE1 | 25         | "59"
+VISA-BASE1 | 32         | "456875"
+VISA-BASE1 | 37         | "528000557339"
+VISA-BASE1 | 41         | "55"
+VISA-BASE1 | 42         | "000104900016653"
+VISA-BASE1 | 43.1       | "Star Wins"
+VISA-BASE1 | 43.2       | "Guernsey"
+VISA-BASE1 | 43.3       | "GB"
+VISA-BASE1 | 49         | "826"
+VISA-BASE1 | 60.1       | "0"
+VISA-BASE1 | 60.2       | "9"
+VISA-BASE1 | 60.3       | "0"
+VISA-BASE1 | 60.4       | "0"
+VISA-BASE1 | 60.5       | "00"
+VISA-BASE1 | 60.6       | "0"
+VISA-BASE1 | 60.7       | "0"
+VISA-BASE1 | 60.8       | "07"
+VISA-BASE1 | 63.1       | "0000"
+VISA-BASE1 | 63.6.1     | " "
+VISA-BASE1 | 63.6.2     | " "
+VISA-BASE1 | 63.6.3     | " "
+VISA-BASE1 | 63.6.4     | "7"
+VISA-BASE1 | 63.6.5     | " "
+VISA-BASE1 | 63.6.6     | " "
+VISA-BASE1 | 63.6.7     | " "
+VISA-BASE1 | 104.56.81  | "Jumpman Gaming           "
+VISA-BASE1 | 104.57.01  | "OG"
+VISA-BASE1 | 104.5F.01  | "55x70x122197339"
+VISA-BASE1 | 104.5F.03  | <CARDHOLDER DATA>
+VISA-BASE1 | 104.5F.04  | <CARDHOLDER DATA>
+VISA-BASE1 | 104.5F.05  | "Guernsey"
+VISA-BASE1 | 104.5F.07  | "826"
+VISA-BASE1 | 104.5F.08  | "05"
+VISA-BASE1 | 104.5F.0A  | <CARDHOLDER DATA>
+
+07-10-25 00:00:04.314 [SWITCH-A-work-3     ] INFO  OMNIPAY    [ch: /10.77.36.145:12267 => /10.77.36.145:5534] [id: 550001049000166535573392] :destination-incoming-message n.core.processing.logging - Response OUT -- 0002106485[ch: /10.77.36.145:12267 => /10.77.36.145:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "2"
+OMNIPAY | 1.3        | "1"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 2          | "49218########922"
+OMNIPAY | 3.1        | "28"
+OMNIPAY | 3.2        | "00"
+OMNIPAY | 3.3        | "00"
+OMNIPAY | 4          | 2250
+OMNIPAY | 7          | "1007000001"
+OMNIPAY | 11         | "557339"
+OMNIPAY | 12         | "000001"
+OMNIPAY | 13         | "1007"
+OMNIPAY | 15         | "1007"
+OMNIPAY | 18         | "7995"
+OMNIPAY | 19         | "826"
+OMNIPAY | 32         | "000049"
+OMNIPAY | 37         | "528000557339"
+OMNIPAY | 38         | "007361"
+OMNIPAY | 39         | "00"
+OMNIPAY | 44.1       | "V"
+OMNIPAY | 49         | "826"
+OMNIPAY | 60.68      | "00"
+OMNIPAY | 62.2       | "485280000049111"
+OMNIPAY | 62.23      | "F"
+
+07-10-25 00:00:06.414 [SWITCH-A-work-2     ] INFO  OMNIPAY    [ch: /10.77.36.145:12267 => /10.77.36.145:5534] [id: 0002106486] :acceptor-incoming-message n.core.processing.logging - Request IN -- 0002106486[ch: /10.77.36.145:12267 => /10.77.36.145:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "2"
+OMNIPAY | 1.3        | "0"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 2          | "46586########026"
+OMNIPAY | 3.1        | "28"
+OMNIPAY | 3.2        | "00"
+OMNIPAY | 3.3        | "00"
+OMNIPAY | 4          | 22050
+OMNIPAY | 7          | "1007000004"
+OMNIPAY | 11         | "557340"
+OMNIPAY | 12         | "000004"
+OMNIPAY | 13         | "1007"
+OMNIPAY | 14         | <CARDHOLDER DATA>
+OMNIPAY | 18         | "7995"
+OMNIPAY | 19         | "826"
+OMNIPAY | 22.1       | "81"
+OMNIPAY | 22.2       | "2"
+OMNIPAY | 25         | "80"
+OMNIPAY | 32         | "000049"
+OMNIPAY | 37         | "528000557340"
+OMNIPAY | 41         | "55"
+OMNIPAY | 42         | "000104900016653"
+OMNIPAY | 43.1       | "Loot Casino"
+OMNIPAY | 43.2       | "Guernsey"
+OMNIPAY | 43.3       | "GB"
+OMNIPAY | 49         | "826"
+OMNIPAY | 60.40      | "07"
+OMNIPAY | 61.10      | "55x70x122197340 "
+OMNIPAY | 61.12      | <CARDHOLDER DATA>
+OMNIPAY | 61.13      | <CARDHOLDER DATA>
+OMNIPAY | 61.14      | "Guernsey"
+OMNIPAY | 61.16      | "826"
+OMNIPAY | 61.17      | "05"
+OMNIPAY | 61.18      | "OG"
+OMNIPAY | 61.20      | <CARDHOLDER DATA>
+OMNIPAY | 61.86      | "Jumpman Gaming           "
+
+07-10-25 00:00:26.011 [SWITCH-A-work-1     ] INFO  OMNIPAY    [ch: /10.77.36.145:12267 => /10.77.36.145:5534] [id: 0002106498] :acceptor-incoming-message n.core.processing.logging - Request IN -- 0002106498[ch: /10.77.36.145:12267 => /10.77.36.145:5534]
+OMNIPAY | 1.1        | "0"
+OMNIPAY | 1.2        | "1"
+OMNIPAY | 1.3        | "2"
+OMNIPAY | 1.4        | "0"
+OMNIPAY | 2          | "93721########064"
+OMNIPAY | 3.1        | "00"
+OMNIPAY | 3.2        | "00"
+OMNIPAY | 3.3        | "00"
+OMNIPAY | 4          | 1200
+OMNIPAY | 7          | "1006235958"
+OMNIPAY | 11         | "320083"
+OMNIPAY | 12         | "015957"
+OMNIPAY | 13         | "1007"
+OMNIPAY | 15         | "1007"
+OMNIPAY | 18         | "5813"
+OMNIPAY | 19         | "528"
+OMNIPAY | 22.1       | "07"
+OMNIPAY | 22.2       | "1"
+OMNIPAY | 23         | "001"
+OMNIPAY | 25         | "00"
+OMNIPAY | 32         | "000022"
+OMNIPAY | 35         | <AUTH DATA>
+OMNIPAY | 37         | "528023320083"
+OMNIPAY | 38         | "7DE931"
+OMNIPAY | 39         | "00"
+OMNIPAY | 41         | "118136EQ"
+OMNIPAY | 42         | "000102238137960"
+OMNIPAY | 43.1       | "Amnezia"
+OMNIPAY | 43.2       | "WAREMME"
+OMNIPAY | 43.3       | "BE"
+OMNIPAY | 49         | "978"
+OMNIPAY | 55.9F10    | 0x0FA505A831C0100000000000000000000F020000000000000000000000000000
+OMNIPAY | 55.9F26    | 0x8F40174A9002E64F
+OMNIPAY | 55.9F36    | 0x01D0
+OMNIPAY | 55.9F37    | 0x9F0E757B
+OMNIPAY | 55.9F27    | 0x80
+OMNIPAY | 55.95      | 0x0080008006
+OMNIPAY | 55.9A      | "251007"
+OMNIPAY | 55.9C      | "00"
+OMNIPAY | 55.9F02    | 1200
+OMNIPAY | 55.5F2A    | "978"
+OMNIPAY | 55.82      | 0x1981
+OMNIPAY | 55.9F1A    | "056"
+OMNIPAY | 55.9F35    | "22"
+OMNIPAY | 55.9F03    | 0
+OMNIPAY | 55.9F34    | 0x1F0302
+OMNIPAY | 55.9F33    | 0xE0F8C8
+OMNIPAY | 55.84      | 0xA0000001761010
+OMNIPAY | 60.35      | "4300      "
+OMNIPAY | 60.53.1    | "0"
+OMNIPAY | 60.53.2    | "0"
+OMNIPAY | 60.53.3    | "3"
+OMNIPAY | 61.25      | "51692########536"
+OMNIPAY | 61.40      | "B24       B24L9C02-2510-0623-5958-201339000000"
