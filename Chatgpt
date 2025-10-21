@@ -1,0 +1,424 @@
+Sorry i want the change in this code
+
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import time
+import locale
+import threading
+import hashlib
+import re
+from datetime import datetime, timedelta
+from openai import OpenAI
+
+# ---------------------------------------------------------
+# INITIAL SETUP
+# ---------------------------------------------------------
+locale.setlocale(locale.LC_ALL, '')
+sys.stdout.reconfigure(encoding='utf-8')
+
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("❌ Missing environment variable: OPENAI_API_KEY")
+
+# Two clients: GPT-5 (main) and GPT-4o-mini (utility)
+client = OpenAI(api_key=api_key)
+cheap_client = OpenAI(api_key=api_key)
+
+MODEL = "gpt-5"
+UTILITY_MODEL = "gpt-4o-mini"
+
+COST_INPUT = 1.25 / 1_000_000
+COST_OUTPUT = 10.00 / 1_000_000
+
+LOG_DIR = "gpt5_logs"
+SNIPPET_DIR = os.path.join(LOG_DIR, "snippets")
+BILL_FILE = os.path.join(LOG_DIR, "billing_history.json")
+EXCHANGE_FILE = os.path.join(LOG_DIR, "exchange_rate.json")
+
+os.makedirs(LOG_DIR, exist_ok=True)
+os.makedirs(SNIPPET_DIR, exist_ok=True)
+
+# ---------------------------------------------------------
+# UTILITIES
+# ---------------------------------------------------------
+def timestamp_now():
+    return datetime.now().strftime("%H:%M:%S")
+
+def print_chat_box(content):
+    print("\n" + "─" * 100)
+    in_code = False
+    for line in content.splitlines():
+        if line.strip().startswith("```"):
+            in_code = not in_code
+            print("💻 Code:" if in_code else "")
+            continue
+        print(("    " if in_code else "") + line)
+    print("─" * 100 + "\n")
+
+def save_snippet(text):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    hash_id = hashlib.sha1(text.encode("utf-8")).hexdigest()[:8]
+    filename = f"snippet_{timestamp}_{hash_id}.txt"
+    path = os.path.join(SNIPPET_DIR, filename)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+    return filename
+
+def show_lines_from_file(filename, start, end):
+    path = os.path.join(SNIPPET_DIR, filename)
+    if not os.path.exists(path):
+        return f"❌ File not found: {filename}"
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    start = max(0, start - 1)
+    end = min(len(lines), end)
+    snippet = "".join(lines[start:end])
+    return f"Showing lines {start+1}-{end} from {filename}:\n```python\n{snippet}\n```"
+
+# ---------------------------------------------------------
+# FETCH AND CACHE EXCHANGE RATE (ONCE PER DAY via GPT)
+# ---------------------------------------------------------
+def get_usd_to_inr():
+    """Ask cheaper GPT model for today's USD→INR rate in JSON, cache once per day."""
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    if os.path.exists(EXCHANGE_FILE):
+        try:
+            with open(EXCHANGE_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data.get("date") == today and "rate" in data:
+                return data["rate"]
+        except Exception:
+            pass
+
+    print("🤖 Asking cheaper GPT model for today's USD→INR exchange rate...")
+
+    try:
+        resp = cheap_client.chat.completions.create(
+            model=UTILITY_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a precise finance API. Always respond only in JSON with one key: usd_to_inr."
+                },
+                {
+                    "role": "user",
+                    "content": "Give the latest USD to INR exchange rate today in JSON. Example: {\"usd_to_inr\": 83.27}"
+                },
+            ],
+        )
+        answer = resp.choices[0].message.content.strip()
+        try:
+            rate_data = json.loads(answer)
+            rate = float(rate_data.get("usd_to_inr", 84.0))
+        except Exception:
+            match = re.search(r"\d+(\.\d+)?", answer)
+            rate = float(match.group()) if match else 84.0
+
+        with open(EXCHANGE_FILE, "w", encoding="utf-8") as f:
+            json.dump({"date": today, "rate": rate, "source": UTILITY_MODEL}, f, indent=2)
+
+        print(f"💱 {UTILITY_MODEL} says today's USD→INR ≈ {rate}\n")
+        return rate
+    except Exception as e:
+        print(f"⚠️ Could not fetch rate from GPT ({e}); using fallback 84.0\n")
+        return 84.0
+
+USD_TO_INR = get_usd_to_inr()
+
+# ---------------------------------------------------------
+# BILLING
+# ---------------------------------------------------------
+def load_billing():
+    if os.path.exists(BILL_FILE):
+        try:
+            with open(BILL_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+def save_billing(billing_data):
+    with open(BILL_FILE, "w", encoding="utf-8") as f:
+        json.dump(billing_data, f, indent=2, ensure_ascii=False)
+
+billing = load_billing()
+
+def ensure_day(day_key):
+    if day_key not in billing:
+        billing[day_key] = {
+            "total_cost_usd": 0.0,
+            "total_cost_inr": 0.0,
+            "total_input_tokens": 0,
+            "total_output_tokens": 0,
+        }
+
+def add_usage(day_key, in_tokens, out_tokens):
+    ensure_day(day_key)
+    cost_usd = (in_tokens * COST_INPUT) + (out_tokens * COST_OUTPUT)
+    cost_inr = cost_usd * USD_TO_INR
+    billing[day_key]["total_input_tokens"] += in_tokens
+    billing[day_key]["total_output_tokens"] += out_tokens
+    billing[day_key]["total_cost_usd"] += cost_usd
+    billing[day_key]["total_cost_inr"] += cost_inr
+
+def print_today_cost():
+    today_key = datetime.now().strftime("%Y-%m-%d")
+    if today_key in billing:
+        data = billing[today_key]
+        usd = data["total_cost_usd"]
+        inr = data["total_cost_inr"]
+        print(f"💰 Today's Usage:")
+        print(f"   USD: ${usd:.4f}   (≈ ₹{inr:.2f})\n")
+    else:
+        print("💰 Today's Usage: $0.0000 (≈ ₹0.00)\n")
+
+def print_last_7_days_summary():
+    today = datetime.now().date()
+    days = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]
+    print("📆 Billing activity (last 7 days):")
+    found = False
+    for d in days:
+        if d in billing:
+            print(f"   {d}")
+            found = True
+    if not found:
+        print("   No billing data yet.")
+    print()
+
+def print_last_12_months_summary():
+    print("🗓️ Billing activity (last 12 months):")
+    months = sorted({d[:7] for d in billing.keys()})
+    found = False
+    for m in months[-12:]:
+        print(f"   {m}")
+        found = True
+    if not found:
+        print("   No billing data yet.")
+    print()
+
+# ---------------------------------------------------------
+# SMART HISTORY MANAGEMENT
+# ---------------------------------------------------------
+MAX_HISTORY = 8
+SUMMARY_TRIGGER = 40
+
+def smart_context(messages, code_refs):
+    context = [messages[0]]
+    context.extend(messages[-(MAX_HISTORY - 1):])
+    if code_refs:
+        context.append({
+            "role": "system",
+            "content": f"Active code snippets: {', '.join(sorted(code_refs))}"
+        })
+    return context
+
+def summarize_conversation(messages):
+    try:
+        convo_text = "\n".join(
+            f"{m['role']}: {m['content']}" for m in messages[1:]
+        )[:12000]
+        resp = cheap_client.chat.completions.create(
+            model=UTILITY_MODEL,
+            messages=[
+                {"role": "system", "content": "Summarize this coding conversation briefly."},
+                {"role": "user", "content": convo_text},
+            ],
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception as e:
+        return f"(Summary failed: {e})"
+
+# ---------------------------------------------------------
+# STARTUP SUMMARY
+# ---------------------------------------------------------
+print_today_cost()
+print_last_7_days_summary()
+print_last_12_months_summary()
+
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_file = os.path.join(LOG_DIR, f"chat_{timestamp}.json")
+messages = [
+    {"role": "system", "content": "You are an expert software engineer and helpful coding assistant."}
+]
+code_refs = set()
+
+print("💬 GPT-5 Coding Chat — type code or text, end input with 'EOF' to send.\n")
+
+# ---------------------------------------------------------
+# MAIN LOOP
+# ---------------------------------------------------------
+while True:
+    print("You (end input with 'EOF' on a new line):")
+
+    user_lines = []
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            line = ""
+        if line.strip().upper() == "EOF":
+            break
+        user_lines.append(line)
+
+    user_input = "\n".join(l for l in user_lines if l.strip()).strip()
+
+    if not user_input:
+        print("(no input — nothing to send)\n")
+        continue
+
+    if user_input.lower() == "exit":
+        print(f"\n👋 Chat ended. Conversation saved to: {log_file}")
+        break
+
+    if len(user_input.splitlines()) > 200:
+        filename = save_snippet(user_input)
+        code_refs.add(filename)
+        user_input = f"I've uploaded a large code file named {filename} with {len(user_input.splitlines())} lines."
+        print(f"📁 Saved {filename} (large input skipped from payload).")
+
+    if user_input.lower().startswith("#show lines"):
+        try:
+            parts = user_input.split()
+            rng = parts[2].replace("–", "-")
+            start, end = [int(x) for x in rng.split("-")]
+            filename = parts[-1]
+            snippet_text = show_lines_from_file(filename, start, end)
+            print_chat_box(snippet_text)
+            continue
+        except Exception as e:
+            print(f"❌ Invalid command syntax: {e}")
+            continue
+
+    send_time = timestamp_now()
+    print(f"\n🕒 [{send_time}] You → Sent message to GPT\n")
+    messages.append({
+        "role": "user",
+        "content": user_input,
+        "time": send_time
+    })
+
+    if len(messages) > SUMMARY_TRIGGER:
+        summary = summarize_conversation(messages)
+        messages = [
+            messages[0],
+            {"role": "system", "content": f"Summary so far: {summary}"}
+        ]
+        print("🧠 Conversation summarized using cheaper model to save tokens.\n")
+
+    # Single-line typing indicator with live timer
+    stop_typing = False
+    def typing_indicator():
+        start_time = time.time()
+        spinner = ["", ".", "..", "..."]
+        i = 0
+        while not stop_typing:
+            elapsed = int(time.time() - start_time)
+            mins, secs = divmod(elapsed, 60)
+            timer = f"{mins:02d}:{secs:02d}"
+            sys.stdout.write(f"\r💬 Typing{spinner[i % len(spinner)]} ⏱️ {timer}")
+            sys.stdout.flush()
+            i += 1
+            time.sleep(0.5)
+        sys.stdout.write("\r" + " " * 80 + "\r")
+        sys.stdout.flush()
+
+    t = threading.Thread(target=typing_indicator)
+    t.start()
+
+    context = smart_context(messages, code_refs)
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=context,
+    )
+
+    stop_typing = True
+    t.join()
+
+    reply = response.choices[0].message.content
+    recv_time = timestamp_now()
+    print(f"\n🕒 [{recv_time}] GPT → Reply received\n")
+    print_chat_box(reply)
+    messages.append({
+        "role": "assistant",
+        "content": reply,
+        "time": recv_time
+    })
+
+    usage = response.usage
+    day_key = datetime.now().strftime("%Y-%m-%d")
+    add_usage(day_key, usage.prompt_tokens, usage.completion_tokens)
+    save_billing(billing)
+
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "model": MODEL,
+                "conversation": messages,
+                "snippets": sorted(list(code_refs)),
+                "stats_day": billing.get(day_key, {}),
+            },
+            f,
+            indent=2,
+            ensure_ascii=False,
+        )
+
+
+stop_typing = True
+t.join()
+
+print(f"\n🕒 [{timestamp_now()}] GPT → Streaming reply\n")
+print("\n" + "─" * 100)
+
+reply = ""
+start_time = time.time()
+
+# ---- STREAMING SECTION ----
+with client.chat.completions.stream(
+    model=MODEL,
+    messages=context,
+) as stream:
+    for event in stream:
+        if event.type == "message.delta" and event.delta.get("content"):
+            text = event.delta["content"]
+            reply += text
+            # print partial text immediately (typing effect)
+            print(text, end="", flush=True)
+
+print("\n" + "─" * 100)
+print(f"⏱️ Took {time.time() - start_time:.2f}s\n")
+
+# record reply and timing
+recv_time = timestamp_now()
+messages.append({
+    "role": "assistant",
+    "content": reply,
+    "time": recv_time
+})
+
+# get token usage (available at end of stream)
+usage = stream.get_final_response().usage
+day_key = datetime.now().strftime("%Y-%m-%d")
+add_usage(day_key, usage.prompt_tokens, usage.completion_tokens)
+save_billing(billing)
+
+# display cost summary
+print(f"💬 Tokens → In: {usage.prompt_tokens}, Out: {usage.completion_tokens}")
+cost_usd = (usage.prompt_tokens*COST_INPUT)+(usage.completion_tokens*COST_OUTPUT)
+print(f"💵 This query cost ≈ ${cost_usd:.5f} (₹{cost_usd*USD_TO_INR:.2f})\n")
+
+# save chat log
+with open(log_file, "w", encoding="utf-8") as f:
+    json.dump(
+        {
+            "model": MODEL,
+            "conversation": messages,
+            "snippets": sorted(list(code_refs)),
+            "stats_day": billing.get(day_key, {}),
+        },
+        f,
+        indent=2,
+        ensure_ascii=False,
+    )
