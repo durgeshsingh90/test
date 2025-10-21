@@ -1,0 +1,20 @@
+print("\r", end="")  # clear typing line
+print("\n" + "─" * 100)
+
+reply = ""
+start_time = time.time()
+
+with client.chat.completions.stream(
+    model=MODEL,
+    messages=messages,
+    temperature=0.2,
+) as stream:
+    for event in stream:
+        if event.type == "message.delta" and event.delta.get("content"):
+            text = event.delta["content"]
+            reply += text
+            # Print as it comes, no newline buffering
+            print(text, end="", flush=True)
+
+print("\n" + "─" * 100 + "\n")
+print(f"⏱️  Took {time.time() - start_time:.2f}s\n")
