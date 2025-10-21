@@ -20,11 +20,10 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise ValueError("❌ Missing environment variable: OPENAI_API_KEY")
 
-# Two clients: GPT-5 (main) and GPT-4o-mini (utility)
 client = OpenAI(api_key=api_key)
 cheap_client = OpenAI(api_key=api_key)
 
-MODEL = "gpt-5"
+MODEL = "gpt-5"  # main model
 UTILITY_MODEL = "gpt-4o-mini"
 
 COST_INPUT = 1.25 / 1_000_000
@@ -83,9 +82,7 @@ def show_lines_from_file(filename, start, end):
 # FETCH AND CACHE EXCHANGE RATE
 # ---------------------------------------------------------
 def get_usd_to_inr():
-    """Ask cheaper GPT model for today's USD→INR rate in JSON, cache once per day."""
     today = datetime.now().strftime("%Y-%m-%d")
-
     if os.path.exists(EXCHANGE_FILE):
         try:
             with open(EXCHANGE_FILE, "r", encoding="utf-8") as f:
@@ -96,7 +93,6 @@ def get_usd_to_inr():
             pass
 
     print("🤖 Asking cheaper GPT model for today's USD→INR exchange rate...")
-
     try:
         resp = cheap_client.chat.completions.create(
             model=UTILITY_MODEL,
@@ -118,14 +114,12 @@ def get_usd_to_inr():
         except Exception:
             match = re.search(r"\d+(\.\d+)?", answer)
             rate = float(match.group()) if match else 84.0
-
         with open(EXCHANGE_FILE, "w", encoding="utf-8") as f:
             json.dump({"date": today, "rate": rate, "source": UTILITY_MODEL}, f, indent=2)
-
         print(f"💱 {UTILITY_MODEL} says today's USD→INR ≈ {rate}\n")
         return rate
     except Exception as e:
-        print(f"⚠️ Could not fetch rate from GPT ({e}); using fallback 84.0\n")
+        print(f"⚠️ Could not fetch rate ({e}); using fallback 84.0\n")
         return 84.0
 
 
@@ -176,10 +170,7 @@ def print_today_cost():
     today_key = datetime.now().strftime("%Y-%m-%d")
     if today_key in billing:
         data = billing[today_key]
-        usd = data["total_cost_usd"]
-        inr = data["total_cost_inr"]
-        print(f"💰 Today's Usage:")
-        print(f"   USD: ${usd:.4f}   (≈ ₹{inr:.2f})\n")
+        print(f"💰 Today's Usage: ${data['total_cost_usd']:.4f} (≈ ₹{data['total_cost_inr']:.2f})\n")
     else:
         print("💰 Today's Usage: $0.0000 (≈ ₹0.00)\n")
 
@@ -246,7 +237,7 @@ def summarize_conversation(messages):
 
 
 # ---------------------------------------------------------
-# STARTUP SUMMARY
+# STARTUP
 # ---------------------------------------------------------
 print_today_cost()
 print_last_7_days_summary()
@@ -254,9 +245,7 @@ print_last_12_months_summary()
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 log_file = os.path.join(LOG_DIR, f"chat_{timestamp}.json")
-messages = [
-    {"role": "system", "content": "You are an expert software engineer and helpful coding assistant."}
-]
+messages = [{"role": "system", "content": "You are an expert software engineer and helpful coding assistant."}]
 code_refs = set()
 
 print("💬 GPT-5 Coding Chat — type code or text, end input with 'EOF' to send.\n")
@@ -266,7 +255,6 @@ print("💬 GPT-5 Coding Chat — type code or text, end input with 'EOF' to sen
 # ---------------------------------------------------------
 while True:
     print("You (end input with 'EOF' on a new line):")
-
     user_lines = []
     while True:
         try:
@@ -278,11 +266,9 @@ while True:
         user_lines.append(line)
 
     user_input = "\n".join(l for l in user_lines if l.strip()).strip()
-
     if not user_input:
         print("(no input — nothing to send)\n")
         continue
-
     if user_input.lower() == "exit":
         print(f"\n👋 Chat ended. Conversation saved to: {log_file}")
         break
@@ -293,32 +279,16 @@ while True:
         user_input = f"I've uploaded a large code file named {filename} with {len(user_input.splitlines())} lines."
         print(f"📁 Saved {filename} (large input skipped from payload).")
 
-    if user_input.lower().startswith("#show lines"):
-        try:
-            parts = user_input.split()
-            rng = parts[2].replace("–", "-")
-            start, end = [int(x) for x in rng.split("-")]
-            filename = parts[-1]
-            snippet_text = show_lines_from_file(filename, start, end)
-            print_chat_box(snippet_text)
-            continue
-        except Exception as e:
-            print(f"❌ Invalid command syntax: {e}")
-            continue
-
     send_time = timestamp_now()
     print(f"\n🕒 [{send_time}] You → Sent message to GPT\n")
     messages.append({"role": "user", "content": user_input, "time": send_time})
 
     if len(messages) > SUMMARY_TRIGGER:
         summary = summarize_conversation(messages)
-        messages = [
-            messages[0],
-            {"role": "system", "content": f"Summary so far: {summary}"},
-        ]
-        print("🧠 Conversation summarized using cheaper model to save tokens.\n")
+        messages = [messages[0], {"role": "system", "content": f"Summary so far: {summary}"}]
+        print("🧠 Conversation summarized using cheaper model.\n")
 
-    # typing indicator thread
+    # typing indicator
     stop_typing = False
 
     def typing_indicator():
@@ -338,25 +308,41 @@ while True:
 
     t = threading.Thread(target=typing_indicator)
     t.start()
-
     context = smart_context(messages, code_refs)
 
-    # ---- STREAMING RESPONSE ----
+    # ---- SMART STREAMING HANDLER ----
     stop_typing = True
     t.join()
 
-    print(f"\n🕒 [{timestamp_now()}] GPT → Streaming reply\n")
+    print(f"\n🕒 [{timestamp_now()}] GPT → Reply incoming\n")
     print("\n" + "─" * 100)
 
     reply = ""
     start_time = time.time()
+    usage = None
 
-    with client.chat.completions.stream(model=MODEL, messages=context) as stream:
-        for event in stream:
-            if event.type == "message.delta" and event.delta.get("content"):
-                text = event.delta["content"]
-                reply += text
-                print(text, end="", flush=True)
+    try:
+        if "gpt-4" in MODEL.lower():
+            print(f"⚡ Using streaming mode for {MODEL}\n")
+            with client.chat.completions.stream(model=MODEL, messages=context) as stream:
+                for event in stream:
+                    if event.type == "message.delta" and event.delta.get("content"):
+                        text = event.delta["content"]
+                        reply += text
+                        print(text, end="", flush=True)
+                final = stream.get_final_response()
+                usage = final.usage
+        else:
+            print(f"ℹ️ Streaming not supported yet for {MODEL}, using standard mode.\n")
+            response = client.chat.completions.create(model=MODEL, messages=context)
+            reply = response.choices[0].message.content
+            usage = response.usage
+
+    except Exception as e:
+        print(f"\n⚠️ Streaming failed ({e}); falling back to non-streaming...\n")
+        response = client.chat.completions.create(model=MODEL, messages=context)
+        reply = response.choices[0].message.content
+        usage = response.usage
 
     print("\n" + "─" * 100)
     print(f"⏱️ Took {time.time() - start_time:.2f}s\n")
@@ -364,7 +350,6 @@ while True:
     recv_time = timestamp_now()
     messages.append({"role": "assistant", "content": reply, "time": recv_time})
 
-    usage = stream.get_final_response().usage
     day_key = datetime.now().strftime("%Y-%m-%d")
     add_usage(day_key, usage.prompt_tokens, usage.completion_tokens)
     save_billing(billing)
